@@ -21,6 +21,7 @@ import { Route as MatchRouteImport } from './routes/match'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RoomsRoomIdRouteImport } from './routes/rooms.$roomId'
 import { Route as PlayRandomRouteImport } from './routes/play.random'
 import { Route as PlayMatchSelectRouteImport } from './routes/play.match-select'
 import { Route as MatchResultRouteImport } from './routes/match.result'
@@ -85,6 +86,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RoomsRoomIdRoute = RoomsRoomIdRouteImport.update({
+  id: '/$roomId',
+  path: '/$roomId',
+  getParentRoute: () => RoomsRoute,
+} as any)
 const PlayRandomRoute = PlayRandomRouteImport.update({
   id: '/random',
   path: '/random',
@@ -110,13 +116,14 @@ export interface FileRoutesByFullPath {
   '/play': typeof PlayRouteWithChildren
   '/profile': typeof ProfileRoute
   '/ranking': typeof RankingRoute
-  '/rooms': typeof RoomsRoute
+  '/rooms': typeof RoomsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/stats': typeof StatsRoute
   '/match/result': typeof MatchResultRoute
   '/play/match-select': typeof PlayMatchSelectRoute
   '/play/random': typeof PlayRandomRoute
+  '/rooms/$roomId': typeof RoomsRoomIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -127,13 +134,14 @@ export interface FileRoutesByTo {
   '/play': typeof PlayRouteWithChildren
   '/profile': typeof ProfileRoute
   '/ranking': typeof RankingRoute
-  '/rooms': typeof RoomsRoute
+  '/rooms': typeof RoomsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/stats': typeof StatsRoute
   '/match/result': typeof MatchResultRoute
   '/play/match-select': typeof PlayMatchSelectRoute
   '/play/random': typeof PlayRandomRoute
+  '/rooms/$roomId': typeof RoomsRoomIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -145,13 +153,14 @@ export interface FileRoutesById {
   '/play': typeof PlayRouteWithChildren
   '/profile': typeof ProfileRoute
   '/ranking': typeof RankingRoute
-  '/rooms': typeof RoomsRoute
+  '/rooms': typeof RoomsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/stats': typeof StatsRoute
   '/match/result': typeof MatchResultRoute
   '/play/match-select': typeof PlayMatchSelectRoute
   '/play/random': typeof PlayRandomRoute
+  '/rooms/$roomId': typeof RoomsRoomIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -171,6 +180,7 @@ export interface FileRouteTypes {
     | '/match/result'
     | '/play/match-select'
     | '/play/random'
+    | '/rooms/$roomId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/match/result'
     | '/play/match-select'
     | '/play/random'
+    | '/rooms/$roomId'
   id:
     | '__root__'
     | '/'
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/match/result'
     | '/play/match-select'
     | '/play/random'
+    | '/rooms/$roomId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -216,7 +228,7 @@ export interface RootRouteChildren {
   PlayRoute: typeof PlayRouteWithChildren
   ProfileRoute: typeof ProfileRoute
   RankingRoute: typeof RankingRoute
-  RoomsRoute: typeof RoomsRoute
+  RoomsRoute: typeof RoomsRouteWithChildren
   SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
   StatsRoute: typeof StatsRoute
@@ -308,6 +320,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rooms/$roomId': {
+      id: '/rooms/$roomId'
+      path: '/$roomId'
+      fullPath: '/rooms/$roomId'
+      preLoaderRoute: typeof RoomsRoomIdRouteImport
+      parentRoute: typeof RoomsRoute
+    }
     '/play/random': {
       id: '/play/random'
       path: '/random'
@@ -354,6 +373,16 @@ const PlayRouteChildren: PlayRouteChildren = {
 
 const PlayRouteWithChildren = PlayRoute._addFileChildren(PlayRouteChildren)
 
+interface RoomsRouteChildren {
+  RoomsRoomIdRoute: typeof RoomsRoomIdRoute
+}
+
+const RoomsRouteChildren: RoomsRouteChildren = {
+  RoomsRoomIdRoute: RoomsRoomIdRoute,
+}
+
+const RoomsRouteWithChildren = RoomsRoute._addFileChildren(RoomsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
@@ -363,7 +392,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlayRoute: PlayRouteWithChildren,
   ProfileRoute: ProfileRoute,
   RankingRoute: RankingRoute,
-  RoomsRoute: RoomsRoute,
+  RoomsRoute: RoomsRouteWithChildren,
   SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
   StatsRoute: StatsRoute,
