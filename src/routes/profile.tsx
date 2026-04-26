@@ -1,90 +1,381 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Lock } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import {
+  Award,
+  Calendar,
+  Edit3,
+  Flame,
+  Globe2,
+  Lock,
+  Share2,
+  Sparkles,
+  Trophy,
+  Zap,
+} from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Avatar } from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { achievements, currentUser, recentMatches } from "@/lib/mock-data";
+import { achievements, currentUser, players, recentMatches } from "@/lib/mock-data";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/profile")({
-  head: () => ({ meta: [{ title: "Profile — WordClash" }] }),
+  head: () => ({ meta: [{ title: "Profile — Word Clash" }] }),
   component: ProfilePage,
 });
 
+const BIO = "Word hunter from San Francisco. Five-letter purist. Always up for a duel before coffee.";
+
+const FAVORITE_THEMES = [
+  { name: "Nature",    emoji: "🌿", matches: 84, color: "var(--correct)" },
+  { name: "Tech",      emoji: "💻", matches: 62, color: "var(--accent)" },
+  { name: "Food",      emoji: "🍜", matches: 41, color: "var(--warning)" },
+  { name: "Travel",    emoji: "✈️", matches: 33, color: "var(--present)" },
+  { name: "Cinema",    emoji: "🎬", matches: 28, color: "var(--primary)" },
+];
+
 function ProfilePage() {
   const xpPct = Math.round((currentUser.xp / currentUser.xpToNext) * 100);
+  const sortedByRating = [...players].sort((a, b) => b.rating - a.rating);
+  const myRank = sortedByRating.findIndex((p) => p.id === currentUser.id) + 1;
+  const totalPoints = 84_210;
+
+  const wins   = recentMatches.filter((m) => m.result === "win").length + 38;
+  const losses = recentMatches.filter((m) => m.result === "loss").length + 14;
+  const draws  = recentMatches.filter((m) => m.result === "draw").length + 5;
+  const total  = wins + losses + draws;
+  const winRate = Math.round((wins / total) * 100);
+
+  const unlocked = achievements.filter((a) => a.unlocked);
+
   return (
     <AppShell>
-      <div className="space-y-8">
-        {/* Cover */}
-        <div className="surface-elevated relative overflow-hidden">
-          <div className="h-32 sm:h-40" style={{ background: "var(--gradient-hero), var(--gradient-mint)" }} />
-          <div className="-mt-12 flex flex-col items-start gap-4 px-6 pb-6 sm:flex-row sm:items-end sm:justify-between">
-            <div className="flex items-end gap-4">
-              <div className="rounded-full border-4 border-surface-elevated">
-                <Avatar player={currentUser} size={96} ring="mint" />
+      <div className="space-y-6 pb-6 sm:space-y-8">
+        {/* Cover + identity */}
+        <header className="surface-elevated relative overflow-hidden rounded-3xl">
+          {/* Cover */}
+          <div
+            className="relative h-36 sm:h-48"
+            style={{
+              background:
+                "radial-gradient(120% 120% at 0% 0%, color-mix(in oklab, var(--primary) 50%, transparent), transparent 60%), radial-gradient(100% 100% at 100% 0%, color-mix(in oklab, var(--accent) 45%, transparent), transparent 55%), linear-gradient(135deg, var(--card), var(--card))",
+            }}
+          >
+            <div className="absolute inset-0 opacity-30 mix-blend-overlay" style={{
+              backgroundImage:
+                "repeating-linear-gradient(45deg, color-mix(in oklab, var(--foreground) 8%, transparent) 0 1px, transparent 1px 14px)",
+            }} />
+            <Sparkles className="absolute right-5 top-5 h-5 w-5 text-primary/70" />
+          </div>
+
+          {/* Identity */}
+          <div className="-mt-14 flex flex-col gap-4 px-5 pb-6 sm:-mt-16 sm:flex-row sm:items-end sm:justify-between sm:px-7">
+            <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-end sm:gap-5">
+              <div className="rounded-full ring-4 ring-card">
+                <Avatar player={currentUser} size={104} ring="mint" />
               </div>
-              <div>
-                <h1 className="font-display text-3xl sm:text-4xl">{currentUser.name}</h1>
-                <p className="text-sm text-muted-foreground">{currentUser.handle} · {currentUser.country}</p>
+              <div className="space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="font-display text-3xl leading-none sm:text-4xl">{currentUser.name}</h1>
+                  <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+                    Lvl {currentUser.level}
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {currentUser.handle} · <Globe2 className="-mt-0.5 inline h-3 w-3" /> {currentUser.country}
+                </p>
+                <p className="max-w-md text-sm text-foreground/80">{BIO}</p>
               </div>
             </div>
             <div className="flex gap-2">
-              <Button variant="secondary">Share profile</Button>
-              <Button>Edit profile</Button>
+              <Button variant="secondary" size="sm" className="gap-1.5">
+                <Share2 className="h-4 w-4" /> Share
+              </Button>
+              <Button size="sm" className="gap-1.5">
+                <Edit3 className="h-4 w-4" /> Edit
+              </Button>
             </div>
           </div>
-        </div>
+        </header>
 
-        {/* Level + XP */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="surface-elevated p-5 md:col-span-2">
-            <div className="mb-2 flex items-center justify-between">
-              <p className="text-sm font-semibold">Level {currentUser.level}</p>
-              <p className="text-xs text-muted-foreground">{currentUser.xp} / {currentUser.xpToNext} XP</p>
-            </div>
-            <Progress value={xpPct} className="h-3" />
-            <p className="mt-2 text-xs text-muted-foreground">{currentUser.xpToNext - currentUser.xp} XP to level {currentUser.level + 1}</p>
-          </div>
-          <div className="surface-elevated p-5 text-center">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Rating</p>
-            <p className="font-display text-4xl text-gradient-mint">{currentUser.rating}</p>
-            <p className="mt-1 text-xs text-primary">+82 this week</p>
-          </div>
-        </div>
+        {/* Stat strip */}
+        <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatTile
+            label="Total points"
+            value={totalPoints.toLocaleString()}
+            sub="All-time"
+            color="var(--primary)"
+            icon={Trophy}
+            highlight
+          />
+          <StatTile
+            label="Global rank"
+            value={`#${myRank}`}
+            sub="+4 this week"
+            color="var(--accent)"
+            icon={Award}
+          />
+          <StatTile
+            label="Win rate"
+            value={`${winRate}%`}
+            sub={`${wins}W · ${losses}L · ${draws}D`}
+            color="var(--correct)"
+            icon={Zap}
+          />
+          <StatTile
+            label="Streak"
+            value="12d"
+            sub="Personal best"
+            color="var(--warning)"
+            icon={Flame}
+          />
+        </section>
 
-        {/* Achievements */}
-        <div>
-          <h2 className="mb-3 font-display text-2xl">Achievements</h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {achievements.map((a) => (
-              <div key={a.id} className={`surface-elevated relative p-5 text-center ${!a.unlocked ? "opacity-50" : ""}`}>
-                <div className="text-3xl">{a.icon}</div>
-                <p className="mt-2 text-sm font-semibold">{a.name}</p>
-                <p className="text-xs text-muted-foreground">{a.desc}</p>
-                {!a.unlocked && <Lock className="absolute right-2 top-2 size-3 text-muted-foreground" />}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* History */}
-        <div>
-          <h2 className="mb-3 font-display text-2xl">Match history</h2>
-          <div className="surface-elevated divide-y divide-border">
-            {recentMatches.map((m) => (
-              <div key={m.id} className="flex items-center gap-4 p-4">
-                <Avatar player={m.opponent} size={36} />
-                <div className="flex-1 min-w-0">
-                  <p className="truncate text-sm font-semibold">vs {m.opponent.name}</p>
-                  <p className="text-xs text-muted-foreground">{m.word} · {m.guesses} guesses · {m.date}</p>
+        {/* Two-column body */}
+        <div className="grid gap-4 lg:grid-cols-3 lg:gap-6">
+          {/* LEFT (2 cols) */}
+          <div className="space-y-6 lg:col-span-2">
+            {/* Level + XP */}
+            <Panel>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                    Progression
+                  </p>
+                  <h2 className="font-display text-2xl">Level {currentUser.level}</h2>
                 </div>
-                <span className={`chip ${m.result === "win" ? "" : m.result === "loss" ? "chip-muted" : "chip-lilac"}`}>{m.result}</span>
+                <span className="font-display text-2xl text-gradient-mint">{currentUser.rating}</span>
               </div>
-            ))}
+              <Progress value={xpPct} className="mt-4 h-2.5" />
+              <div className="mt-2 flex justify-between text-xs text-muted-foreground">
+                <span>
+                  {currentUser.xp.toLocaleString()} / {currentUser.xpToNext.toLocaleString()} XP
+                </span>
+                <span>
+                  {(currentUser.xpToNext - currentUser.xp).toLocaleString()} XP to Lvl {currentUser.level + 1}
+                </span>
+              </div>
+            </Panel>
+
+            {/* Win breakdown */}
+            <Panel>
+              <div className="mb-4 flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                    Record
+                  </p>
+                  <h2 className="font-display text-2xl">Wins, losses & draws</h2>
+                </div>
+                <span className="text-xs text-muted-foreground">{total} matches</span>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <RecordCell label="Wins"   value={wins}   color="var(--correct)" />
+                <RecordCell label="Draws"  value={draws}  color="var(--warning)" />
+                <RecordCell label="Losses" value={losses} color="var(--absent)"  />
+              </div>
+              {/* Stacked bar */}
+              <div className="mt-4 flex h-2 w-full overflow-hidden rounded-full bg-muted">
+                <span className="h-full" style={{ width: `${(wins / total) * 100}%`,   background: "var(--correct)" }} />
+                <span className="h-full" style={{ width: `${(draws / total) * 100}%`,  background: "var(--warning)" }} />
+                <span className="h-full" style={{ width: `${(losses / total) * 100}%`, background: "var(--absent)"  }} />
+              </div>
+            </Panel>
+
+            {/* Recent matches */}
+            <Panel>
+              <div className="mb-3 flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                    Recent
+                  </p>
+                  <h2 className="font-display text-2xl">Match history</h2>
+                </div>
+                <Link to="/stats" className="text-xs font-semibold text-primary hover:underline">
+                  View all
+                </Link>
+              </div>
+              <ul className="divide-y divide-border">
+                {recentMatches.map((m) => (
+                  <li key={m.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+                    <Avatar player={m.opponent} size={36} />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold">vs {m.opponent.name}</p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        <Calendar className="-mt-0.5 mr-1 inline h-3 w-3" />
+                        {m.date} · <span className="font-mono font-bold tracking-widest text-foreground">{m.word}</span> · {m.guesses}/6
+                      </p>
+                    </div>
+                    <ResultChip result={m.result} />
+                    <span
+                      className={cn(
+                        "w-12 text-right font-display text-sm tabular-nums",
+                        m.result === "win"  && "text-[color:var(--correct)]",
+                        m.result === "loss" && "text-[color:var(--absent)]",
+                        m.result === "draw" && "text-[color:var(--warning)]",
+                      )}
+                    >
+                      {m.result === "loss" ? "−" : "+"}
+                      {m.xp}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </Panel>
+          </div>
+
+          {/* RIGHT (1 col) */}
+          <div className="space-y-6">
+            {/* Favorite themes */}
+            <Panel>
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                Style
+              </p>
+              <h2 className="font-display text-2xl">Favorite themes</h2>
+              <ul className="mt-4 space-y-3">
+                {FAVORITE_THEMES.map((t) => {
+                  const max = FAVORITE_THEMES[0].matches;
+                  const pct = Math.round((t.matches / max) * 100);
+                  return (
+                    <li key={t.name}>
+                      <div className="mb-1 flex items-center justify-between text-sm">
+                        <span className="flex items-center gap-2">
+                          <span className="text-base leading-none">{t.emoji}</span>
+                          <span className="font-semibold">{t.name}</span>
+                        </span>
+                        <span className="text-xs text-muted-foreground">{t.matches}</span>
+                      </div>
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                        <span
+                          className="block h-full rounded-full transition-all"
+                          style={{ width: `${pct}%`, background: t.color }}
+                        />
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </Panel>
+
+            {/* Achievements */}
+            <Panel>
+              <div className="mb-3 flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                    Collection
+                  </p>
+                  <h2 className="font-display text-2xl">Badges</h2>
+                </div>
+                <span className="text-xs font-semibold text-muted-foreground">
+                  {unlocked.length}/{achievements.length}
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-2.5">
+                {achievements.map((a) => (
+                  <div
+                    key={a.id}
+                    title={`${a.name} — ${a.desc}`}
+                    className={cn(
+                      "relative flex aspect-square flex-col items-center justify-center gap-1 rounded-2xl border p-2 text-center transition-transform hover:-translate-y-0.5",
+                      a.unlocked
+                        ? "border-[color:var(--primary)]/40 bg-[color-mix(in_oklab,var(--primary)_10%,transparent)]"
+                        : "border-border bg-[color-mix(in_oklab,var(--muted-foreground)_5%,transparent)] opacity-60",
+                    )}
+                  >
+                    <div className={cn("text-2xl", !a.unlocked && "grayscale")}>{a.icon}</div>
+                    <p className="line-clamp-1 text-[10px] font-semibold">{a.name}</p>
+                    {!a.unlocked && (
+                      <Lock className="absolute right-1.5 top-1.5 h-2.5 w-2.5 text-muted-foreground" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </Panel>
           </div>
         </div>
       </div>
     </AppShell>
+  );
+}
+
+/* ---------- subcomponents ---------- */
+
+function Panel({ children }: { children: React.ReactNode }) {
+  return <div className="surface-elevated rounded-2xl p-5 sm:p-6">{children}</div>;
+}
+
+function StatTile({
+  label,
+  value,
+  sub,
+  color,
+  icon: Icon,
+  highlight,
+}: {
+  label: string;
+  value: string;
+  sub: string;
+  color: string;
+  icon: React.ComponentType<{ className?: string }>;
+  highlight?: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-2xl border p-4 transition-transform hover:-translate-y-0.5",
+        highlight
+          ? "border-[color:var(--primary)]/50 bg-[color-mix(in_oklab,var(--primary)_10%,transparent)]"
+          : "border-border bg-card",
+      )}
+    >
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
+        <div
+          className="rounded-lg p-1.5"
+          style={{ background: `color-mix(in oklab, ${color} 16%, transparent)`, color }}
+        >
+          <Icon className="h-3.5 w-3.5" />
+        </div>
+      </div>
+      <p className="mt-2 font-display text-2xl sm:text-3xl">{value}</p>
+      <p className="mt-0.5 text-[11px] font-semibold" style={{ color }}>
+        {sub}
+      </p>
+      {highlight && (
+        <div
+          className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full opacity-50 blur-2xl"
+          style={{ background: color }}
+        />
+      )}
+    </div>
+  );
+}
+
+function RecordCell({ label, value, color }: { label: string; value: number; color: string }) {
+  return (
+    <div className="rounded-xl border border-border p-3 text-center">
+      <p className="font-display text-2xl" style={{ color }}>
+        {value}
+      </p>
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
+    </div>
+  );
+}
+
+function ResultChip({ result }: { result: "win" | "loss" | "draw" }) {
+  const map = {
+    win:  { label: "WIN",  color: "var(--correct)" },
+    loss: { label: "LOSS", color: "var(--absent)"  },
+    draw: { label: "DRAW", color: "var(--warning)" },
+  } as const;
+  const v = map[result];
+  return (
+    <span
+      className="rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider"
+      style={{
+        background: `color-mix(in oklab, ${v.color} 16%, transparent)`,
+        color: v.color,
+      }}
+    >
+      {v.label}
+    </span>
   );
 }
