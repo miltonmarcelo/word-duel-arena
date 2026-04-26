@@ -73,22 +73,41 @@ export const recentMatches: Match[] = [
   { id: "m-5", opponent: players[1], result: "draw", guesses: 6, xp: 40,  word: "LIGHT", date: "3d ago" },
 ];
 
+export type NotificationType =
+  | "challenge"
+  | "turn"
+  | "starting"
+  | "result"
+  | "ranking"
+  | "achievement"
+  | "friend"
+  | "system";
+
 export type NotificationItem = {
   id: string;
-  type: "challenge" | "win" | "system" | "friend";
+  type: NotificationType;
   title: string;
   body: string;
   time: string;
+  group: "today" | "yesterday" | "earlier";
   unread?: boolean;
   actor?: Player;
+  meta?: { word?: string; xp?: number; rank?: number; deltaRank?: number; badge?: string };
 };
 
 export const notifications: NotificationItem[] = [
-  { id: "n-1", type: "challenge", title: "Mira challenged you", body: "Best of 3 · 60s per round", time: "2m ago", unread: true, actor: players[0] },
-  { id: "n-2", type: "win",       title: "You won vs Yuki",     body: "+98 XP · solved in 4 guesses", time: "1h ago", unread: true, actor: players[2] },
-  { id: "n-3", type: "friend",    title: "Sam joined Wordsmiths", body: "Your room has a new member", time: "3h ago", actor: players[3] },
-  { id: "n-4", type: "system",    title: "Weekly reset in 2 days", body: "Climb the leaderboard before Sunday", time: "Yesterday" },
-  { id: "n-5", type: "challenge", title: "Diego rematch request", body: "Accept to settle the score", time: "Yesterday", actor: players[1] },
+  { id: "n-1",  type: "challenge",   title: "Mira challenged you",      body: "Best of 3 · 60s per round",            time: "2m ago",   group: "today",     unread: true,  actor: players[0] },
+  { id: "n-2",  type: "turn",        title: "Your turn vs Diego",       body: "Round 2 · 1m 40s left to play",        time: "8m ago",   group: "today",     unread: true,  actor: players[1] },
+  { id: "n-3",  type: "starting",    title: "Match starting soon",      body: "Wordsmiths room · kicks off in 30s",   time: "12m ago",  group: "today",     unread: true,  actor: players[3] },
+  { id: "n-4",  type: "result",      title: "Result available",         body: "You won vs Yuki · solved in 4",        time: "1h ago",   group: "today",     unread: true,  actor: players[2], meta: { word: "BREAD", xp: 98 } },
+  { id: "n-5",  type: "ranking",     title: "You climbed the ranking",  body: "Up 4 places to #28 this week",         time: "3h ago",   group: "today",                  meta: { rank: 28, deltaRank: 4 } },
+  { id: "n-6",  type: "achievement", title: "Achievement unlocked",     body: "Night Owl · won past midnight",        time: "5h ago",   group: "today",                  meta: { badge: "🌙" } },
+  { id: "n-7",  type: "friend",      title: "Sam joined Wordsmiths",    body: "Your room has a new member",           time: "Yesterday",group: "yesterday",              actor: players[3] },
+  { id: "n-8",  type: "challenge",   title: "Diego rematch request",    body: "Accept to settle the score",           time: "Yesterday",group: "yesterday",              actor: players[1] },
+  { id: "n-9",  type: "result",      title: "Match recap ready",        body: "Draw vs Mira · 6 guesses each",        time: "Yesterday",group: "yesterday",              actor: players[0], meta: { word: "LIGHT", xp: 40 } },
+  { id: "n-10", type: "achievement", title: "Achievement unlocked",     body: "On Fire · 5 win streak",               time: "2d ago",   group: "earlier",                meta: { badge: "🔥" } },
+  { id: "n-11", type: "system",      title: "Weekly reset in 2 days",   body: "Climb the leaderboard before Sunday",  time: "2d ago",   group: "earlier" },
+  { id: "n-12", type: "ranking",     title: "New season started",       body: "Season 4 begins. Reset your progress.",time: "3d ago",   group: "earlier",                meta: { rank: 32 } },
 ];
 
 export type Room = {
