@@ -43,7 +43,9 @@ function RoomsPage() {
                   {r.members.slice(0, 5).map((m) => <Avatar key={m.id} player={m} size={32} />)}
                   <span className="ml-3 self-center text-xs text-muted-foreground">{r.members.length} members</span>
                 </div>
-                <Button size="sm" variant="ghost">Open</Button>
+                <Link to="/rooms/$roomId" params={{ roomId: r.id }}>
+                  <Button size="sm" variant="ghost">Open</Button>
+                </Link>
               </div>
             </div>
           ))}
