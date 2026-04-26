@@ -1,0 +1,141 @@
+/* ==========================================================================
+   WordClash — Design Tokens (Graphite & Mint)
+   --------------------------------------------------------------------------
+   All semantic colors are defined here as OKLCH values derived from the
+   user-provided "Graphite & Mint" palette. tokens.css owns raw values;
+   components.css consumes them.
+   ========================================================================== */
+
+:root {
+  /* Radii ------------------------------------------------------------------ */
+  --radius: 0.875rem;
+
+  /* Surfaces (light theme — inverted graphite) ---------------------------- */
+  --background: oklch(0.985 0.003 240);          /* #F9FAFB-ish */
+  --foreground: oklch(0.21 0.03 260);            /* graphite text */
+
+  --surface: oklch(1 0 0);
+  --surface-elevated: oklch(0.985 0.005 240);
+  --surface-soft: oklch(0.965 0.01 220);
+
+  --card: var(--surface);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface-elevated);
+  --popover-foreground: var(--foreground);
+
+  /* Brand colors (universal — same in light & dark) ----------------------- */
+  --primary: oklch(0.79 0.14 180);               /* mint #2DD4BF */
+  --primary-foreground: oklch(0.22 0.06 180);    /* deep teal text on mint */
+  --primary-soft: oklch(0.91 0.08 175);          /* secondary mint #99F6E4 */
+
+  --secondary: oklch(0.95 0.02 240);
+  --secondary-foreground: oklch(0.21 0.03 260);
+
+  --accent: oklch(0.74 0.18 305);                /* lilac #C084FC */
+  --accent-foreground: oklch(0.22 0.08 305);
+
+  --muted: oklch(0.95 0.01 240);
+  --muted-foreground: oklch(0.55 0.02 250);
+
+  --border: oklch(0.9 0.01 250);
+  --border-soft: oklch(0.93 0.008 250);
+  --input: var(--border);
+  --ring: var(--primary);
+
+  /* Game state (Wordle — universal) --------------------------------------- */
+  --correct: oklch(0.66 0.13 140);               /* #6AAA64 green */
+  --correct-foreground: oklch(1 0 0);
+  --present: oklch(0.78 0.13 90);                /* #C9B458 yellow */
+  --present-foreground: oklch(1 0 0);
+  --absent: oklch(0.55 0.01 250);                /* #787C7E gray */
+  --absent-foreground: oklch(1 0 0);
+
+  /* Status ---------------------------------------------------------------- */
+  --destructive: oklch(0.7 0.18 25);             /* #F87171 */
+  --destructive-foreground: oklch(1 0 0);
+  --danger: var(--destructive);
+  --warning: oklch(0.83 0.14 80);                /* #F6C85F */
+  --success: var(--correct);
+
+  /* Players --------------------------------------------------------------- */
+  --player-a: var(--primary);
+  --player-b: var(--accent);
+
+  /* Charts ---------------------------------------------------------------- */
+  --chart-1: var(--primary);
+  --chart-2: var(--accent);
+  --chart-3: var(--present);
+  --chart-4: var(--correct);
+  --chart-5: var(--destructive);
+
+  /* Sidebar --------------------------------------------------------------- */
+  --sidebar: var(--surface-elevated);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--surface-soft);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--primary);
+
+  /* Effects --------------------------------------------------------------- */
+  --shadow-sm: 0 2px 6px oklch(0 0 0 / 0.06);
+  --shadow-md: 0 8px 24px oklch(0 0 0 / 0.08);
+  --shadow-lg: 0 18px 45px oklch(0 0 0 / 0.12);
+  --shadow-glow-mint: 0 0 0 1px oklch(0.79 0.14 180 / 0.35), 0 12px 40px oklch(0.79 0.14 180 / 0.25);
+  --shadow-glow-lilac: 0 0 0 1px oklch(0.74 0.18 305 / 0.35), 0 12px 40px oklch(0.74 0.18 305 / 0.25);
+
+  --gradient-hero:
+    radial-gradient(circle at top left, oklch(0.79 0.14 180 / 0.18), transparent 38%),
+    radial-gradient(circle at top right, oklch(0.74 0.18 305 / 0.18), transparent 32%);
+  --gradient-mint: linear-gradient(135deg, oklch(0.79 0.14 180), oklch(0.91 0.08 175));
+  --gradient-lilac: linear-gradient(135deg, oklch(0.74 0.18 305), oklch(0.86 0.1 305));
+  --gradient-card: linear-gradient(180deg, var(--surface), var(--surface-soft));
+
+  /* Typography ------------------------------------------------------------ */
+  --font-display: "DM Serif Display", "Times New Roman", serif;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Courier New", monospace;
+}
+
+/* Dark theme (default Graphite & Mint identity) --------------------------- */
+.dark {
+  --background: oklch(0.21 0.03 260);            /* #111827 graphite */
+  --foreground: oklch(0.985 0.003 240);          /* #F9FAFB */
+
+  --surface: oklch(0.27 0.03 260);               /* #1F2937 */
+  --surface-elevated: oklch(0.31 0.03 260);      /* #263241 */
+  --surface-soft: oklch(0.24 0.035 260);         /* #162031 */
+
+  --card: var(--surface);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface-elevated);
+  --popover-foreground: var(--foreground);
+
+  --secondary: oklch(0.31 0.03 260);
+  --secondary-foreground: var(--foreground);
+
+  --muted: oklch(0.31 0.03 260);
+  --muted-foreground: oklch(0.7 0.02 250);       /* #9CA3AF */
+
+  --border: oklch(0.36 0.02 260);                /* #374151 */
+  --border-soft: oklch(0.32 0.02 260);
+  --input: var(--border);
+
+  --absent: oklch(0.5 0.01 250);
+
+  --shadow-sm: 0 2px 6px oklch(0 0 0 / 0.4);
+  --shadow-md: 0 8px 24px oklch(0 0 0 / 0.45);
+  --shadow-lg: 0 18px 45px oklch(0 0 0 / 0.55);
+
+  --gradient-hero:
+    radial-gradient(circle at top left, oklch(0.79 0.14 180 / 0.16), transparent 34%),
+    radial-gradient(circle at top right, oklch(0.74 0.18 305 / 0.16), transparent 30%);
+  --gradient-card: linear-gradient(180deg, oklch(0.27 0.03 260 / 0.96), oklch(0.24 0.035 260 / 0.96));
+
+  --sidebar: var(--surface-soft);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-accent: var(--surface);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+}

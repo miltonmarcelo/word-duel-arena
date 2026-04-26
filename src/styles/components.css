@@ -1,0 +1,231 @@
+/* ==========================================================================
+   WordClash — Component Classes
+   --------------------------------------------------------------------------
+   Reusable, token-driven primitives. Use these instead of hard-coded colors.
+   ========================================================================== */
+
+/* Wordle tile ============================================================ */
+.tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.75rem;
+  height: 3.75rem;
+  border-radius: 0.625rem;
+  font-family: var(--font-display);
+  font-size: 1.625rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+  transition:
+    transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+  user-select: none;
+}
+
+.tile-empty {
+  background: transparent;
+}
+
+.tile-filled {
+  border-color: var(--muted-foreground);
+  animation: tile-pop 0.15s ease-out;
+}
+
+.tile-active {
+  border-color: var(--primary);
+  background: color-mix(in oklch, var(--primary) 8%, transparent);
+  box-shadow: 0 0 0 4px color-mix(in oklch, var(--primary) 12%, transparent);
+}
+
+.tile-correct {
+  background: var(--correct);
+  border-color: var(--correct);
+  color: var(--correct-foreground);
+}
+
+.tile-present {
+  background: var(--present);
+  border-color: var(--present);
+  color: var(--present-foreground);
+}
+
+.tile-absent {
+  background: var(--absent);
+  border-color: var(--absent);
+  color: var(--absent-foreground);
+}
+
+.tile-flip {
+  animation: tile-flip 0.55s ease forwards;
+}
+
+@keyframes tile-pop {
+  0% { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+
+@keyframes tile-flip {
+  0% { transform: rotateX(0); }
+  50% { transform: rotateX(90deg); }
+  100% { transform: rotateX(0); }
+}
+
+@keyframes tile-reveal {
+  0% { opacity: 0; transform: translateY(8px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Virtual keyboard ======================================================= */
+.kbd-key {
+  min-width: 2.25rem;
+  height: 3.25rem;
+  padding: 0 0.625rem;
+  border-radius: 0.5rem;
+  background: var(--surface-elevated);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+.kbd-key:hover { transform: translateY(-1px); }
+.kbd-key:active { transform: translateY(0); }
+
+.kbd-key-correct { background: var(--correct); border-color: var(--correct); color: var(--correct-foreground); }
+.kbd-key-present { background: var(--present); border-color: var(--present); color: var(--present-foreground); }
+.kbd-key-absent  { background: var(--absent);  border-color: var(--absent);  color: var(--absent-foreground); opacity: 0.85; }
+.kbd-key-wide    { min-width: 4rem; font-size: 0.6875rem; }
+
+/* Player cards =========================================================== */
+.player-card {
+  position: relative;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  background: var(--gradient-card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+.player-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--player-a);
+}
+.player-card.player-b::before { background: var(--player-b); }
+
+.player-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  margin-right: 0.375rem;
+}
+.player-dot.player-a { background: var(--player-a); }
+.player-dot.player-b { background: var(--player-b); }
+
+/* Surfaces =============================================================== */
+.surface-elevated {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+}
+
+.surface-soft {
+  background: var(--surface-soft);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+}
+
+/* Gradients & glows ====================================================== */
+.gradient-hero {
+  background: var(--gradient-hero), var(--background);
+}
+
+.glow-mint  { box-shadow: var(--shadow-glow-mint); }
+.glow-lilac { box-shadow: var(--shadow-glow-lilac); }
+
+.text-gradient-mint {
+  background: var(--gradient-mint);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.text-gradient-lilac {
+  background: var(--gradient-lilac);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Avatar rank ring ======================================================= */
+.avatar-ring {
+  padding: 2px;
+  background: var(--gradient-mint);
+  border-radius: 9999px;
+}
+.avatar-ring.lilac { background: var(--gradient-lilac); }
+
+/* Badges, chips ========================================================== */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: color-mix(in oklch, var(--primary) 14%, transparent);
+  color: var(--primary);
+  border: 1px solid color-mix(in oklch, var(--primary) 30%, transparent);
+}
+.chip-lilac {
+  background: color-mix(in oklch, var(--accent) 14%, transparent);
+  color: var(--accent);
+  border-color: color-mix(in oklch, var(--accent) 30%, transparent);
+}
+.chip-muted {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  border-color: var(--border);
+}
+
+/* Animations ============================================================= */
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-count-up { animation: count-up 0.5s ease-out both; }
+
+@keyframes podium-shimmer {
+  0%, 100% { box-shadow: var(--shadow-glow-mint); }
+  50%      { box-shadow: var(--shadow-glow-lilac); }
+}
+.animate-podium { animation: podium-shimmer 4s ease-in-out infinite; }
+
+@keyframes float-soft {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+.animate-float { animation: float-soft 4s ease-in-out infinite; }
+
+/* Fonts ================================================================== */
+.font-display { font-family: var(--font-display); }
+.font-sans    { font-family: var(--font-sans); }
+.font-mono    { font-family: var(--font-mono); }
