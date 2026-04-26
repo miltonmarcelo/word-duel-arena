@@ -67,7 +67,7 @@ const modes: Mode[] = [
     competitiveness: 4,
     avgTime: "4 min",
     cta: "Find opponent",
-    to: "/play/match-select",
+    to: "/play/random",
   },
   {
     id: "quick",
