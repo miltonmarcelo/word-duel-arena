@@ -9,13 +9,64 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StatsRouteImport } from './routes/stats'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as RoomsRouteImport } from './routes/rooms'
+import { Route as RankingRouteImport } from './routes/ranking'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PlayRouteImport } from './routes/play'
+import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as MatchRouteImport } from './routes/match'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PlayMatchSelectRouteImport } from './routes/play.match-select'
+import { Route as MatchResultRouteImport } from './routes/match.result'
 
+const StatsRoute = StatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoomsRoute = RoomsRouteImport.update({
+  id: '/rooms',
+  path: '/rooms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RankingRoute = RankingRouteImport.update({
+  id: '/ranking',
+  path: '/ranking',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlayRoute = PlayRouteImport.update({
+  id: '/play',
+  path: '/play',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MatchRoute = MatchRouteImport.update({
+  id: '/match',
+  path: '/match',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -23,49 +74,205 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlayMatchSelectRoute = PlayMatchSelectRouteImport.update({
+  id: '/match-select',
+  path: '/match-select',
+  getParentRoute: () => PlayRoute,
+} as any)
+const MatchResultRoute = MatchResultRouteImport.update({
+  id: '/result',
+  path: '/result',
+  getParentRoute: () => MatchRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/match': typeof MatchRouteWithChildren
+  '/notifications': typeof NotificationsRoute
+  '/play': typeof PlayRouteWithChildren
+  '/profile': typeof ProfileRoute
+  '/ranking': typeof RankingRoute
+  '/rooms': typeof RoomsRoute
+  '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/stats': typeof StatsRoute
+  '/match/result': typeof MatchResultRoute
+  '/play/match-select': typeof PlayMatchSelectRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/match': typeof MatchRouteWithChildren
+  '/notifications': typeof NotificationsRoute
+  '/play': typeof PlayRouteWithChildren
+  '/profile': typeof ProfileRoute
+  '/ranking': typeof RankingRoute
+  '/rooms': typeof RoomsRoute
+  '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/stats': typeof StatsRoute
+  '/match/result': typeof MatchResultRoute
+  '/play/match-select': typeof PlayMatchSelectRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/match': typeof MatchRouteWithChildren
+  '/notifications': typeof NotificationsRoute
+  '/play': typeof PlayRouteWithChildren
+  '/profile': typeof ProfileRoute
+  '/ranking': typeof RankingRoute
+  '/rooms': typeof RoomsRoute
+  '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/stats': typeof StatsRoute
+  '/match/result': typeof MatchResultRoute
+  '/play/match-select': typeof PlayMatchSelectRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/signup'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/match'
+    | '/notifications'
+    | '/play'
+    | '/profile'
+    | '/ranking'
+    | '/rooms'
+    | '/settings'
+    | '/signup'
+    | '/stats'
+    | '/match/result'
+    | '/play/match-select'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/signup'
-  id: '__root__' | '/' | '/login' | '/signup'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/match'
+    | '/notifications'
+    | '/play'
+    | '/profile'
+    | '/ranking'
+    | '/rooms'
+    | '/settings'
+    | '/signup'
+    | '/stats'
+    | '/match/result'
+    | '/play/match-select'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/match'
+    | '/notifications'
+    | '/play'
+    | '/profile'
+    | '/ranking'
+    | '/rooms'
+    | '/settings'
+    | '/signup'
+    | '/stats'
+    | '/match/result'
+    | '/play/match-select'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
+  MatchRoute: typeof MatchRouteWithChildren
+  NotificationsRoute: typeof NotificationsRoute
+  PlayRoute: typeof PlayRouteWithChildren
+  ProfileRoute: typeof ProfileRoute
+  RankingRoute: typeof RankingRoute
+  RoomsRoute: typeof RoomsRoute
+  SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
+  StatsRoute: typeof StatsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/stats': {
+      id: '/stats'
+      path: '/stats'
+      fullPath: '/stats'
+      preLoaderRoute: typeof StatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rooms': {
+      id: '/rooms'
+      path: '/rooms'
+      fullPath: '/rooms'
+      preLoaderRoute: typeof RoomsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ranking': {
+      id: '/ranking'
+      path: '/ranking'
+      fullPath: '/ranking'
+      preLoaderRoute: typeof RankingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/play': {
+      id: '/play'
+      path: '/play'
+      fullPath: '/play'
+      preLoaderRoute: typeof PlayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/match': {
+      id: '/match'
+      path: '/match'
+      fullPath: '/match'
+      preLoaderRoute: typeof MatchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -75,6 +282,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -82,13 +296,56 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/play/match-select': {
+      id: '/play/match-select'
+      path: '/match-select'
+      fullPath: '/play/match-select'
+      preLoaderRoute: typeof PlayMatchSelectRouteImport
+      parentRoute: typeof PlayRoute
+    }
+    '/match/result': {
+      id: '/match/result'
+      path: '/result'
+      fullPath: '/match/result'
+      preLoaderRoute: typeof MatchResultRouteImport
+      parentRoute: typeof MatchRoute
+    }
   }
 }
 
+interface MatchRouteChildren {
+  MatchResultRoute: typeof MatchResultRoute
+}
+
+const MatchRouteChildren: MatchRouteChildren = {
+  MatchResultRoute: MatchResultRoute,
+}
+
+const MatchRouteWithChildren = MatchRoute._addFileChildren(MatchRouteChildren)
+
+interface PlayRouteChildren {
+  PlayMatchSelectRoute: typeof PlayMatchSelectRoute
+}
+
+const PlayRouteChildren: PlayRouteChildren = {
+  PlayMatchSelectRoute: PlayMatchSelectRoute,
+}
+
+const PlayRouteWithChildren = PlayRoute._addFileChildren(PlayRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
+  MatchRoute: MatchRouteWithChildren,
+  NotificationsRoute: NotificationsRoute,
+  PlayRoute: PlayRouteWithChildren,
+  ProfileRoute: ProfileRoute,
+  RankingRoute: RankingRoute,
+  RoomsRoute: RoomsRoute,
+  SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
+  StatsRoute: StatsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
