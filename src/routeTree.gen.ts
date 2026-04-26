@@ -21,6 +21,7 @@ import { Route as MatchRouteImport } from './routes/match'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PlayRandomRouteImport } from './routes/play.random'
 import { Route as PlayMatchSelectRouteImport } from './routes/play.match-select'
 import { Route as MatchResultRouteImport } from './routes/match.result'
 
@@ -84,6 +85,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlayRandomRoute = PlayRandomRouteImport.update({
+  id: '/random',
+  path: '/random',
+  getParentRoute: () => PlayRoute,
+} as any)
 const PlayMatchSelectRoute = PlayMatchSelectRouteImport.update({
   id: '/match-select',
   path: '/match-select',
@@ -110,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/stats': typeof StatsRoute
   '/match/result': typeof MatchResultRoute
   '/play/match-select': typeof PlayMatchSelectRoute
+  '/play/random': typeof PlayRandomRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -126,6 +133,7 @@ export interface FileRoutesByTo {
   '/stats': typeof StatsRoute
   '/match/result': typeof MatchResultRoute
   '/play/match-select': typeof PlayMatchSelectRoute
+  '/play/random': typeof PlayRandomRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -143,6 +151,7 @@ export interface FileRoutesById {
   '/stats': typeof StatsRoute
   '/match/result': typeof MatchResultRoute
   '/play/match-select': typeof PlayMatchSelectRoute
+  '/play/random': typeof PlayRandomRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/stats'
     | '/match/result'
     | '/play/match-select'
+    | '/play/random'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/stats'
     | '/match/result'
     | '/play/match-select'
+    | '/play/random'
   id:
     | '__root__'
     | '/'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/stats'
     | '/match/result'
     | '/play/match-select'
+    | '/play/random'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -296,6 +308,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/play/random': {
+      id: '/play/random'
+      path: '/random'
+      fullPath: '/play/random'
+      preLoaderRoute: typeof PlayRandomRouteImport
+      parentRoute: typeof PlayRoute
+    }
     '/play/match-select': {
       id: '/play/match-select'
       path: '/match-select'
@@ -325,10 +344,12 @@ const MatchRouteWithChildren = MatchRoute._addFileChildren(MatchRouteChildren)
 
 interface PlayRouteChildren {
   PlayMatchSelectRoute: typeof PlayMatchSelectRoute
+  PlayRandomRoute: typeof PlayRandomRoute
 }
 
 const PlayRouteChildren: PlayRouteChildren = {
   PlayMatchSelectRoute: PlayMatchSelectRoute,
+  PlayRandomRoute: PlayRandomRoute,
 }
 
 const PlayRouteWithChildren = PlayRoute._addFileChildren(PlayRouteChildren)
