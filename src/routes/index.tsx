@@ -16,10 +16,10 @@ export const Route = createFileRoute("/")({
 });
 
 const heroGuesses = [
-  { letters: ["W","O","R","D","S"], states: ["absent","present","absent","absent","present"] as const },
-  { letters: ["S","H","A","R","E"], states: ["correct","absent","correct","absent","present"] as const },
-  { letters: ["C","L","A","S","H"], states: ["correct","correct","correct","correct","correct"] as const },
-];
+  { letters: ["W","O","R","D","S"], states: ["absent","present","absent","absent","present"] },
+  { letters: ["S","H","A","R","E"], states: ["correct","absent","correct","absent","present"] },
+  { letters: ["C","L","A","S","H"], states: ["correct","correct","correct","correct","correct"] },
+] as import("@/lib/mock-data").Guess[];
 
 function Landing() {
   return (
