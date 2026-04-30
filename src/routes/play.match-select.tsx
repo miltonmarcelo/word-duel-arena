@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ArrowRight, Search, Sparkles, Swords, Trophy, Users, X } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
@@ -43,14 +43,6 @@ const opponents: Social[] = players
     group: (["friends", "recent", "suggested"] as const)[i % 3],
   }));
 
-const themes = [
-  { id: "general", label: "General", emoji: "✨", desc: "Random 5-letter word" },
-  { id: "nature", label: "Nature", emoji: "🌿", desc: "Plants, weather, animals" },
-  { id: "tech", label: "Tech", emoji: "💻", desc: "Software & gadgets" },
-  { id: "food", label: "Food", emoji: "🍜", desc: "Dishes & ingredients" },
-  { id: "sports", label: "Sports", emoji: "🏅", desc: "Games & athletes" },
-  { id: "custom", label: "Custom", emoji: "✍️", desc: "Pick your own word" },
-];
 
 function MatchSelect() {
   const navigate = useNavigate();
