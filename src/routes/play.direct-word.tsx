@@ -18,7 +18,20 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { players } from "@/lib/mock-data";
 
+type DirectWordSearch = {
+  opp?: string;
+  name?: string;
+  handle?: string;
+  rating?: number;
+};
+
 export const Route = createFileRoute("/play/direct-word")({
+  validateSearch: (s: Record<string, unknown>): DirectWordSearch => ({
+    opp: typeof s.opp === "string" ? s.opp : undefined,
+    name: typeof s.name === "string" ? s.name : undefined,
+    handle: typeof s.handle === "string" ? s.handle : undefined,
+    rating: typeof s.rating === "number" ? s.rating : Number(s.rating) || undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Choose your word — WordClash" },
@@ -77,8 +90,21 @@ function isValidWord(w: string) {
 // ──────────────────────────────────────────────────────────────────────────────
 function DirectWord() {
   const navigate = useNavigate();
-  // Visual prototype: pick the top opponent as the "selected" target.
-  const opponent = players[0];
+  const search = Route.useSearch();
+  // Visual prototype: prefer opponent passed via search params, else default.
+  const opponent = useMemo(() => {
+    const found = search.opp ? players.find((p) => p.id === search.opp) : undefined;
+    if (found) return found;
+    if (search.name) {
+      return {
+        ...players[0],
+        name: search.name,
+        handle: search.handle ?? players[0].handle,
+        rating: search.rating ?? players[0].rating,
+      };
+    }
+    return players[0];
+  }, [search.opp, search.name, search.handle, search.rating]);
 
   const [category, setCategory] = useState<Category>("general");
   const [word, setWord] = useState("");
@@ -106,7 +132,10 @@ function DirectWord() {
     toast.success("Challenge sent!", {
       description: `${opponent.name} will be notified to play "${trimmed}".`,
     });
-    setTimeout(() => navigate({ to: "/dashboard" }), 600);
+    setTimeout(
+      () => navigate({ to: "/play/challenge-sent" }),
+      600,
+    );
   }
 
   // Build 5 tiles for live preview (filled = letter typed, empty otherwise).

@@ -79,7 +79,7 @@ const modes: Mode[] = [
     competitiveness: 2,
     avgTime: "1 min",
     cta: "Start quick",
-    to: "/match",
+    to: "/play/quick",
   },
   {
     id: "themed",
@@ -91,7 +91,7 @@ const modes: Mode[] = [
     competitiveness: 3,
     avgTime: "5 min",
     cta: "Pick a theme",
-    to: "/match",
+    to: "/play/themed",
   },
   {
     id: "group",

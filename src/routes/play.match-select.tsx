@@ -1,6 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Search, Sparkles, Swords, Trophy, Users, Zap, Check, X } from "lucide-react";
+import { ArrowRight, Search, Sparkles, Swords, Trophy, Users, X } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Avatar } from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
@@ -43,22 +43,12 @@ const opponents: Social[] = players
     group: (["friends", "recent", "suggested"] as const)[i % 3],
   }));
 
-const themes = [
-  { id: "general", label: "General", emoji: "✨", desc: "Random 5-letter word" },
-  { id: "nature", label: "Nature", emoji: "🌿", desc: "Plants, weather, animals" },
-  { id: "tech", label: "Tech", emoji: "💻", desc: "Software & gadgets" },
-  { id: "food", label: "Food", emoji: "🍜", desc: "Dishes & ingredients" },
-  { id: "sports", label: "Sports", emoji: "🏅", desc: "Games & athletes" },
-  { id: "custom", label: "Custom", emoji: "✍️", desc: "Pick your own word" },
-];
 
 function MatchSelect() {
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState<"friends" | "recent" | "suggested">("friends");
   const [target, setTarget] = useState<Social | null>(null);
-  const [theme, setTheme] = useState("general");
-  const [customWord, setCustomWord] = useState("");
-  const [confirmed, setConfirmed] = useState(false);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -83,9 +73,19 @@ function MatchSelect() {
 
   function openChallenge(p: Social) {
     setTarget(p);
-    setConfirmed(false);
-    setTheme("general");
-    setCustomWord("");
+  }
+
+  function confirmChallenge() {
+    if (!target) return;
+    navigate({
+      to: "/play/direct-word",
+      search: {
+        opp: target.id,
+        name: target.name,
+        handle: target.handle,
+        rating: target.rating,
+      } as never,
+    });
   }
 
   return (
@@ -182,10 +182,10 @@ function MatchSelect() {
         </div>
       </div>
 
-      {/* Challenge modal */}
+      {/* Confirmation modal */}
       <Dialog open={!!target} onOpenChange={(o) => !o && setTarget(null)}>
-        <DialogContent className="max-w-lg surface-elevated border-border p-0 overflow-hidden">
-          {target && !confirmed && (
+        <DialogContent className="max-w-md surface-elevated border-border p-0 overflow-hidden">
+          {target && (
             <>
               <div
                 className="relative px-6 pt-6 pb-5"
@@ -193,10 +193,10 @@ function MatchSelect() {
               >
                 <DialogHeader className="text-left">
                   <DialogTitle className="font-display text-2xl">
-                    Challenge {target.name.split(" ")[0]}
+                    Challenge {target.name.split(" ")[0]}?
                   </DialogTitle>
                   <DialogDescription>
-                    Pick a theme. They'll get a notification to accept your duel.
+                    Next, you'll choose the secret 5-letter word they have to crack.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="mt-4 flex items-center gap-3 rounded-xl bg-background/60 p-3 backdrop-blur">
@@ -207,7 +207,10 @@ function MatchSelect() {
                   <div className="flex-1 min-w-0">
                     <p className="truncate text-sm font-semibold">{target.name}</p>
                     <p className="truncate text-xs text-muted-foreground">
-                      {target.handle} · {target.rating} rating
+                      {target.handle} ·{" "}
+                      <span className="inline-flex items-center gap-0.5">
+                        <Trophy className="size-3" /> {target.rating}
+                      </span>
                     </p>
                   </div>
                   <div className="text-right text-xs">
@@ -217,76 +220,19 @@ function MatchSelect() {
                 </div>
               </div>
 
-              <div className="space-y-4 p-6">
-                <div>
-                  <p className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    Theme
-                  </p>
-                  <div className="grid grid-cols-3 gap-2">
-                    {themes.map((t) => (
-                      <button
-                        key={t.id}
-                        onClick={() => setTheme(t.id)}
-                        className={cn(
-                          "rounded-xl border p-3 text-left transition",
-                          theme === t.id
-                            ? "border-primary bg-primary/10 shadow-sm"
-                            : "border-border hover:border-primary/40 hover:bg-muted/40",
-                        )}
-                      >
-                        <div className="text-lg leading-none">{t.emoji}</div>
-                        <div className="mt-1.5 text-sm font-semibold">{t.label}</div>
-                        <div className="text-[11px] text-muted-foreground">{t.desc}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {theme === "custom" && (
-                  <div>
-                    <p className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                      Your secret 5-letter word
-                    </p>
-                    <Input
-                      maxLength={5}
-                      value={customWord}
-                      onChange={(e) => setCustomWord(e.target.value.toUpperCase())}
-                      className="font-mono tracking-[0.4em] uppercase text-center"
-                      placeholder="• • • • •"
-                    />
-                  </div>
-                )}
-              </div>
-
-              <DialogFooter className="border-t border-border bg-background/50 p-4">
-                <Button variant="ghost" onClick={() => setTarget(null)}>
+              <DialogFooter className="flex-col-reverse gap-2 border-t border-border bg-background/50 p-4 sm:flex-row">
+                <Button
+                  variant="ghost"
+                  onClick={() => setTarget(null)}
+                  className="w-full sm:w-auto"
+                >
                   <X className="size-4" /> Cancel
                 </Button>
-                <Button onClick={() => setConfirmed(true)} className="gap-2">
-                  <Zap className="size-4" /> Send challenge
+                <Button onClick={confirmChallenge} className="w-full gap-2 sm:w-auto">
+                  Choose my word <ArrowRight className="size-4" />
                 </Button>
               </DialogFooter>
             </>
-          )}
-
-          {target && confirmed && (
-            <div className="flex flex-col items-center px-8 py-10 text-center">
-              <div className="grid size-16 place-items-center rounded-full bg-[var(--correct)]/20 text-[var(--correct)]">
-                <Check className="size-8" strokeWidth={3} />
-              </div>
-              <h3 className="mt-4 font-display text-2xl">Challenge sent!</h3>
-              <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-                {target.name} will be notified. We'll ping you the moment they accept.
-              </p>
-              <div className="mt-5 flex w-full gap-2">
-                <Button variant="outline" className="flex-1" onClick={() => setTarget(null)}>
-                  Challenge another
-                </Button>
-                <Link to="/dashboard" className="flex-1">
-                  <Button className="w-full">Back to home</Button>
-                </Link>
-              </div>
-            </div>
           )}
         </DialogContent>
       </Dialog>
