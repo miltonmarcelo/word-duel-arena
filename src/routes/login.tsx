@@ -39,8 +39,12 @@ export function AuthShell({ mode }: { mode: "login" | "signup" }) {
           <p className="mt-1 text-sm text-muted-foreground">{isLogin ? "Welcome back, wordsmith." : "Free forever. No credit card."}</p>
 
           <div className="mt-6 grid grid-cols-2 gap-3">
-            <Button variant="secondary" className="w-full">Continue with Google</Button>
-            <Button variant="secondary" className="w-full">Continue with Apple</Button>
+            <Button asChild variant="secondary" className="w-full">
+              <Link to="/dashboard">Continue with Google</Link>
+            </Button>
+            <Button asChild variant="secondary" className="w-full">
+              <Link to="/dashboard">Continue with Apple</Link>
+            </Button>
           </div>
 
           <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
