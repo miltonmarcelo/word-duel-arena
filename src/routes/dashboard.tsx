@@ -101,8 +101,8 @@ function Dashboard() {
               <CardHeader title="Quick play" subtitle="Pick your battle, jump in." />
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <ModeShortcut to="/play/match-select" icon={Swords}  label="Direct"  desc="Challenge a friend" tone="mint" />
-                <ModeShortcut to="/play/match-select" icon={Dice5}   label="Random"  desc="Auto-match"        tone="lilac" />
-                <ModeShortcut to="/play"              icon={Shapes}  label="Themed"  desc="Pick a topic"     tone="mint" />
+                <ModeShortcut to="/play/random"       icon={Dice5}   label="Random"  desc="Auto-match"        tone="lilac" />
+                <ModeShortcut to="/play/themed"       icon={Shapes}  label="Themed"  desc="Pick a topic"     tone="mint" />
                 <ModeShortcut to="/rooms"             icon={Users2}  label="Rooms"   desc="Private league"   tone="lilac" />
               </div>
             </Card>

@@ -94,8 +94,10 @@ function ProfilePage() {
               <Button variant="secondary" size="sm" className="flex-1 gap-1.5 sm:flex-none">
                 <Share2 className="h-4 w-4" /> Share
               </Button>
-              <Button size="sm" className="flex-1 gap-1.5 sm:flex-none">
-                <Edit3 className="h-4 w-4" /> Edit
+              <Button asChild size="sm" className="flex-1 gap-1.5 sm:flex-none">
+                <Link to="/settings">
+                  <Edit3 className="h-4 w-4" /> Edit
+                </Link>
               </Button>
             </div>
           </div>

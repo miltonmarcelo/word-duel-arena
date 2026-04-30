@@ -20,8 +20,16 @@ function RoomsPage() {
             <h1 className="font-display text-4xl sm:text-5xl">Your rooms.</h1>
           </div>
           <div className="flex gap-2">
-            <Button variant="secondary"><KeyRound className="size-4" /> Join by code</Button>
-            <Button><Plus className="size-4" /> New room</Button>
+            <Button asChild variant="secondary">
+              <Link to="/rooms/$roomId" params={{ roomId: rooms[0].id }}>
+                <KeyRound className="size-4" /> Join by code
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link to="/rooms/$roomId" params={{ roomId: rooms[0].id }}>
+                <Plus className="size-4" /> New room
+              </Link>
+            </Button>
           </div>
         </div>
 
