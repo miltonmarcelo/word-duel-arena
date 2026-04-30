@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
+  Bot,
   Clock,
   Dice5,
   Flame,
@@ -80,6 +81,19 @@ const modes: Mode[] = [
     avgTime: "1 min",
     cta: "Start quick",
     to: "/match",
+  },
+  {
+    id: "solo",
+    title: "Solo Mode",
+    tag: "vs Computer",
+    desc: "Practice against the bot. Pick a theme, solve the word, earn half points.",
+    icon: Bot,
+    accent: "lilac",
+    competitiveness: 1,
+    avgTime: "2–4 min",
+    cta: "Play solo",
+    to: "/play/solo",
+    highlight: "No pressure",
   },
   {
     id: "themed",
