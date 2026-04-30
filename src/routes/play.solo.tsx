@@ -764,9 +764,9 @@ function ResultScreen({
                       key={j}
                       className={cn(
                         "flex size-7 items-center justify-center rounded text-[11px] font-bold uppercase",
-                        g.states[j] === "correct" && "bg-correct text-white",
-                        g.states[j] === "present" && "bg-present text-white",
-                        g.states[j] === "absent"  && "bg-absent  text-white",
+                        g.states[j] === "correct" && "bg-correct text-[var(--correct-foreground)]",
+                        g.states[j] === "present" && "bg-present text-[var(--present-foreground)]",
+                        g.states[j] === "absent"  && "bg-absent  text-[var(--absent-foreground)]",
                       )}
                     >
                       {l}
