@@ -690,7 +690,7 @@ function ResultScreen({
           <div className="relative">
             <span className={cn(
               "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[0.2em]",
-              won ? "bg-black/15 text-primary-foreground" : "bg-destructive/20 text-destructive",
+              won ? "bg-foreground/10 text-primary-foreground" : "bg-destructive/20 text-destructive",
             )}>
               {won ? <Trophy className="size-3" /> : <Frown className="size-3" />}
               {won ? "Victory" : "Defeat"}
