@@ -25,6 +25,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as RoomsRoomIdRouteImport } from './routes/rooms.$roomId'
 import { Route as PlayRandomRouteImport } from './routes/play.random'
 import { Route as PlayMatchSelectRouteImport } from './routes/play.match-select'
+import { Route as PlayDirectWordRouteImport } from './routes/play.direct-word'
 import { Route as MatchResultRouteImport } from './routes/match.result'
 
 const StatsRoute = StatsRouteImport.update({
@@ -107,6 +108,11 @@ const PlayMatchSelectRoute = PlayMatchSelectRouteImport.update({
   path: '/match-select',
   getParentRoute: () => PlayRoute,
 } as any)
+const PlayDirectWordRoute = PlayDirectWordRouteImport.update({
+  id: '/direct-word',
+  path: '/direct-word',
+  getParentRoute: () => PlayRoute,
+} as any)
 const MatchResultRoute = MatchResultRouteImport.update({
   id: '/result',
   path: '/result',
@@ -128,6 +134,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/stats': typeof StatsRoute
   '/match/result': typeof MatchResultRoute
+  '/play/direct-word': typeof PlayDirectWordRoute
   '/play/match-select': typeof PlayMatchSelectRoute
   '/play/random': typeof PlayRandomRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
@@ -147,6 +154,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/stats': typeof StatsRoute
   '/match/result': typeof MatchResultRoute
+  '/play/direct-word': typeof PlayDirectWordRoute
   '/play/match-select': typeof PlayMatchSelectRoute
   '/play/random': typeof PlayRandomRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
@@ -167,6 +175,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/stats': typeof StatsRoute
   '/match/result': typeof MatchResultRoute
+  '/play/direct-word': typeof PlayDirectWordRoute
   '/play/match-select': typeof PlayMatchSelectRoute
   '/play/random': typeof PlayRandomRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
@@ -188,6 +197,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/stats'
     | '/match/result'
+    | '/play/direct-word'
     | '/play/match-select'
     | '/play/random'
     | '/rooms/$roomId'
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/stats'
     | '/match/result'
+    | '/play/direct-word'
     | '/play/match-select'
     | '/play/random'
     | '/rooms/$roomId'
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/stats'
     | '/match/result'
+    | '/play/direct-word'
     | '/play/match-select'
     | '/play/random'
     | '/rooms/$roomId'
@@ -361,6 +373,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlayMatchSelectRouteImport
       parentRoute: typeof PlayRoute
     }
+    '/play/direct-word': {
+      id: '/play/direct-word'
+      path: '/direct-word'
+      fullPath: '/play/direct-word'
+      preLoaderRoute: typeof PlayDirectWordRouteImport
+      parentRoute: typeof PlayRoute
+    }
     '/match/result': {
       id: '/match/result'
       path: '/result'
@@ -382,11 +401,13 @@ const MatchRouteChildren: MatchRouteChildren = {
 const MatchRouteWithChildren = MatchRoute._addFileChildren(MatchRouteChildren)
 
 interface PlayRouteChildren {
+  PlayDirectWordRoute: typeof PlayDirectWordRoute
   PlayMatchSelectRoute: typeof PlayMatchSelectRoute
   PlayRandomRoute: typeof PlayRandomRoute
 }
 
 const PlayRouteChildren: PlayRouteChildren = {
+  PlayDirectWordRoute: PlayDirectWordRoute,
   PlayMatchSelectRoute: PlayMatchSelectRoute,
   PlayRandomRoute: PlayRandomRoute,
 }
