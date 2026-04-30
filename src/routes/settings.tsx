@@ -394,8 +394,10 @@ function AccountSection() {
           <Button asChild variant="outline">
             <Link to="/profile">Edit profile</Link>
           </Button>
-          <Button variant="ghost">
-            <LogOut className="mr-2 size-4" /> Sign out
+          <Button asChild variant="ghost">
+            <Link to="/login">
+              <LogOut className="mr-2 size-4" /> Sign out
+            </Link>
           </Button>
         </div>
       </div>
