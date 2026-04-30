@@ -18,7 +18,20 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { players } from "@/lib/mock-data";
 
+type DirectWordSearch = {
+  opp?: string;
+  name?: string;
+  handle?: string;
+  rating?: number;
+};
+
 export const Route = createFileRoute("/play/direct-word")({
+  validateSearch: (s: Record<string, unknown>): DirectWordSearch => ({
+    opp: typeof s.opp === "string" ? s.opp : undefined,
+    name: typeof s.name === "string" ? s.name : undefined,
+    handle: typeof s.handle === "string" ? s.handle : undefined,
+    rating: typeof s.rating === "number" ? s.rating : Number(s.rating) || undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Choose your word — WordClash" },
