@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as StatsRouteImport } from './routes/stats'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as RulesRouteImport } from './routes/rules'
 import { Route as RoomsRouteImport } from './routes/rooms'
 import { Route as RankingRouteImport } from './routes/ranking'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -39,6 +40,11 @@ const SignupRoute = SignupRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RulesRoute = RulesRouteImport.update({
+  id: '/rules',
+  path: '/rules',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RoomsRoute = RoomsRouteImport.update({
@@ -117,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/ranking': typeof RankingRoute
   '/rooms': typeof RoomsRouteWithChildren
+  '/rules': typeof RulesRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/stats': typeof StatsRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/ranking': typeof RankingRoute
   '/rooms': typeof RoomsRouteWithChildren
+  '/rules': typeof RulesRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/stats': typeof StatsRoute
@@ -154,6 +162,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/ranking': typeof RankingRoute
   '/rooms': typeof RoomsRouteWithChildren
+  '/rules': typeof RulesRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/stats': typeof StatsRoute
@@ -174,6 +183,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/ranking'
     | '/rooms'
+    | '/rules'
     | '/settings'
     | '/signup'
     | '/stats'
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/ranking'
     | '/rooms'
+    | '/rules'
     | '/settings'
     | '/signup'
     | '/stats'
@@ -210,6 +221,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/ranking'
     | '/rooms'
+    | '/rules'
     | '/settings'
     | '/signup'
     | '/stats'
@@ -229,6 +241,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   RankingRoute: typeof RankingRoute
   RoomsRoute: typeof RoomsRouteWithChildren
+  RulesRoute: typeof RulesRoute
   SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
   StatsRoute: typeof StatsRoute
@@ -255,6 +268,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rules': {
+      id: '/rules'
+      path: '/rules'
+      fullPath: '/rules'
+      preLoaderRoute: typeof RulesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rooms': {
@@ -393,6 +413,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   RankingRoute: RankingRoute,
   RoomsRoute: RoomsRouteWithChildren,
+  RulesRoute: RulesRoute,
   SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
   StatsRoute: StatsRoute,
