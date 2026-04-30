@@ -468,7 +468,7 @@ function GameScreen({
           >
             <Eye className="size-4" />
             Reveal a letter
-            <span className="ml-1 rounded-full bg-black/20 px-2 py-0.5 text-[10px] font-bold tabular-nums">
+            <span className="ml-1 rounded-full bg-foreground/15 px-2 py-0.5 text-[10px] font-bold tabular-nums">
               −{REVEAL_COST} pts
             </span>
           </Button>
