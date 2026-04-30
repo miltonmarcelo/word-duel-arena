@@ -43,7 +43,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-background text-foreground">
       {/* Desktop sidebar */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-border bg-sidebar md:flex">
-        <div className="px-6 pt-6 pb-4">
+        <div className="px-6 pt-7 pb-5">
           <Logo />
         </div>
         <nav className="flex-1 space-y-1 px-3 py-2">
@@ -54,42 +54,42 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 key={to}
                 to={to}
                 className={cn(
-                  "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                  "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
                   active
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-surface-elevated hover:text-foreground",
+                    ? "bg-primary/12 text-primary shadow-[inset_0_0_0_1px_color-mix(in_oklch,var(--primary)_28%,transparent)]"
+                    : "text-muted-foreground hover:bg-surface-elevated hover:text-foreground hover:translate-x-0.5",
                 )}
               >
-                <Icon className="size-4" />
+                <Icon className={cn("size-4 transition-transform", active && "scale-110")} />
                 <span>{label}</span>
-                {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />}
+                {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_0_4px_color-mix(in_oklch,var(--primary)_18%,transparent)]" />}
               </Link>
             );
           })}
         </nav>
         <div className="border-t border-border p-4">
-          <div className="mb-3 flex items-center gap-3">
+          <div className="mb-3 flex items-center gap-3 rounded-xl bg-surface-soft p-2.5">
             <Avatar player={currentUser} size={40} ring="mint" />
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold">{currentUser.name}</p>
               <p className="truncate text-xs text-muted-foreground">Lvl {currentUser.level} · {currentUser.rating}</p>
             </div>
           </div>
-          <ThemeToggle className="w-full !rounded-lg" />
+          <ThemeToggle className="w-full !rounded-xl" />
         </div>
       </aside>
 
       {/* Mobile top bar */}
-      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-background/80 px-4 py-3 backdrop-blur md:hidden">
+      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-background/75 px-4 py-3 backdrop-blur-xl md:hidden">
         <Logo />
         <div className="flex items-center gap-2">
           <Link
             to="/notifications"
-            className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface-elevated"
+            className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface-elevated transition-all hover:-translate-y-0.5 hover:border-primary/40"
             aria-label="Notifications"
           >
             <Bell className="size-4" />
-            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent" />
+            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent shadow-[0_0_0_3px_color-mix(in_oklch,var(--accent)_25%,transparent)]" />
           </Link>
           <ThemeToggle />
         </div>
@@ -97,11 +97,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Main */}
       <main className="md:pl-64">
-        <div className="mx-auto max-w-6xl px-4 pb-28 pt-6 md:px-8 md:pb-12 md:pt-8">{children}</div>
+        <div key={pathname} className="animate-fade-up mx-auto max-w-6xl px-4 pb-28 pt-6 md:px-8 md:pb-14 md:pt-10">
+          {children}
+        </div>
       </main>
 
       {/* Mobile bottom tabs */}
-      <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-sidebar/95 backdrop-blur md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-sidebar/90 backdrop-blur-xl md:hidden">
         {mobileTabs.map(({ to, label, icon: Icon }) => {
           const active = pathname === to || pathname.startsWith(to + "/");
           return (
@@ -113,7 +115,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 active ? "text-primary" : "text-muted-foreground",
               )}
             >
-              <Icon className="size-5" />
+              <Icon className={cn("size-5 transition-transform", active && "scale-110")} />
               {label}
               {active && <span className="h-0.5 w-6 rounded-full bg-primary" />}
             </Link>
