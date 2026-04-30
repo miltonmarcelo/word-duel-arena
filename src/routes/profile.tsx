@@ -50,47 +50,51 @@ function ProfilePage() {
   return (
     <AppShell>
       <div className="space-y-6 pb-6 sm:space-y-8">
-        {/* Cover + identity */}
-        <header className="surface-elevated relative overflow-hidden rounded-3xl">
-          {/* Cover */}
+        {/* Identity header */}
+        <header
+          className="surface-elevated relative overflow-hidden rounded-3xl p-5 sm:p-7"
+        >
+          {/* Ambient glow */}
           <div
-            className="relative h-36 sm:h-48"
+            className="pointer-events-none absolute inset-0 opacity-90"
             style={{
               background:
-                "radial-gradient(120% 120% at 0% 0%, color-mix(in oklab, var(--primary) 50%, transparent), transparent 60%), radial-gradient(100% 100% at 100% 0%, color-mix(in oklab, var(--accent) 45%, transparent), transparent 55%), linear-gradient(135deg, var(--card), var(--card))",
+                "radial-gradient(80% 60% at 0% 0%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 60%), radial-gradient(70% 60% at 100% 0%, color-mix(in oklab, var(--accent) 20%, transparent), transparent 60%)",
             }}
-          >
-            <div className="absolute inset-0 opacity-30 mix-blend-overlay" style={{
+          />
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.08] mix-blend-overlay"
+            style={{
               backgroundImage:
-                "repeating-linear-gradient(45deg, color-mix(in oklab, var(--foreground) 8%, transparent) 0 1px, transparent 1px 14px)",
-            }} />
-            <Sparkles className="absolute right-5 top-5 h-5 w-5 text-primary/70" />
-          </div>
+                "repeating-linear-gradient(45deg, var(--foreground) 0 1px, transparent 1px 14px)",
+            }}
+          />
+          <Sparkles className="absolute right-5 top-5 h-4 w-4 text-primary/60" />
 
-          {/* Identity */}
-          <div className="-mt-14 flex flex-col gap-4 px-5 pb-6 sm:-mt-16 sm:flex-row sm:items-end sm:justify-between sm:px-7">
-            <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-end sm:gap-5">
+          {/* Mobile: stacked & centered. Desktop: row. */}
+          <div className="relative flex flex-col items-center gap-4 text-center sm:flex-row sm:items-end sm:justify-between sm:gap-6 sm:text-left">
+            <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-end sm:gap-5">
               <div className="rounded-full ring-4 ring-card">
-                <Avatar player={currentUser} size={104} ring="mint" />
+                <Avatar player={currentUser} size={88} ring="mint" />
               </div>
-              <div className="space-y-1">
-                <div className="flex flex-wrap items-center gap-2">
+              <div className="space-y-1.5">
+                <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
                   <h1 className="font-display text-3xl leading-none sm:text-4xl">{currentUser.name}</h1>
                   <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
                     Lvl {currentUser.level}
                   </span>
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground sm:text-sm">
                   {currentUser.handle} · <Globe2 className="-mt-0.5 inline h-3 w-3" /> {currentUser.country}
                 </p>
-                <p className="max-w-md text-sm text-foreground/80">{BIO}</p>
+                <p className="mx-auto max-w-md text-sm text-foreground/80 sm:mx-0">{BIO}</p>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button variant="secondary" size="sm" className="gap-1.5">
+            <div className="flex w-full gap-2 sm:w-auto">
+              <Button variant="secondary" size="sm" className="flex-1 gap-1.5 sm:flex-none">
                 <Share2 className="h-4 w-4" /> Share
               </Button>
-              <Button size="sm" className="gap-1.5">
+              <Button size="sm" className="flex-1 gap-1.5 sm:flex-none">
                 <Edit3 className="h-4 w-4" /> Edit
               </Button>
             </div>
