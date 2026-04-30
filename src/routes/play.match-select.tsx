@@ -53,12 +53,10 @@ const themes = [
 ];
 
 function MatchSelect() {
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState<"friends" | "recent" | "suggested">("friends");
   const [target, setTarget] = useState<Social | null>(null);
-  const [theme, setTheme] = useState("general");
-  const [customWord, setCustomWord] = useState("");
-  const [confirmed, setConfirmed] = useState(false);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -83,9 +81,19 @@ function MatchSelect() {
 
   function openChallenge(p: Social) {
     setTarget(p);
-    setConfirmed(false);
-    setTheme("general");
-    setCustomWord("");
+  }
+
+  function confirmChallenge() {
+    if (!target) return;
+    navigate({
+      to: "/play/direct-word",
+      search: {
+        opp: target.id,
+        name: target.name,
+        handle: target.handle,
+        rating: target.rating,
+      } as never,
+    });
   }
 
   return (
