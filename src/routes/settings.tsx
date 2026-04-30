@@ -148,10 +148,10 @@ function AppearanceSection() {
               )}
             >
               <div className={cn(
-                "mb-3 flex h-20 items-center justify-center rounded-lg",
-                o.id === "light" && "bg-gradient-to-br from-[#F9FAFB] to-[#E5E7EB] text-[#111827]",
-                o.id === "dark" && "bg-gradient-to-br from-[#1F2937] to-[#111827] text-white",
-                o.id === "system" && "bg-gradient-to-br from-[#F9FAFB] via-[#9CA3AF] to-[#111827] text-white",
+                "mb-3 flex h-20 items-center justify-center rounded-xl border border-border-soft",
+                o.id === "light" && "bg-gradient-to-br from-secondary to-muted text-foreground",
+                o.id === "dark" && "bg-gradient-to-br from-[oklch(0.27_0.03_260)] to-[oklch(0.21_0.03_260)] text-secondary",
+                o.id === "system" && "bg-gradient-to-br from-secondary via-muted-foreground to-[oklch(0.21_0.03_260)] text-secondary",
               )}>
                 <Icon className="size-7" />
               </div>

@@ -229,3 +229,110 @@
 .font-display { font-family: var(--font-display); }
 .font-sans    { font-family: var(--font-sans); }
 .font-mono    { font-family: var(--font-mono); }
+
+/* Premium polish ========================================================= */
+
+/* Page header — usado no topo de cada tela */
+.page-header {
+  margin-bottom: 1.75rem;
+}
+.page-header .page-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  margin-bottom: 0.5rem;
+}
+.page-header .page-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.875rem, 1rem + 2.5vw, 2.75rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--foreground);
+}
+.page-header .page-subtitle {
+  margin-top: 0.5rem;
+  color: var(--muted-foreground);
+  font-size: 0.95rem;
+  max-width: 56ch;
+}
+
+/* Cards premium — sombra discreta, borda suave, hover sutil */
+.card-premium {
+  background: var(--gradient-card);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 0.25s ease,
+              border-color 0.25s ease;
+}
+.card-premium-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: color-mix(in oklch, var(--primary) 35%, var(--border));
+}
+
+/* Hover lift — para CTAs e tiles */
+.hover-lift {
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease;
+}
+.hover-lift:hover { transform: translateY(-2px); }
+.hover-lift:active { transform: translateY(0); }
+
+/* Stat tile — números grandes em display font */
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--foreground);
+}
+.stat-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+/* Divider sutil */
+.divider-soft {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+/* Background ambient — radial mint+lilac muito suave para hero/destaques */
+.ambient-glow {
+  position: relative;
+  isolation: isolate;
+}
+.ambient-glow::before {
+  content: "";
+  position: absolute;
+  inset: -10% -10% auto -10%;
+  height: 60%;
+  background:
+    radial-gradient(40% 60% at 20% 20%, color-mix(in oklch, var(--primary) 18%, transparent), transparent 70%),
+    radial-gradient(40% 60% at 80% 10%, color-mix(in oklch, var(--accent) 18%, transparent), transparent 70%);
+  z-index: -1;
+  filter: blur(20px);
+  pointer-events: none;
+}
+
+/* Entrance animations */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fade-up 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+/* Focus ring premium */
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 35%, transparent);
+}

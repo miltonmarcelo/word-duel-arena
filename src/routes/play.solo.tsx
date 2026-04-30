@@ -468,7 +468,7 @@ function GameScreen({
           >
             <Eye className="size-4" />
             Reveal a letter
-            <span className="ml-1 rounded-full bg-black/20 px-2 py-0.5 text-[10px] font-bold tabular-nums">
+            <span className="ml-1 rounded-full bg-foreground/15 px-2 py-0.5 text-[10px] font-bold tabular-nums">
               −{REVEAL_COST} pts
             </span>
           </Button>
@@ -690,7 +690,7 @@ function ResultScreen({
           <div className="relative">
             <span className={cn(
               "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[0.2em]",
-              won ? "bg-black/15 text-primary-foreground" : "bg-destructive/20 text-destructive",
+              won ? "bg-foreground/10 text-primary-foreground" : "bg-destructive/20 text-destructive",
             )}>
               {won ? <Trophy className="size-3" /> : <Frown className="size-3" />}
               {won ? "Victory" : "Defeat"}
@@ -764,9 +764,9 @@ function ResultScreen({
                       key={j}
                       className={cn(
                         "flex size-7 items-center justify-center rounded text-[11px] font-bold uppercase",
-                        g.states[j] === "correct" && "bg-correct text-white",
-                        g.states[j] === "present" && "bg-present text-white",
-                        g.states[j] === "absent"  && "bg-absent  text-white",
+                        g.states[j] === "correct" && "bg-correct text-[var(--correct-foreground)]",
+                        g.states[j] === "present" && "bg-present text-[var(--present-foreground)]",
+                        g.states[j] === "absent"  && "bg-absent  text-[var(--absent-foreground)]",
                       )}
                     >
                       {l}
