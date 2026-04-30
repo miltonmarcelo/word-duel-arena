@@ -9,6 +9,7 @@ import {
   User,
   Users2,
   BarChart3,
+  BookOpen,
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { ThemeToggle } from "./ThemeToggle";
@@ -23,6 +24,7 @@ const nav = [
   { to: "/stats",         label: "Stats",         icon: BarChart3 },
   { to: "/rooms",         label: "Rooms",         icon: Users2 },
   { to: "/notifications", label: "Notifications", icon: Bell },
+  { to: "/rules",         label: "How to play",   icon: BookOpen },
   { to: "/profile",       label: "Profile",       icon: User },
   { to: "/settings",      label: "Settings",      icon: Settings },
 ] as const;
