@@ -26,6 +26,7 @@ import { Route as RoomsRoomIdRouteImport } from './routes/rooms.$roomId'
 import { Route as PlayRandomRouteImport } from './routes/play.random'
 import { Route as PlayMatchSelectRouteImport } from './routes/play.match-select'
 import { Route as PlayDirectWordRouteImport } from './routes/play.direct-word'
+import { Route as PlayChallengeSentRouteImport } from './routes/play.challenge-sent'
 import { Route as MatchResultRouteImport } from './routes/match.result'
 
 const StatsRoute = StatsRouteImport.update({
@@ -113,6 +114,11 @@ const PlayDirectWordRoute = PlayDirectWordRouteImport.update({
   path: '/direct-word',
   getParentRoute: () => PlayRoute,
 } as any)
+const PlayChallengeSentRoute = PlayChallengeSentRouteImport.update({
+  id: '/challenge-sent',
+  path: '/challenge-sent',
+  getParentRoute: () => PlayRoute,
+} as any)
 const MatchResultRoute = MatchResultRouteImport.update({
   id: '/result',
   path: '/result',
@@ -134,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/stats': typeof StatsRoute
   '/match/result': typeof MatchResultRoute
+  '/play/challenge-sent': typeof PlayChallengeSentRoute
   '/play/direct-word': typeof PlayDirectWordRoute
   '/play/match-select': typeof PlayMatchSelectRoute
   '/play/random': typeof PlayRandomRoute
@@ -154,6 +161,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/stats': typeof StatsRoute
   '/match/result': typeof MatchResultRoute
+  '/play/challenge-sent': typeof PlayChallengeSentRoute
   '/play/direct-word': typeof PlayDirectWordRoute
   '/play/match-select': typeof PlayMatchSelectRoute
   '/play/random': typeof PlayRandomRoute
@@ -175,6 +183,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/stats': typeof StatsRoute
   '/match/result': typeof MatchResultRoute
+  '/play/challenge-sent': typeof PlayChallengeSentRoute
   '/play/direct-word': typeof PlayDirectWordRoute
   '/play/match-select': typeof PlayMatchSelectRoute
   '/play/random': typeof PlayRandomRoute
@@ -197,6 +206,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/stats'
     | '/match/result'
+    | '/play/challenge-sent'
     | '/play/direct-word'
     | '/play/match-select'
     | '/play/random'
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/stats'
     | '/match/result'
+    | '/play/challenge-sent'
     | '/play/direct-word'
     | '/play/match-select'
     | '/play/random'
@@ -237,6 +248,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/stats'
     | '/match/result'
+    | '/play/challenge-sent'
     | '/play/direct-word'
     | '/play/match-select'
     | '/play/random'
@@ -380,6 +392,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlayDirectWordRouteImport
       parentRoute: typeof PlayRoute
     }
+    '/play/challenge-sent': {
+      id: '/play/challenge-sent'
+      path: '/challenge-sent'
+      fullPath: '/play/challenge-sent'
+      preLoaderRoute: typeof PlayChallengeSentRouteImport
+      parentRoute: typeof PlayRoute
+    }
     '/match/result': {
       id: '/match/result'
       path: '/result'
@@ -401,12 +420,14 @@ const MatchRouteChildren: MatchRouteChildren = {
 const MatchRouteWithChildren = MatchRoute._addFileChildren(MatchRouteChildren)
 
 interface PlayRouteChildren {
+  PlayChallengeSentRoute: typeof PlayChallengeSentRoute
   PlayDirectWordRoute: typeof PlayDirectWordRoute
   PlayMatchSelectRoute: typeof PlayMatchSelectRoute
   PlayRandomRoute: typeof PlayRandomRoute
 }
 
 const PlayRouteChildren: PlayRouteChildren = {
+  PlayChallengeSentRoute: PlayChallengeSentRoute,
   PlayDirectWordRoute: PlayDirectWordRoute,
   PlayMatchSelectRoute: PlayMatchSelectRoute,
   PlayRandomRoute: PlayRandomRoute,
