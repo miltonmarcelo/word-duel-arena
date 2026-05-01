@@ -100,7 +100,7 @@ function YourTurn() {
           </div>
 
           <div className="mt-8">
-            <Link to="/match">
+            <Link to="/match" search={{ word: "CRANE", opponent: challenger.name, mode: "direct" }}>
               <Button
                 size="lg"
                 className="hover-lift h-14 w-full gap-2 px-8 text-base font-semibold sm:w-auto"
