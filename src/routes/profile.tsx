@@ -201,27 +201,40 @@ function ProfilePage() {
               </div>
               <ul className="divide-y divide-border">
                 {recentMatches.map((m) => (
-                  <li key={m.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
-                    <Avatar player={m.opponent} size={36} />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold">vs {m.opponent.name}</p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        <Calendar className="-mt-0.5 mr-1 inline h-3 w-3" />
-                        {m.date} · <span className="font-mono font-bold tracking-widest text-foreground">{m.word}</span> · {m.guesses}/6
-                      </p>
-                    </div>
-                    <ResultChip result={m.result} />
-                    <span
-                      className={cn(
-                        "w-12 text-right font-display text-sm tabular-nums",
-                        m.result === "win"  && "text-[color:var(--correct)]",
-                        m.result === "loss" && "text-[color:var(--absent)]",
-                        m.result === "draw" && "text-[color:var(--warning)]",
-                      )}
+                  <li key={m.id}>
+                    <Link
+                      to="/match/result"
+                      search={{
+                        outcome: m.result,
+                        word: m.word,
+                        attempts: m.guesses,
+                        pointsEarned: m.xp,
+                        opponent: m.opponent.name,
+                        from: "history",
+                      }}
+                      className="group flex items-center gap-3 py-3 -mx-2 px-2 rounded-lg transition-colors hover:bg-surface/50"
                     >
-                      {m.result === "loss" ? "−" : "+"}
-                      {m.xp}
-                    </span>
+                      <Avatar player={m.opponent} size={36} />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold group-hover:text-primary transition-colors">vs {m.opponent.name}</p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          <Calendar className="-mt-0.5 mr-1 inline h-3 w-3" />
+                          {m.date} · <span className="font-mono font-bold tracking-widest text-foreground">{m.word}</span> · {m.guesses}/6
+                        </p>
+                      </div>
+                      <ResultChip result={m.result} />
+                      <span
+                        className={cn(
+                          "w-12 text-right font-display text-sm tabular-nums",
+                          m.result === "win"  && "text-[color:var(--correct)]",
+                          m.result === "loss" && "text-[color:var(--absent)]",
+                          m.result === "draw" && "text-[color:var(--warning)]",
+                        )}
+                      >
+                        {m.result === "loss" ? "−" : "+"}
+                        {m.xp}
+                      </span>
+                    </Link>
                   </li>
                 ))}
               </ul>
