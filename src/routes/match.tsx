@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Clock, Flag, Sparkles, Lightbulb, Trophy, Zap, AlertTriangle, Bot } from "lucide-react";
 import { Delete, CornerDownLeft } from "lucide-react";
@@ -50,11 +50,13 @@ const REVEAL_COST = 35;
 
 function MatchPage() {
   const search = Route.useSearch();
+  const navigate = useNavigate();
   const SECRET = search.word ?? FALLBACK_SECRET;
   const isSolo = !search.opponent || search.mode === "quick";
   const opponent = isSolo
     ? null
     : players.find((p) => p.handle === `@${search.opponent}` || p.name.toLowerCase().includes(search.opponent!.toLowerCase())) ?? players[0];
+  const opponentName = search.opponent ?? opponent?.name ?? "Computer";
 
   // --- Game state ---
   const [guesses, setGuesses] = useState<Guess[]>([]);
@@ -64,7 +66,33 @@ function MatchPage() {
   const [points, setPoints] = useState(STARTING_POINTS);
   const [seconds, setSeconds] = useState(102); // 01:42
   const [solved, setSolved] = useState(false);
+  const [failed, setFailed] = useState(false);
   const [confirmReveal, setConfirmReveal] = useState(false);
+
+  const goToResult = useCallback(
+    (outcome: "win" | "loss") => {
+      navigate({
+        to: "/match/result",
+        search: {
+          outcome,
+          word: SECRET,
+          attempts: guesses.length,
+          pointsEarned: outcome === "win" ? 120 : -30,
+          hintsUsed: revealed.length,
+          mode: search.mode ?? "quick",
+          opponent: opponentName,
+        },
+      });
+    },
+    [navigate, SECRET, guesses.length, revealed.length, search.mode, opponentName],
+  );
+
+  // Auto-fail when all rows are used without solving
+  useEffect(() => {
+    if (!solved && !failed && guesses.length >= MAX_ROWS) {
+      setFailed(true);
+    }
+  }, [guesses.length, solved, failed]);
 
   const remaining = MAX_ROWS - guesses.length;
   const pointsAtRisk = Math.max(0, Math.round(points * 0.35));
@@ -346,11 +374,22 @@ function MatchPage() {
                   Solved!
                 </p>
                 <p className="font-display text-2xl">You cracked it.</p>
-                <Link to="/match/result">
-                  <Button className="mt-3 gap-1.5">
-                    <Trophy className="size-4" /> See results
-                  </Button>
-                </Link>
+                <Button onClick={() => goToResult("win")} className="mt-3 gap-1.5">
+                  <Trophy className="size-4" /> See results
+                </Button>
+              </div>
+            )}
+
+            {/* Failed banner */}
+            {failed && !solved && (
+              <div className="surface-elevated max-w-md p-4 text-center">
+                <p className="text-xs font-bold uppercase tracking-wider text-[var(--destructive)]">
+                  Out of tries
+                </p>
+                <p className="font-display text-2xl">The word was {SECRET}.</p>
+                <Button onClick={() => goToResult("loss")} variant="secondary" className="mt-3 gap-1.5">
+                  <Flag className="size-4" /> See results
+                </Button>
               </div>
             )}
 
@@ -376,11 +415,14 @@ function MatchPage() {
               <div className="mx-auto w-fit">
                 <WordBoard guesses={opponentGuesses} rows={MAX_ROWS} size="sm" />
               </div>
-              <Link to="/match/result" className="mt-3 block">
-                <Button size="sm" variant="ghost" className="w-full gap-1.5">
-                  <Flag className="size-3.5" /> Forfeit duel
-                </Button>
-              </Link>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="mt-3 w-full gap-1.5"
+                onClick={() => goToResult("loss")}
+              >
+                <Flag className="size-3.5" /> Forfeit duel
+              </Button>
             </aside>
           ) : (
             <aside className="player-card order-first lg:order-none">
@@ -393,11 +435,14 @@ function MatchPage() {
                   <p className="text-xs text-muted-foreground">No opponent — practice mode</p>
                 </div>
               </div>
-              <Link to="/match/result" className="mt-3 block">
-                <Button size="sm" variant="ghost" className="w-full gap-1.5">
-                  <Flag className="size-3.5" /> End run
-                </Button>
-              </Link>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="mt-3 w-full gap-1.5"
+                onClick={() => goToResult(solved ? "win" : "loss")}
+              >
+                <Flag className="size-3.5" /> End run
+              </Button>
             </aside>
           )}
         </div>

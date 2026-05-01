@@ -24,27 +24,59 @@ import {
   sampleGuesses,
 } from "@/lib/mock-data";
 
+type Outcome = "win" | "loss" | "draw";
+
+type ResultSearch = {
+  outcome?: Outcome;
+  word?: string;
+  attempts?: number;
+  pointsEarned?: number;
+  hintsUsed?: number;
+  mode?: string;
+  opponent?: string;
+};
+
 export const Route = createFileRoute("/match/result")({
   head: () => ({ meta: [{ title: "Match result — WordClash" }] }),
+  validateSearch: (search: Record<string, unknown>): ResultSearch => {
+    const outcomeRaw = typeof search.outcome === "string" ? search.outcome : undefined;
+    const outcome = (["win", "loss", "draw"].includes(outcomeRaw ?? "")
+      ? outcomeRaw
+      : undefined) as Outcome | undefined;
+    const num = (v: unknown) =>
+      typeof v === "number" ? v : typeof v === "string" ? Number(v) : undefined;
+    const wordRaw = typeof search.word === "string" ? search.word.toUpperCase() : undefined;
+    const a = num(search.attempts);
+    const p = num(search.pointsEarned);
+    const h = num(search.hintsUsed);
+    return {
+      outcome,
+      word: wordRaw && /^[A-Z]{5}$/.test(wordRaw) ? wordRaw : undefined,
+      attempts: Number.isFinite(a) ? a : undefined,
+      pointsEarned: Number.isFinite(p) ? p : undefined,
+      hintsUsed: Number.isFinite(h) ? h : undefined,
+      mode: typeof search.mode === "string" ? search.mode : undefined,
+      opponent: typeof search.opponent === "string" ? search.opponent : undefined,
+    };
+  },
   component: ResultPage,
 });
 
-// Outcome — for prototype, hardcoded to a "win". Swap to "loss" or "draw" to preview.
-type Outcome = "win" | "loss" | "draw";
-const OUTCOME: Outcome = "win";
-
 function ResultPage() {
+  const search = Route.useSearch();
+  const OUTCOME: Outcome = search.outcome ?? "win";
   const opponent = players[0];
-  const youGuesses = sampleGuesses.length; // 3
-  const oppGuesses = opponentGuesses.length; // 4
-  const word = "PLATE";
-  const revealedHints = 1; // letters revealed during the match
+  const youGuesses = search.attempts ?? sampleGuesses.length;
+  const oppGuesses = opponentGuesses.length;
+  const word = search.word ?? "PLATE";
+  const revealedHints = search.hintsUsed ?? 1;
   const matchTime = "01:42";
 
   const meta = outcomeMeta(OUTCOME);
 
-  // Animated points counter
-  const targetPoints = OUTCOME === "win" ? 128 : OUTCOME === "draw" ? 40 : -32;
+  // Animated points counter — use param if provided, else fallback per outcome
+  const targetPoints =
+    search.pointsEarned ?? (OUTCOME === "win" ? 128 : OUTCOME === "draw" ? 40 : -32);
   const points = useCountUp(targetPoints, 900);
   const ratingDelta = OUTCOME === "win" ? 18 : OUTCOME === "draw" ? 0 : -12;
   const opponentPoints = OUTCOME === "win" ? -22 : OUTCOME === "draw" ? 40 : 96;
