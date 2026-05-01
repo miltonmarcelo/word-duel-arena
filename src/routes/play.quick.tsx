@@ -15,7 +15,12 @@ import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+type QuickSearch = { theme?: string };
+
 export const Route = createFileRoute("/play/quick")({
+  validateSearch: (s: Record<string, unknown>): QuickSearch => ({
+    theme: typeof s.theme === "string" ? s.theme : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Quick Play — WordClash" },
