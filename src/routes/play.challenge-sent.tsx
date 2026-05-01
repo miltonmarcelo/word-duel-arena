@@ -151,6 +151,11 @@ function ChallengeSent() {
                 <Home className="size-4" /> Go to Home
               </Button>
             </Link>
+            <Link to="/play/waiting" className="flex-1">
+              <Button variant="outline" size="lg" className="w-full gap-2">
+                View match status
+              </Button>
+            </Link>
           </div>
         </section>
       </div>
