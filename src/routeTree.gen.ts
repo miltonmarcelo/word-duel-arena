@@ -31,6 +31,7 @@ import { Route as PlayRandomRouteImport } from './routes/play.random'
 import { Route as PlayQuickRouteImport } from './routes/play.quick'
 import { Route as PlayMatchesRouteImport } from './routes/play.matches'
 import { Route as PlayMatchSelectRouteImport } from './routes/play.match-select'
+import { Route as PlayLockWordRouteImport } from './routes/play.lock-word'
 import { Route as PlayDirectWordRouteImport } from './routes/play.direct-word'
 import { Route as PlayChooseWordRouteImport } from './routes/play.choose-word'
 import { Route as PlayChallengeSentRouteImport } from './routes/play.challenge-sent'
@@ -147,6 +148,11 @@ const PlayMatchSelectRoute = PlayMatchSelectRouteImport.update({
   path: '/play/match-select',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlayLockWordRoute = PlayLockWordRouteImport.update({
+  id: '/play/lock-word',
+  path: '/play/lock-word',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlayDirectWordRoute = PlayDirectWordRouteImport.update({
   id: '/play/direct-word',
   path: '/play/direct-word',
@@ -190,6 +196,7 @@ export interface FileRoutesByFullPath {
   '/play/challenge-sent': typeof PlayChallengeSentRoute
   '/play/choose-word': typeof PlayChooseWordRoute
   '/play/direct-word': typeof PlayDirectWordRoute
+  '/play/lock-word': typeof PlayLockWordRoute
   '/play/match-select': typeof PlayMatchSelectRoute
   '/play/matches': typeof PlayMatchesRoute
   '/play/quick': typeof PlayQuickRoute
@@ -219,6 +226,7 @@ export interface FileRoutesByTo {
   '/play/challenge-sent': typeof PlayChallengeSentRoute
   '/play/choose-word': typeof PlayChooseWordRoute
   '/play/direct-word': typeof PlayDirectWordRoute
+  '/play/lock-word': typeof PlayLockWordRoute
   '/play/match-select': typeof PlayMatchSelectRoute
   '/play/matches': typeof PlayMatchesRoute
   '/play/quick': typeof PlayQuickRoute
@@ -249,6 +257,7 @@ export interface FileRoutesById {
   '/play/challenge-sent': typeof PlayChallengeSentRoute
   '/play/choose-word': typeof PlayChooseWordRoute
   '/play/direct-word': typeof PlayDirectWordRoute
+  '/play/lock-word': typeof PlayLockWordRoute
   '/play/match-select': typeof PlayMatchSelectRoute
   '/play/matches': typeof PlayMatchesRoute
   '/play/quick': typeof PlayQuickRoute
@@ -280,6 +289,7 @@ export interface FileRouteTypes {
     | '/play/challenge-sent'
     | '/play/choose-word'
     | '/play/direct-word'
+    | '/play/lock-word'
     | '/play/match-select'
     | '/play/matches'
     | '/play/quick'
@@ -309,6 +319,7 @@ export interface FileRouteTypes {
     | '/play/challenge-sent'
     | '/play/choose-word'
     | '/play/direct-word'
+    | '/play/lock-word'
     | '/play/match-select'
     | '/play/matches'
     | '/play/quick'
@@ -338,6 +349,7 @@ export interface FileRouteTypes {
     | '/play/challenge-sent'
     | '/play/choose-word'
     | '/play/direct-word'
+    | '/play/lock-word'
     | '/play/match-select'
     | '/play/matches'
     | '/play/quick'
@@ -367,6 +379,7 @@ export interface RootRouteChildren {
   PlayChallengeSentRoute: typeof PlayChallengeSentRoute
   PlayChooseWordRoute: typeof PlayChooseWordRoute
   PlayDirectWordRoute: typeof PlayDirectWordRoute
+  PlayLockWordRoute: typeof PlayLockWordRoute
   PlayMatchSelectRoute: typeof PlayMatchSelectRoute
   PlayMatchesRoute: typeof PlayMatchesRoute
   PlayQuickRoute: typeof PlayQuickRoute
@@ -532,6 +545,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlayMatchSelectRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/play/lock-word': {
+      id: '/play/lock-word'
+      path: '/play/lock-word'
+      fullPath: '/play/lock-word'
+      preLoaderRoute: typeof PlayLockWordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/play/direct-word': {
       id: '/play/direct-word'
       path: '/play/direct-word'
@@ -606,6 +626,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlayChallengeSentRoute: PlayChallengeSentRoute,
   PlayChooseWordRoute: PlayChooseWordRoute,
   PlayDirectWordRoute: PlayDirectWordRoute,
+  PlayLockWordRoute: PlayLockWordRoute,
   PlayMatchSelectRoute: PlayMatchSelectRoute,
   PlayMatchesRoute: PlayMatchesRoute,
   PlayQuickRoute: PlayQuickRoute,

@@ -213,13 +213,14 @@ function WordPick() {
   function handleLock() {
     if (!selected) return;
     navigate({
-      to: "/play/challenge-sent",
+      to: "/play/lock-word",
       search: {
         opp: search.opp,
         name: search.name,
         handle: search.handle,
         rating: search.rating,
         word: selected.word,
+        from: "list",
       } as never,
     });
   }
