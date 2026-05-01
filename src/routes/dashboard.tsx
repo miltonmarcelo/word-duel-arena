@@ -75,7 +75,7 @@ function Dashboard() {
                   <Zap className="size-4" /> Start new duel
                 </Button>
               </Link>
-              <Link to="/match">
+              <Link to="/play">
                 <Button size="lg" variant="secondary">
                   <Sparkles className="size-4" /> Daily puzzle
                 </Button>
