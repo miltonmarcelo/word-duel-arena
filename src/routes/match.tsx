@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Clock, Flag, Sparkles, Lightbulb, Trophy, Zap, AlertTriangle } from "lucide-react";
+import { Clock, Flag, Sparkles, Lightbulb, Trophy, Zap, AlertTriangle, Bot } from "lucide-react";
 import { Delete, CornerDownLeft } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Avatar } from "@/components/Avatar";
@@ -9,18 +9,52 @@ import { WordBoard } from "@/components/WordBoard";
 import { cn } from "@/lib/utils";
 import { currentUser, opponentGuesses, players, type TileState, type Guess } from "@/lib/mock-data";
 
+type MatchSearch = {
+  word?: string;
+  mode: "direct" | "random" | "quick" | "themed";
+  theme?: string;
+  opponent?: string;
+  opponentRating?: number;
+};
+
 export const Route = createFileRoute("/match")({
   head: () => ({ meta: [{ title: "Live duel — WordClash" }] }),
+  validateSearch: (search: Record<string, unknown>): MatchSearch => {
+    const modeRaw = typeof search.mode === "string" ? search.mode : "quick";
+    const mode = (["direct", "random", "quick", "themed"].includes(modeRaw)
+      ? modeRaw
+      : "quick") as MatchSearch["mode"];
+    const wordRaw = typeof search.word === "string" ? search.word.toUpperCase() : undefined;
+    const word = wordRaw && /^[A-Z]{5}$/.test(wordRaw) ? wordRaw : undefined;
+    const ratingNum =
+      typeof search.opponentRating === "number"
+        ? search.opponentRating
+        : typeof search.opponentRating === "string"
+          ? Number(search.opponentRating)
+          : undefined;
+    return {
+      word,
+      mode,
+      theme: typeof search.theme === "string" ? search.theme : undefined,
+      opponent: typeof search.opponent === "string" ? search.opponent : undefined,
+      opponentRating: Number.isFinite(ratingNum) ? ratingNum : undefined,
+    };
+  },
   component: MatchPage,
 });
 
-const SECRET = "PLATE";
+const FALLBACK_SECRET = "PLATE";
 const MAX_ROWS = 6;
 const STARTING_POINTS = 240;
 const REVEAL_COST = 35;
 
 function MatchPage() {
-  const opponent = players[0];
+  const search = Route.useSearch();
+  const SECRET = search.word ?? FALLBACK_SECRET;
+  const isSolo = !search.opponent || search.mode === "quick";
+  const opponent = isSolo
+    ? null
+    : players.find((p) => p.handle === `@${search.opponent}` || p.name.toLowerCase().includes(search.opponent!.toLowerCase())) ?? players[0];
 
   // --- Game state ---
   const [guesses, setGuesses] = useState<Guess[]>([]);
