@@ -15,6 +15,7 @@ export const Route = createFileRoute("/play/random")({
 type Pair = { a: Player; b: Player; status: "matching" | "ready" };
 
 function RandomMatch() {
+  const navigate = useNavigate();
   const [inQueue, setInQueue] = useState(true);
   const [seconds, setSeconds] = useState(0);
   const [eta, setEta] = useState(14);
