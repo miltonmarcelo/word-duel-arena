@@ -8,10 +8,14 @@ import {
   Check,
   CheckCheck,
   Clock,
+  Eye,
   Flag,
+  Lock,
   Play,
   Sparkles,
   Swords,
+  ThumbsDown,
+  ThumbsUp,
   Trophy,
   UserPlus,
   X,
@@ -33,24 +37,31 @@ const TYPE_META: Record<
   NotificationType,
   { label: string; icon: typeof Bell; color: string }
 > = {
-  challenge:   { label: "Challenges",   icon: Swords,    color: "var(--accent)" },
-  turn:        { label: "Your turn",    icon: Clock,     color: "var(--warning)" },
-  starting:    { label: "Starting",     icon: Play,      color: "var(--primary)" },
-  result:      { label: "Results",      icon: Flag,      color: "var(--correct)" },
-  ranking:     { label: "Ranking",      icon: ArrowUp,   color: "var(--present)" },
-  achievement: { label: "Achievements", icon: Award,     color: "var(--warning)" },
-  friend:      { label: "Friends",      icon: UserPlus,  color: "var(--accent)" },
-  system:      { label: "System",       icon: Sparkles,  color: "var(--muted-foreground)" },
+  challenge:          { label: "Challenges",        icon: Swords,     color: "var(--accent)" },
+  challenge_accepted: { label: "Accepted",          icon: ThumbsUp,   color: "var(--correct)" },
+  challenge_declined: { label: "Declined",          icon: ThumbsDown, color: "var(--destructive)" },
+  word_locked:        { label: "Word locked",       icon: Lock,       color: "var(--primary)" },
+  opponent_finished:  { label: "Opponent finished", icon: Eye,        color: "var(--present)" },
+  turn:               { label: "Your turn",         icon: Clock,      color: "var(--warning)" },
+  starting:           { label: "Starting",          icon: Play,       color: "var(--primary)" },
+  result:             { label: "Results",           icon: Flag,       color: "var(--correct)" },
+  ranking:            { label: "Ranking",           icon: ArrowUp,    color: "var(--present)" },
+  achievement:        { label: "Achievements",      icon: Award,      color: "var(--warning)" },
+  friend:             { label: "Friends",           icon: UserPlus,   color: "var(--accent)" },
+  system:             { label: "System",            icon: Sparkles,   color: "var(--muted-foreground)" },
 };
 
 const FILTERS: { id: Filter; label: string }[] = [
-  { id: "all",         label: "All" },
-  { id: "unread",      label: "Unread" },
-  { id: "challenge",   label: "Challenges" },
-  { id: "turn",        label: "Your turn" },
-  { id: "result",      label: "Results" },
-  { id: "ranking",     label: "Ranking" },
-  { id: "achievement", label: "Achievements" },
+  { id: "all",                label: "All" },
+  { id: "unread",             label: "Unread" },
+  { id: "challenge",          label: "Challenges" },
+  { id: "challenge_accepted", label: "Accepted" },
+  { id: "word_locked",        label: "Word locked" },
+  { id: "opponent_finished",  label: "Opponent finished" },
+  { id: "turn",               label: "Your turn" },
+  { id: "result",             label: "Results" },
+  { id: "ranking",            label: "Ranking" },
+  { id: "achievement",        label: "Achievements" },
 ];
 
 function NotificationsPage() {
@@ -308,6 +319,55 @@ function ActionRow({ type }: { type: NotificationType }) {
       </div>
     );
   }
+  if (type === "challenge_accepted") {
+    return (
+      <div className="mt-2.5 flex gap-2">
+        <Link to="/play/choose-word">
+          <Button size="sm" className="h-7 gap-1 text-xs">
+            <Lock className="h-3 w-3" /> Choose your word
+          </Button>
+        </Link>
+        <Link to="/play/matches">
+          <Button size="sm" variant="ghost" className="h-7 gap-1 text-xs">
+            View match
+          </Button>
+        </Link>
+      </div>
+    );
+  }
+  if (type === "challenge_declined") {
+    return (
+      <div className="mt-2.5 flex gap-2">
+        <Link to="/play">
+          <Button size="sm" variant="secondary" className="h-7 gap-1 text-xs">
+            <Swords className="h-3 w-3" /> Find another opponent
+          </Button>
+        </Link>
+      </div>
+    );
+  }
+  if (type === "word_locked") {
+    return (
+      <div className="mt-2.5 flex gap-2">
+        <Link to="/match">
+          <Button size="sm" className="h-7 gap-1 text-xs">
+            <Play className="h-3 w-3" /> Start guessing
+          </Button>
+        </Link>
+      </div>
+    );
+  }
+  if (type === "opponent_finished") {
+    return (
+      <div className="mt-2.5 flex gap-2">
+        <Link to="/match">
+          <Button size="sm" className="h-7 gap-1 text-xs">
+            <Play className="h-3 w-3" /> Take your turn
+          </Button>
+        </Link>
+      </div>
+    );
+  }
   if (type === "turn" || type === "starting") {
     return (
       <div className="mt-2.5">
@@ -322,9 +382,12 @@ function ActionRow({ type }: { type: NotificationType }) {
   if (type === "result") {
     return (
       <div className="mt-2.5">
-        <Link to="/match/result">
+        <Link
+          to="/match/result"
+          search={{ from: "history", outcome: "win" }}
+        >
           <Button size="sm" variant="secondary" className="h-7 gap-1 text-xs">
-            <Flag className="h-3 w-3" /> View recap
+            <Flag className="h-3 w-3" /> View result
           </Button>
         </Link>
       </div>
