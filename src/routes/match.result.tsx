@@ -69,8 +69,13 @@ function ResultPage() {
   const youGuesses = search.attempts ?? sampleGuesses.length;
   const oppGuesses = opponentGuesses.length;
   const word = search.word ?? "PLATE";
+  // In a duel, each player guesses the word their opponent picked.
+  const yourWord = word; // word you had to guess (chosen by opponent)
+  const opponentWord = "BRAVE"; // word opponent had to guess (chosen by you)
   const revealedHints = search.hintsUsed ?? 1;
   const matchTime = "01:42";
+  const yourTime = matchTime;
+  const opponentTime = "02:18";
 
   const meta = outcomeMeta(OUTCOME);
 
