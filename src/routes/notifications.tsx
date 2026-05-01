@@ -37,24 +37,31 @@ const TYPE_META: Record<
   NotificationType,
   { label: string; icon: typeof Bell; color: string }
 > = {
-  challenge:   { label: "Challenges",   icon: Swords,    color: "var(--accent)" },
-  turn:        { label: "Your turn",    icon: Clock,     color: "var(--warning)" },
-  starting:    { label: "Starting",     icon: Play,      color: "var(--primary)" },
-  result:      { label: "Results",      icon: Flag,      color: "var(--correct)" },
-  ranking:     { label: "Ranking",      icon: ArrowUp,   color: "var(--present)" },
-  achievement: { label: "Achievements", icon: Award,     color: "var(--warning)" },
-  friend:      { label: "Friends",      icon: UserPlus,  color: "var(--accent)" },
-  system:      { label: "System",       icon: Sparkles,  color: "var(--muted-foreground)" },
+  challenge:          { label: "Challenges",        icon: Swords,     color: "var(--accent)" },
+  challenge_accepted: { label: "Accepted",          icon: ThumbsUp,   color: "var(--correct)" },
+  challenge_declined: { label: "Declined",          icon: ThumbsDown, color: "var(--destructive)" },
+  word_locked:        { label: "Word locked",       icon: Lock,       color: "var(--primary)" },
+  opponent_finished:  { label: "Opponent finished", icon: Eye,        color: "var(--present)" },
+  turn:               { label: "Your turn",         icon: Clock,      color: "var(--warning)" },
+  starting:           { label: "Starting",          icon: Play,       color: "var(--primary)" },
+  result:             { label: "Results",           icon: Flag,       color: "var(--correct)" },
+  ranking:            { label: "Ranking",           icon: ArrowUp,    color: "var(--present)" },
+  achievement:        { label: "Achievements",      icon: Award,      color: "var(--warning)" },
+  friend:             { label: "Friends",           icon: UserPlus,   color: "var(--accent)" },
+  system:             { label: "System",            icon: Sparkles,   color: "var(--muted-foreground)" },
 };
 
 const FILTERS: { id: Filter; label: string }[] = [
-  { id: "all",         label: "All" },
-  { id: "unread",      label: "Unread" },
-  { id: "challenge",   label: "Challenges" },
-  { id: "turn",        label: "Your turn" },
-  { id: "result",      label: "Results" },
-  { id: "ranking",     label: "Ranking" },
-  { id: "achievement", label: "Achievements" },
+  { id: "all",                label: "All" },
+  { id: "unread",             label: "Unread" },
+  { id: "challenge",          label: "Challenges" },
+  { id: "challenge_accepted", label: "Accepted" },
+  { id: "word_locked",        label: "Word locked" },
+  { id: "opponent_finished",  label: "Opponent finished" },
+  { id: "turn",               label: "Your turn" },
+  { id: "result",             label: "Results" },
+  { id: "ranking",            label: "Ranking" },
+  { id: "achievement",        label: "Achievements" },
 ];
 
 function NotificationsPage() {
