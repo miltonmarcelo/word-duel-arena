@@ -1,13 +1,39 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Clock, Flag, Sparkles, Lightbulb, Trophy, Zap, AlertTriangle, Bot } from "lucide-react";
-import { Delete, CornerDownLeft } from "lucide-react";
+import {
+  AlertTriangle,
+  Bot,
+  Clock,
+  CornerDownLeft,
+  Delete,
+  Flag,
+  Hourglass,
+  Lightbulb,
+  Send,
+  Sparkles,
+  Trophy,
+  X,
+  Zap,
+} from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Avatar } from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { WordBoard } from "@/components/WordBoard";
 import { cn } from "@/lib/utils";
-import { currentUser, opponentGuesses, players, type TileState, type Guess } from "@/lib/mock-data";
+import {
+  currentUser,
+  players,
+  type Guess,
+  type TileState,
+} from "@/lib/mock-data";
 
 type MatchSearch = {
   word?: string;
@@ -47,27 +73,44 @@ const FALLBACK_SECRET = "PLATE";
 const MAX_ROWS = 6;
 const STARTING_POINTS = 240;
 const REVEAL_COST = 35;
+const TOTAL_TIME = 180; // 3:00 starting clock
 
 function MatchPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
   const SECRET = search.word ?? FALLBACK_SECRET;
+
   const isSolo = !search.opponent || search.mode === "quick";
   const opponent = isSolo
     ? null
-    : players.find((p) => p.handle === `@${search.opponent}` || p.name.toLowerCase().includes(search.opponent!.toLowerCase())) ?? players[0];
+    : players.find(
+        (p) =>
+          p.handle === `@${search.opponent}` ||
+          p.name.toLowerCase().includes(search.opponent!.toLowerCase()),
+      ) ?? players[0];
   const opponentName = search.opponent ?? opponent?.name ?? "Computer";
 
   // --- Game state ---
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [current, setCurrent] = useState<string>("");
   const [shake, setShake] = useState(false);
-  const [revealed, setRevealed] = useState<number[]>([]); // indices forced visible
+  const [revealed, setRevealed] = useState<number[]>([]);
   const [points, setPoints] = useState(STARTING_POINTS);
-  const [seconds, setSeconds] = useState(102); // 01:42
+  const [seconds, setSeconds] = useState(TOTAL_TIME);
   const [solved, setSolved] = useState(false);
   const [failed, setFailed] = useState(false);
   const [confirmReveal, setConfirmReveal] = useState(false);
+  const [confirmLeave, setConfirmLeave] = useState(false);
+
+  // Mocked opponent status — flips to "finished" mid-match. No progress shared.
+  const [opponentStatus, setOpponentStatus] = useState<"playing" | "finished">(
+    "playing",
+  );
+  useEffect(() => {
+    if (isSolo) return;
+    const t = setTimeout(() => setOpponentStatus("finished"), 95_000);
+    return () => clearTimeout(t);
+  }, [isSolo]);
 
   const goToResult = useCallback(
     (outcome: "win" | "loss") => {
@@ -87,28 +130,20 @@ function MatchPage() {
     [navigate, SECRET, guesses.length, points, revealed.length, search.mode, opponentName],
   );
 
-  // Auto-fail when all rows are used without solving
   useEffect(() => {
-    if (!solved && !failed && guesses.length >= MAX_ROWS) {
-      setFailed(true);
-    }
+    if (!solved && !failed && guesses.length >= MAX_ROWS) setFailed(true);
   }, [guesses.length, solved, failed]);
 
   const remaining = MAX_ROWS - guesses.length;
   const pointsAtRisk = Math.max(0, Math.round(points * 0.35));
 
-  // Letter-state map for keyboard (best known per letter)
   const keyStates = useMemo(() => {
-    const order: Record<TileState, number> = {
-      empty: 0, filled: 0, absent: 1, present: 2, correct: 3, filled_dup: 0,
-    } as never;
+    const order: Record<string, number> = { absent: 1, present: 2, correct: 3 };
     const m: Record<string, TileState> = {};
     for (const g of guesses) {
       g.letters.forEach((l, i) => {
         const s = g.states[i];
-        if (!m[l] || (order as never as Record<TileState, number>)[s] > (order as never as Record<TileState, number>)[m[l]]) {
-          m[l] = s;
-        }
+        if (!m[l] || (order[s] ?? 0) > (order[m[l]] ?? 0)) m[l] = s;
       });
     }
     return m;
@@ -116,33 +151,38 @@ function MatchPage() {
 
   // Timer
   useEffect(() => {
-    if (solved) return;
+    if (solved || failed) return;
     const id = setInterval(() => setSeconds((s) => Math.max(0, s - 1)), 1000);
     return () => clearInterval(id);
-  }, [solved]);
+  }, [solved, failed]);
 
-  const evaluate = useCallback((word: string): TileState[] => {
-    const result: TileState[] = Array(5).fill("absent");
-    const secret = SECRET.split("");
-    const used = Array(5).fill(false);
-    // first pass: correct
-    for (let i = 0; i < 5; i++) {
-      if (word[i] === secret[i]) {
-        result[i] = "correct";
-        used[i] = true;
+  useEffect(() => {
+    if (seconds === 0 && !solved && !failed) setFailed(true);
+  }, [seconds, solved, failed]);
+
+  const evaluate = useCallback(
+    (word: string): TileState[] => {
+      const result: TileState[] = Array(5).fill("absent");
+      const secret = SECRET.split("");
+      const used = Array(5).fill(false);
+      for (let i = 0; i < 5; i++) {
+        if (word[i] === secret[i]) {
+          result[i] = "correct";
+          used[i] = true;
+        }
       }
-    }
-    // second pass: present
-    for (let i = 0; i < 5; i++) {
-      if (result[i] === "correct") continue;
-      const idx = secret.findIndex((c, j) => !used[j] && c === word[i]);
-      if (idx !== -1) {
-        result[i] = "present";
-        used[idx] = true;
+      for (let i = 0; i < 5; i++) {
+        if (result[i] === "correct") continue;
+        const idx = secret.findIndex((c, j) => !used[j] && c === word[i]);
+        if (idx !== -1) {
+          result[i] = "present";
+          used[idx] = true;
+        }
       }
-    }
-    return result;
-  }, []);
+      return result;
+    },
+    [SECRET],
+  );
 
   const submit = useCallback(() => {
     if (current.length !== 5 || solved) {
@@ -154,9 +194,7 @@ function MatchPage() {
     const next: Guess = { letters: current.split(""), states };
     setGuesses((g) => [...g, next]);
     setCurrent("");
-    if (states.every((s) => s === "correct")) {
-      setSolved(true);
-    }
+    if (states.every((s) => s === "correct")) setSolved(true);
   }, [current, evaluate, solved]);
 
   const onKey = useCallback(
@@ -171,7 +209,6 @@ function MatchPage() {
     [current.length, solved, submit],
   );
 
-  // Physical keyboard
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Enter") return onKey("ENTER");
@@ -193,11 +230,11 @@ function MatchPage() {
     setConfirmReveal(false);
   }
 
-  // Build display rows
-  const displayRows: (Guess | undefined)[] = Array.from({ length: MAX_ROWS }).map((_, i) => {
-    if (i < guesses.length) return guesses[i];
-    if (i === guesses.length && !solved) {
-      // active row with current input + revealed letters as hints
+  // Build display rows — show ONLY past guesses + the active editing row.
+  // Future empty rows render as plain empties (no opponent visibility).
+  const displayRows: Guess[] = (() => {
+    const arr: Guess[] = [...guesses];
+    if (!solved && !failed) {
       const letters = Array(5).fill("");
       const states: TileState[] = Array(5).fill("empty");
       for (let j = 0; j < 5; j++) {
@@ -210,245 +247,232 @@ function MatchPage() {
           states[j] = "filled";
         }
       }
-      return { letters, states };
+      arr.push({ letters, states });
     }
-    return undefined;
-  });
+    return arr;
+  })();
+
+  const canSubmit = current.length === 5 && !solved && !failed;
+  const canReveal = points >= REVEAL_COST && revealed.length < 5 && !solved && !failed;
+  const lowTime = seconds <= 30;
 
   return (
     <AppShell>
-      <div className="space-y-4 md:space-y-5">
+      <div className="mx-auto flex max-w-3xl flex-col gap-4 pb-40 sm:pb-32">
         {/* === TOP BAR === */}
-        <div className="surface-elevated relative overflow-hidden p-3 md:p-4">
-          <div
-            className="pointer-events-none absolute inset-0 opacity-50"
-            style={{ background: "var(--gradient-hero)" }}
-          />
-          <div className="relative flex items-center gap-3">
-            {/* You */}
-            <div className="flex min-w-0 items-center gap-2">
-              <Avatar player={currentUser} size={36} ring="mint" />
-              <div className="min-w-0">
-                <p className="truncate text-xs font-semibold">{currentUser.name}</p>
-                <p className="text-[10px] text-muted-foreground">
-                  {guesses.length}/{MAX_ROWS} · {points} pts
-                </p>
-              </div>
+        <header
+          className="surface-elevated relative overflow-hidden p-3 sm:p-4"
+          style={{ background: "var(--gradient-hero), var(--surface-elevated)" }}
+        >
+          <div className="relative grid grid-cols-[1fr,auto,1fr] items-center gap-2">
+            {/* Leave button (left) */}
+            <div className="justify-self-start">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setConfirmLeave(true)}
+                className="gap-1.5 text-muted-foreground hover:text-foreground"
+              >
+                <X className="size-4" />
+                <span className="hidden sm:inline">Leave</span>
+              </Button>
             </div>
 
             {/* Center: theme + timer */}
-            <div className="flex flex-1 flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-1">
               {search.theme && (
                 <span className="chip chip-lilac">
-                  <Sparkles className="size-3" /> {search.theme.charAt(0).toUpperCase() + search.theme.slice(1)}
+                  <Sparkles className="size-3" />{" "}
+                  {search.theme.charAt(0).toUpperCase() + search.theme.slice(1)}
                 </span>
               )}
-              <span
+              <div
                 className={cn(
-                  "inline-flex items-center gap-1 font-mono text-base font-bold tabular-nums md:text-lg",
-                  seconds < 30 && "text-[var(--danger,var(--destructive))] animate-pulse",
+                  "inline-flex items-center gap-1.5 rounded-full border border-border bg-background/70 px-3 py-1 font-mono text-base font-bold tabular-nums shadow-sm sm:text-lg",
+                  lowTime &&
+                    "animate-pulse border-[var(--destructive)]/60 text-[var(--destructive)]",
                 )}
               >
                 <Clock className="size-3.5" />
                 {formatTime(seconds)}
-              </span>
+              </div>
             </div>
 
-            {/* Opponent */}
-            <div className="flex min-w-0 items-center gap-2 justify-end">
-              {opponent ? (
-                <>
-                  <div className="min-w-0 text-right">
-                    <p className="truncate text-xs font-semibold">{opponent.name.split(" ")[0]}</p>
-                    <p className="text-[10px] text-muted-foreground">
-                      {opponentGuesses.length}/{MAX_ROWS} · typing…
-                      {search.opponentRating ? ` · ${search.opponentRating}` : ""}
-                    </p>
-                  </div>
-                  <Avatar player={opponent} size={36} ring="lilac" />
-                </>
-              ) : (
-                <>
-                  <div className="min-w-0 text-right">
-                    <p className="truncate text-xs font-semibold">vs Computer</p>
-                    <p className="text-[10px] text-muted-foreground">solo run</p>
-                  </div>
-                  <div className="flex size-9 items-center justify-center rounded-full bg-muted text-muted-foreground ring-2 ring-[var(--player-b,var(--accent))]/40">
-                    <Bot className="size-4" />
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* VS progress bar */}
-          <div className="relative mt-3 flex h-1.5 overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full"
-              style={{
-                width: `${(guesses.length / MAX_ROWS) * 50}%`,
-                background: "var(--player-a, var(--primary))",
-              }}
-            />
-            <div className="flex-1" />
-            <div
-              className="h-full"
-              style={{
-                width: `${(opponent ? opponentGuesses.length / MAX_ROWS : 0) * 50}%`,
-                background: "var(--player-b, var(--accent))",
-              }}
-            />
-          </div>
-        </div>
-
-        {/* === MAIN GAME === */}
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr,260px]">
-          <div className="flex flex-col items-center gap-4">
-            {/* Status strip */}
-            <div className="flex w-full max-w-md flex-wrap items-center justify-between gap-2 text-xs">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/60 px-2.5 py-1 font-semibold">
-                <Trophy className="size-3 text-primary" /> {points} pts
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/60 px-2.5 py-1 font-semibold">
-                {remaining} {remaining === 1 ? "try" : "tries"} left
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--warning)]/40 bg-[var(--warning)]/10 px-2.5 py-1 font-semibold text-[var(--warning)]">
-                <AlertTriangle className="size-3" /> {pointsAtRisk} at risk
-              </span>
-            </div>
-
-            {/* Board */}
-            <div
-              className={cn(
-                "transition-transform",
-                shake && "animate-[shake_0.4s_ease-in-out]",
-              )}
-            >
-              <WordBoard
-                guesses={displayRows.filter(Boolean) as Guess[]}
-                rows={MAX_ROWS}
+            {/* Opponent status badge (right) */}
+            <div className="justify-self-end">
+              <OpponentStatusBadge
+                opponent={opponent ?? undefined}
+                opponentName={opponentName}
+                isSolo={isSolo}
+                status={opponentStatus}
               />
             </div>
-
-            {/* Reveal button */}
-            <button
-              onClick={() => setConfirmReveal(true)}
-              disabled={points < REVEAL_COST || revealed.length >= 5 || solved}
-              className={cn(
-                "group inline-flex items-center gap-2 rounded-full border border-[var(--warning)]/40 bg-[var(--warning)]/10 px-4 py-2 text-sm font-semibold text-[var(--warning)] transition",
-                "hover:-translate-y-0.5 hover:bg-[var(--warning)]/15 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0",
-              )}
-            >
-              <Lightbulb className="size-4" />
-              Reveal a letter
-              <span className="rounded-full bg-background/60 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
-                −{REVEAL_COST} pts
-              </span>
-            </button>
-
-            {/* Confirm reveal */}
-            {confirmReveal && (
-              <div className="surface-elevated max-w-md p-4 text-center text-sm">
-                <p className="font-semibold">
-                  Spend <span className="text-[var(--warning)]">{REVEAL_COST} pts</span> to reveal one
-                  random letter?
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  You'll have {points - REVEAL_COST} pts left after this hint.
-                </p>
-                <div className="mt-3 flex justify-center gap-2">
-                  <Button size="sm" variant="ghost" onClick={() => setConfirmReveal(false)}>
-                    Cancel
-                  </Button>
-                  <Button size="sm" onClick={doReveal} className="gap-1.5">
-                    <Zap className="size-3.5" /> Reveal
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Solved banner */}
-            {solved && (
-              <div className="surface-elevated max-w-md p-4 text-center">
-                <p className="text-xs font-bold uppercase tracking-wider text-[var(--correct)]">
-                  Solved!
-                </p>
-                <p className="font-display text-2xl">You cracked it.</p>
-                <Button onClick={() => goToResult("win")} className="mt-3 gap-1.5">
-                  <Trophy className="size-4" /> See results
-                </Button>
-              </div>
-            )}
-
-            {/* Failed banner */}
-            {failed && !solved && (
-              <div className="surface-elevated max-w-md p-4 text-center">
-                <p className="text-xs font-bold uppercase tracking-wider text-[var(--destructive)]">
-                  Out of tries
-                </p>
-                <p className="font-display text-2xl">The word was {SECRET}.</p>
-                <Button onClick={() => goToResult("loss")} variant="secondary" className="mt-3 gap-1.5">
-                  <Flag className="size-4" /> See results
-                </Button>
-              </div>
-            )}
-
-            {/* Keyboard */}
-            <InteractiveKeyboard onKey={onKey} keyStates={keyStates} />
           </div>
+        </header>
 
-          {/* Opponent mini board */}
-          {opponent ? (
-            <aside className="player-card player-b order-first lg:order-none">
-              <div className="mb-3 flex items-center gap-3">
-                <Avatar player={opponent} size={36} ring="lilac" />
-                <div className="flex-1 min-w-0">
-                  <p className="truncate text-sm font-semibold">{opponent.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    <span className="player-dot player-b mr-1 inline-block" /> typing…
-                  </p>
-                </div>
-                <p className="font-display text-lg">
-                  {opponentGuesses.length}<span className="text-muted-foreground">/{MAX_ROWS}</span>
-                </p>
-              </div>
-              <div className="mx-auto w-fit">
-                <WordBoard guesses={opponentGuesses} rows={MAX_ROWS} size="sm" />
-              </div>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="mt-3 w-full gap-1.5"
-                onClick={() => goToResult("loss")}
-              >
-                <Flag className="size-3.5" /> Forfeit duel
-              </Button>
-            </aside>
-          ) : (
-            <aside className="player-card order-first lg:order-none">
-              <div className="mb-3 flex items-center gap-3">
-                <div className="flex size-9 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                  <Bot className="size-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="truncate text-sm font-semibold">Solo run</p>
-                  <p className="text-xs text-muted-foreground">No opponent — practice mode</p>
-                </div>
-              </div>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="mt-3 w-full gap-1.5"
-                onClick={() => goToResult(solved ? "win" : "loss")}
-              >
-                <Flag className="size-3.5" /> End run
-              </Button>
-            </aside>
+        {/* === STAT STRIP === */}
+        <div className="flex flex-wrap items-center justify-center gap-2 text-xs">
+          <Pill icon={<Trophy className="size-3 text-primary" />}>
+            <span className="font-mono tabular-nums">{points}</span> pts
+          </Pill>
+          <Pill icon={<Hourglass className="size-3 text-muted-foreground" />}>
+            <span className="font-mono tabular-nums">
+              {guesses.length}
+              <span className="text-muted-foreground">/{MAX_ROWS}</span>
+            </span>{" "}
+            attempts
+          </Pill>
+          <Pill icon={<AlertTriangle className="size-3 text-[var(--warning)]" />} tone="warning">
+            <span className="font-mono tabular-nums">{pointsAtRisk}</span> at risk
+          </Pill>
+          {revealed.length > 0 && (
+            <Pill icon={<Lightbulb className="size-3 text-[var(--warning)]" />}>
+              {revealed.length} hint{revealed.length === 1 ? "" : "s"} used
+            </Pill>
           )}
         </div>
+
+        {/* === BOARD === */}
+        <div
+          className={cn(
+            "flex justify-center transition-transform",
+            shake && "animate-[shake_0.4s_ease-in-out]",
+          )}
+        >
+          <WordBoard guesses={displayRows} rows={MAX_ROWS} />
+        </div>
+
+        {/* === ACTION BUTTONS === */}
+        <div className="mx-auto flex w-full max-w-md flex-col gap-2 sm:flex-row">
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => setConfirmReveal(true)}
+            disabled={!canReveal}
+            className={cn(
+              "flex-1 gap-2 border-[var(--warning)]/40 bg-[var(--warning)]/10 text-[var(--warning)]",
+              "hover:bg-[var(--warning)]/15 hover:text-[var(--warning)]",
+            )}
+          >
+            <Lightbulb className="size-4" />
+            Reveal letter
+            <span className="ml-auto rounded-full bg-background/60 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+              −{REVEAL_COST}
+            </span>
+          </Button>
+          <Button
+            size="lg"
+            onClick={submit}
+            disabled={!canSubmit}
+            className="flex-1 gap-2"
+          >
+            <Send className="size-4" />
+            Submit guess
+          </Button>
+        </div>
+
+        {/* Solved / Failed banners */}
+        {solved && (
+          <div className="surface-elevated mx-auto w-full max-w-md p-4 text-center">
+            <p className="text-xs font-bold uppercase tracking-wider text-[var(--correct)]">
+              Solved!
+            </p>
+            <p className="font-display text-2xl">You cracked it.</p>
+            <Button onClick={() => goToResult("win")} className="mt-3 gap-1.5">
+              <Trophy className="size-4" /> See results
+            </Button>
+          </div>
+        )}
+
+        {failed && !solved && (
+          <div className="surface-elevated mx-auto w-full max-w-md p-4 text-center">
+            <p className="text-xs font-bold uppercase tracking-wider text-[var(--destructive)]">
+              Out of {seconds === 0 ? "time" : "tries"}
+            </p>
+            <p className="font-display text-2xl">The word was {SECRET}.</p>
+            <Button
+              onClick={() => goToResult("loss")}
+              variant="secondary"
+              className="mt-3 gap-1.5"
+            >
+              <Flag className="size-4" /> See results
+            </Button>
+          </div>
+        )}
       </div>
 
-      {/* Local keyframes for shake (uses Tailwind arbitrary animate above) */}
+      {/* === KEYBOARD (sticky bottom) === */}
+      <div
+        className="fixed inset-x-0 bottom-16 z-30 border-t border-border bg-background/85 px-2 py-2 backdrop-blur-md sm:bottom-0"
+        style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0.5rem)" }}
+      >
+        <InteractiveKeyboard onKey={onKey} keyStates={keyStates} />
+      </div>
+
+      {/* Reveal confirm dialog */}
+      <Dialog open={confirmReveal} onOpenChange={setConfirmReveal}>
+        <DialogContent className="surface-elevated max-w-sm border-border">
+          <DialogHeader>
+            <DialogTitle className="font-display text-2xl">Reveal a letter?</DialogTitle>
+            <DialogDescription>
+              Spend{" "}
+              <span className="font-semibold text-[var(--warning)]">
+                {REVEAL_COST} pts
+              </span>{" "}
+              to uncover one random letter. You'll have{" "}
+              <span className="font-semibold text-foreground">
+                {points - REVEAL_COST} pts
+              </span>{" "}
+              left.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col-reverse gap-2 sm:flex-row">
+            <Button
+              variant="ghost"
+              onClick={() => setConfirmReveal(false)}
+              className="w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button onClick={doReveal} className="w-full gap-1.5 sm:w-auto">
+              <Zap className="size-3.5" /> Reveal
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Leave match confirm dialog */}
+      <Dialog open={confirmLeave} onOpenChange={setConfirmLeave}>
+        <DialogContent className="surface-elevated max-w-sm border-border">
+          <DialogHeader>
+            <DialogTitle className="font-display text-2xl">Leave match?</DialogTitle>
+            <DialogDescription>
+              You'll forfeit this duel and lose{" "}
+              <span className="font-semibold text-[var(--destructive)]">
+                {pointsAtRisk} pts
+              </span>
+              . Your opponent keeps the win.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col-reverse gap-2 sm:flex-row">
+            <Button
+              variant="ghost"
+              onClick={() => setConfirmLeave(false)}
+              className="w-full sm:w-auto"
+            >
+              Keep playing
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => goToResult("loss")}
+              className="w-full gap-1.5 sm:w-auto"
+            >
+              <Flag className="size-3.5" /> Leave match
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <style>{`
         @keyframes shake {
           0%, 100% { transform: translateX(0); }
@@ -459,6 +483,101 @@ function MatchPage() {
         }
       `}</style>
     </AppShell>
+  );
+}
+
+// ── Subcomponents ────────────────────────────────────────────────────────────
+
+function Pill({
+  icon,
+  children,
+  tone,
+}: {
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+  tone?: "warning";
+}) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-semibold",
+        tone === "warning"
+          ? "border-[var(--warning)]/40 bg-[var(--warning)]/10 text-[var(--warning)]"
+          : "border-border bg-background/60",
+      )}
+    >
+      {icon}
+      {children}
+    </span>
+  );
+}
+
+function OpponentStatusBadge({
+  opponent,
+  opponentName,
+  isSolo,
+  status,
+}: {
+  opponent: ReturnType<typeof players.find>;
+  opponentName: string;
+  isSolo: boolean;
+  status: "playing" | "finished";
+}) {
+  if (isSolo) {
+    return (
+      <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-2.5 py-1.5">
+        <div className="grid size-7 place-items-center rounded-full bg-muted text-muted-foreground">
+          <Bot className="size-3.5" />
+        </div>
+        <div className="hidden text-right leading-tight sm:block">
+          <p className="text-[11px] font-semibold">Solo run</p>
+          <p className="text-[9px] uppercase tracking-wider text-muted-foreground">
+            Practice
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const finished = status === "finished";
+  const dotColor = finished ? "var(--correct)" : "var(--accent)";
+  const label = finished ? "Finished" : "Still playing";
+
+  return (
+    <div
+      className={cn(
+        "inline-flex items-center gap-2 rounded-full border px-2 py-1 sm:pr-3",
+        "border-border bg-background/60",
+      )}
+    >
+      {opponent ? (
+        <Avatar player={opponent} size={28} ring="lilac" />
+      ) : (
+        <div className="grid size-7 place-items-center rounded-full bg-muted text-muted-foreground">
+          <Bot className="size-3.5" />
+        </div>
+      )}
+      <div className="text-right leading-tight">
+        <p className="text-[11px] font-semibold">
+          {opponent?.name.split(" ")[0] ?? opponentName}
+        </p>
+        <p className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+          <span className="relative flex size-1.5">
+            {!finished && (
+              <span
+                className="absolute inset-0 animate-ping rounded-full opacity-70"
+                style={{ background: dotColor }}
+              />
+            )}
+            <span
+              className="relative size-1.5 rounded-full"
+              style={{ background: dotColor }}
+            />
+          </span>
+          {label}
+        </p>
+      </div>
+    </div>
   );
 }
 
@@ -482,7 +601,7 @@ function InteractiveKeyboard({
   keyStates: Record<string, TileState>;
 }) {
   return (
-    <div className="surface-soft mx-auto w-full max-w-[560px] p-2 sm:p-3">
+    <div className="mx-auto w-full max-w-[560px]">
       <div className="flex flex-col gap-1.5">
         {KEY_ROWS.map((row, i) => (
           <div key={i} className="flex justify-center gap-1 sm:gap-1.5">
@@ -501,6 +620,7 @@ function InteractiveKeyboard({
                     s === "present" && "kbd-key-present",
                     s === "absent" && "kbd-key-absent",
                   )}
+                  aria-label={k === "BACK" ? "Backspace" : k === "ENTER" ? "Submit" : k}
                 >
                   {k === "BACK" ? (
                     <Delete className="size-4" />
@@ -518,3 +638,6 @@ function InteractiveKeyboard({
     </div>
   );
 }
+
+// Suppress unused import lint (kept for type clarity)
+void currentUser;
