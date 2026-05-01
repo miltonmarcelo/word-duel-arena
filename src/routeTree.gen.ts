@@ -16,12 +16,12 @@ import { Route as RulesRouteImport } from './routes/rules'
 import { Route as RoomsRouteImport } from './routes/rooms'
 import { Route as RankingRouteImport } from './routes/ranking'
 import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as PlayRouteImport } from './routes/play'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as MatchRouteImport } from './routes/match'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PlayIndexRouteImport } from './routes/play.index'
 import { Route as RoomsRoomIdRouteImport } from './routes/rooms.$roomId'
 import { Route as PlayYourTurnRouteImport } from './routes/play.your-turn'
 import { Route as PlayWaitingRouteImport } from './routes/play.waiting'
@@ -69,11 +69,6 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PlayRoute = PlayRouteImport.update({
-  id: '/play',
-  path: '/play',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const NotificationsRoute = NotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
@@ -97,6 +92,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlayIndexRoute = PlayIndexRouteImport.update({
+  id: '/play/',
+  path: '/play/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RoomsRoomIdRoute = RoomsRoomIdRouteImport.update({
@@ -161,7 +161,6 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/match': typeof MatchRouteWithChildren
   '/notifications': typeof NotificationsRoute
-  '/play': typeof PlayRouteWithChildren
   '/profile': typeof ProfileRoute
   '/ranking': typeof RankingRoute
   '/rooms': typeof RoomsRouteWithChildren
@@ -179,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/play/waiting': typeof PlayWaitingRoute
   '/play/your-turn': typeof PlayYourTurnRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
+  '/play/': typeof PlayIndexRoute
   '/play/themed/$theme': typeof PlayThemedThemeRoute
 }
 export interface FileRoutesByTo {
@@ -187,7 +187,6 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/match': typeof MatchRouteWithChildren
   '/notifications': typeof NotificationsRoute
-  '/play': typeof PlayRouteWithChildren
   '/profile': typeof ProfileRoute
   '/ranking': typeof RankingRoute
   '/rooms': typeof RoomsRouteWithChildren
@@ -205,6 +204,7 @@ export interface FileRoutesByTo {
   '/play/waiting': typeof PlayWaitingRoute
   '/play/your-turn': typeof PlayYourTurnRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
+  '/play': typeof PlayIndexRoute
   '/play/themed/$theme': typeof PlayThemedThemeRoute
 }
 export interface FileRoutesById {
@@ -214,7 +214,6 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/match': typeof MatchRouteWithChildren
   '/notifications': typeof NotificationsRoute
-  '/play': typeof PlayRouteWithChildren
   '/profile': typeof ProfileRoute
   '/ranking': typeof RankingRoute
   '/rooms': typeof RoomsRouteWithChildren
@@ -232,6 +231,7 @@ export interface FileRoutesById {
   '/play/waiting': typeof PlayWaitingRoute
   '/play/your-turn': typeof PlayYourTurnRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
+  '/play/': typeof PlayIndexRoute
   '/play/themed/$theme': typeof PlayThemedThemeRoute
 }
 export interface FileRouteTypes {
@@ -242,7 +242,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/match'
     | '/notifications'
-    | '/play'
     | '/profile'
     | '/ranking'
     | '/rooms'
@@ -260,6 +259,7 @@ export interface FileRouteTypes {
     | '/play/waiting'
     | '/play/your-turn'
     | '/rooms/$roomId'
+    | '/play/'
     | '/play/themed/$theme'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -268,7 +268,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/match'
     | '/notifications'
-    | '/play'
     | '/profile'
     | '/ranking'
     | '/rooms'
@@ -286,6 +285,7 @@ export interface FileRouteTypes {
     | '/play/waiting'
     | '/play/your-turn'
     | '/rooms/$roomId'
+    | '/play'
     | '/play/themed/$theme'
   id:
     | '__root__'
@@ -294,7 +294,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/match'
     | '/notifications'
-    | '/play'
     | '/profile'
     | '/ranking'
     | '/rooms'
@@ -312,6 +311,7 @@ export interface FileRouteTypes {
     | '/play/waiting'
     | '/play/your-turn'
     | '/rooms/$roomId'
+    | '/play/'
     | '/play/themed/$theme'
   fileRoutesById: FileRoutesById
 }
@@ -321,7 +321,6 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MatchRoute: typeof MatchRouteWithChildren
   NotificationsRoute: typeof NotificationsRoute
-  PlayRoute: typeof PlayRouteWithChildren
   ProfileRoute: typeof ProfileRoute
   RankingRoute: typeof RankingRoute
   RoomsRoute: typeof RoomsRouteWithChildren
@@ -329,6 +328,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
   StatsRoute: typeof StatsRoute
+  PlayIndexRoute: typeof PlayIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -382,13 +382,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/play': {
-      id: '/play'
-      path: '/play'
-      fullPath: '/play'
-      preLoaderRoute: typeof PlayRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/notifications': {
       id: '/notifications'
       path: '/notifications'
@@ -422,6 +415,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/play/': {
+      id: '/play/'
+      path: '/play'
+      fullPath: '/play/'
+      preLoaderRoute: typeof PlayIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rooms/$roomId': {
@@ -514,42 +514,6 @@ const MatchRouteChildren: MatchRouteChildren = {
 
 const MatchRouteWithChildren = MatchRoute._addFileChildren(MatchRouteChildren)
 
-interface PlayThemedRouteChildren {
-  PlayThemedThemeRoute: typeof PlayThemedThemeRoute
-}
-
-const PlayThemedRouteChildren: PlayThemedRouteChildren = {
-  PlayThemedThemeRoute: PlayThemedThemeRoute,
-}
-
-const PlayThemedRouteWithChildren = PlayThemedRoute._addFileChildren(
-  PlayThemedRouteChildren,
-)
-
-interface PlayRouteChildren {
-  PlayChallengeSentRoute: typeof PlayChallengeSentRoute
-  PlayDirectWordRoute: typeof PlayDirectWordRoute
-  PlayMatchSelectRoute: typeof PlayMatchSelectRoute
-  PlayQuickRoute: typeof PlayQuickRoute
-  PlayRandomRoute: typeof PlayRandomRoute
-  PlayThemedRoute: typeof PlayThemedRouteWithChildren
-  PlayWaitingRoute: typeof PlayWaitingRoute
-  PlayYourTurnRoute: typeof PlayYourTurnRoute
-}
-
-const PlayRouteChildren: PlayRouteChildren = {
-  PlayChallengeSentRoute: PlayChallengeSentRoute,
-  PlayDirectWordRoute: PlayDirectWordRoute,
-  PlayMatchSelectRoute: PlayMatchSelectRoute,
-  PlayQuickRoute: PlayQuickRoute,
-  PlayRandomRoute: PlayRandomRoute,
-  PlayThemedRoute: PlayThemedRouteWithChildren,
-  PlayWaitingRoute: PlayWaitingRoute,
-  PlayYourTurnRoute: PlayYourTurnRoute,
-}
-
-const PlayRouteWithChildren = PlayRoute._addFileChildren(PlayRouteChildren)
-
 interface RoomsRouteChildren {
   RoomsRoomIdRoute: typeof RoomsRoomIdRoute
 }
@@ -566,7 +530,6 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MatchRoute: MatchRouteWithChildren,
   NotificationsRoute: NotificationsRoute,
-  PlayRoute: PlayRouteWithChildren,
   ProfileRoute: ProfileRoute,
   RankingRoute: RankingRoute,
   RoomsRoute: RoomsRouteWithChildren,
@@ -574,6 +537,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
   StatsRoute: StatsRoute,
+  PlayIndexRoute: PlayIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
