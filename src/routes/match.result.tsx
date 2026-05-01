@@ -245,13 +245,15 @@ function ResultPage() {
                 <Home className="size-4" /> Back to dashboard
               </Button>
             </Link>
-            <Button
-              size="lg"
-              variant="ghost"
-              className="w-full gap-2 md:order-3 md:w-auto"
-            >
-              <Share2 className="size-4" /> Share
-            </Button>
+            <Link to="/play/matches" className="md:order-3">
+              <Button
+                size="lg"
+                variant="ghost"
+                className="w-full gap-2 md:w-auto"
+              >
+                <History className="size-4" /> View in history
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
