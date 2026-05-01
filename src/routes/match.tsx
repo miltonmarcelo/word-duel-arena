@@ -210,9 +210,11 @@ function MatchPage() {
 
             {/* Center: theme + timer */}
             <div className="flex flex-1 flex-col items-center gap-1">
-              <span className="chip chip-lilac">
-                <Sparkles className="size-3" /> Nature
-              </span>
+              {search.theme && (
+                <span className="chip chip-lilac">
+                  <Sparkles className="size-3" /> {search.theme.charAt(0).toUpperCase() + search.theme.slice(1)}
+                </span>
+              )}
               <span
                 className={cn(
                   "inline-flex items-center gap-1 font-mono text-base font-bold tabular-nums md:text-lg",
@@ -226,13 +228,28 @@ function MatchPage() {
 
             {/* Opponent */}
             <div className="flex min-w-0 items-center gap-2 justify-end">
-              <div className="min-w-0 text-right">
-                <p className="truncate text-xs font-semibold">{opponent.name.split(" ")[0]}</p>
-                <p className="text-[10px] text-muted-foreground">
-                  {opponentGuesses.length}/{MAX_ROWS} · typing…
-                </p>
-              </div>
-              <Avatar player={opponent} size={36} ring="lilac" />
+              {opponent ? (
+                <>
+                  <div className="min-w-0 text-right">
+                    <p className="truncate text-xs font-semibold">{opponent.name.split(" ")[0]}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {opponentGuesses.length}/{MAX_ROWS} · typing…
+                      {search.opponentRating ? ` · ${search.opponentRating}` : ""}
+                    </p>
+                  </div>
+                  <Avatar player={opponent} size={36} ring="lilac" />
+                </>
+              ) : (
+                <>
+                  <div className="min-w-0 text-right">
+                    <p className="truncate text-xs font-semibold">vs Computer</p>
+                    <p className="text-[10px] text-muted-foreground">solo run</p>
+                  </div>
+                  <div className="flex size-9 items-center justify-center rounded-full bg-muted text-muted-foreground ring-2 ring-[var(--player-b,var(--accent))]/40">
+                    <Bot className="size-4" />
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -249,7 +266,7 @@ function MatchPage() {
             <div
               className="h-full"
               style={{
-                width: `${(opponentGuesses.length / MAX_ROWS) * 50}%`,
+                width: `${(opponent ? opponentGuesses.length / MAX_ROWS : 0) * 50}%`,
                 background: "var(--player-b, var(--accent))",
               }}
             />
