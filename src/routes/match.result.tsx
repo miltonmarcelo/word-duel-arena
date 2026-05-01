@@ -382,6 +382,8 @@ function PlayerSummary({
   points,
   isWinner,
   hints,
+  word,
+  time,
 }: {
   player: typeof currentUser;
   ring: "mint" | "lilac";
@@ -391,25 +393,36 @@ function PlayerSummary({
   points: number;
   isWinner: boolean;
   hints: number;
+  word: string;
+  time: string;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-background/40 p-4">
+    <div
+      className={cn(
+        "relative rounded-2xl border bg-background/40 p-4 transition",
+        isWinner
+          ? "border-[color:var(--correct)]/50 shadow-[0_0_0_1px_color-mix(in_oklch,var(--correct)_40%,transparent)]"
+          : "border-border",
+      )}
+    >
+      {isWinner && (
+        <span
+          className="absolute -top-2.5 left-4 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+          style={{
+            background: "var(--correct)",
+            color: "var(--background)",
+          }}
+        >
+          <Trophy className="size-3" /> Winner
+        </span>
+      )}
       <div className="mb-3 flex items-center gap-3">
         <Avatar player={player} size={40} ring={ring} />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
             <p className="truncate text-sm font-semibold">{player.name}</p>
-            {isWinner && (
-              <Trophy
-                className="size-3.5"
-                style={{ color: "var(--correct)" }}
-                aria-label="Winner"
-              />
-            )}
           </div>
-          <p className="text-xs text-muted-foreground">
-            {tries} guesses · {hints} {hints === 1 ? "hint" : "hints"}
-          </p>
+          <p className="truncate text-xs text-muted-foreground">{player.handle}</p>
         </div>
         <div className="text-right">
           <p
@@ -424,9 +437,50 @@ function PlayerSummary({
           </p>
         </div>
       </div>
+
+      {/* Word the player had to guess */}
+      <div className="mb-3 rounded-xl border border-border bg-background/60 px-3 py-2">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          Word to guess
+        </p>
+        <p
+          className="font-display text-lg tracking-[0.3em] tabular-nums"
+          style={{ color: accent }}
+        >
+          {word}
+        </p>
+      </div>
+
+      {/* Per-player stat row */}
+      <div className="mb-3 grid grid-cols-3 gap-2 text-center">
+        <MiniStat icon={<Target className="size-3" />} label="Tries" value={`${tries}/6`} />
+        <MiniStat icon={<Clock className="size-3" />} label="Time" value={time} />
+        <MiniStat icon={<Lightbulb className="size-3" />} label="Hints" value={`${hints}`} />
+      </div>
+
       <div className="mx-auto w-fit">
         <WordBoard guesses={guesses} rows={6} size="sm" />
       </div>
+    </div>
+  );
+}
+
+function MiniStat({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-lg border border-border bg-background/50 px-2 py-1.5">
+      <div className="flex items-center justify-center gap-1 text-muted-foreground">
+        {icon}
+        <span className="text-[9px] font-bold uppercase tracking-wider">{label}</span>
+      </div>
+      <p className="mt-0.5 font-display text-sm leading-tight tabular-nums">{value}</p>
     </div>
   );
 }
