@@ -28,6 +28,7 @@ import { Route as PlayWaitingRouteImport } from './routes/play.waiting'
 import { Route as PlayThemedRouteImport } from './routes/play.themed'
 import { Route as PlayRandomRouteImport } from './routes/play.random'
 import { Route as PlayQuickRouteImport } from './routes/play.quick'
+import { Route as PlayMatchesRouteImport } from './routes/play.matches'
 import { Route as PlayMatchSelectRouteImport } from './routes/play.match-select'
 import { Route as PlayDirectWordRouteImport } from './routes/play.direct-word'
 import { Route as PlayChallengeSentRouteImport } from './routes/play.challenge-sent'
@@ -105,9 +106,9 @@ const RoomsRoomIdRoute = RoomsRoomIdRouteImport.update({
   getParentRoute: () => RoomsRoute,
 } as any)
 const PlayYourTurnRoute = PlayYourTurnRouteImport.update({
-  id: '/your-turn',
-  path: '/your-turn',
-  getParentRoute: () => PlayRoute,
+  id: '/play/your-turn',
+  path: '/play/your-turn',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PlayWaitingRoute = PlayWaitingRouteImport.update({
   id: '/waiting',
@@ -120,29 +121,34 @@ const PlayThemedRoute = PlayThemedRouteImport.update({
   getParentRoute: () => PlayRoute,
 } as any)
 const PlayRandomRoute = PlayRandomRouteImport.update({
-  id: '/random',
-  path: '/random',
-  getParentRoute: () => PlayRoute,
+  id: '/play/random',
+  path: '/play/random',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PlayQuickRoute = PlayQuickRouteImport.update({
-  id: '/quick',
-  path: '/quick',
-  getParentRoute: () => PlayRoute,
+  id: '/play/quick',
+  path: '/play/quick',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlayMatchesRoute = PlayMatchesRouteImport.update({
+  id: '/play/matches',
+  path: '/play/matches',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PlayMatchSelectRoute = PlayMatchSelectRouteImport.update({
-  id: '/match-select',
-  path: '/match-select',
-  getParentRoute: () => PlayRoute,
+  id: '/play/match-select',
+  path: '/play/match-select',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PlayDirectWordRoute = PlayDirectWordRouteImport.update({
-  id: '/direct-word',
-  path: '/direct-word',
-  getParentRoute: () => PlayRoute,
+  id: '/play/direct-word',
+  path: '/play/direct-word',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PlayChallengeSentRoute = PlayChallengeSentRouteImport.update({
-  id: '/challenge-sent',
-  path: '/challenge-sent',
-  getParentRoute: () => PlayRoute,
+  id: '/play/challenge-sent',
+  path: '/play/challenge-sent',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const MatchResultRoute = MatchResultRouteImport.update({
   id: '/result',
@@ -172,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/play/challenge-sent': typeof PlayChallengeSentRoute
   '/play/direct-word': typeof PlayDirectWordRoute
   '/play/match-select': typeof PlayMatchSelectRoute
+  '/play/matches': typeof PlayMatchesRoute
   '/play/quick': typeof PlayQuickRoute
   '/play/random': typeof PlayRandomRoute
   '/play/themed': typeof PlayThemedRouteWithChildren
@@ -198,6 +205,7 @@ export interface FileRoutesByTo {
   '/play/challenge-sent': typeof PlayChallengeSentRoute
   '/play/direct-word': typeof PlayDirectWordRoute
   '/play/match-select': typeof PlayMatchSelectRoute
+  '/play/matches': typeof PlayMatchesRoute
   '/play/quick': typeof PlayQuickRoute
   '/play/random': typeof PlayRandomRoute
   '/play/themed': typeof PlayThemedRouteWithChildren
@@ -225,6 +233,7 @@ export interface FileRoutesById {
   '/play/challenge-sent': typeof PlayChallengeSentRoute
   '/play/direct-word': typeof PlayDirectWordRoute
   '/play/match-select': typeof PlayMatchSelectRoute
+  '/play/matches': typeof PlayMatchesRoute
   '/play/quick': typeof PlayQuickRoute
   '/play/random': typeof PlayRandomRoute
   '/play/themed': typeof PlayThemedRouteWithChildren
@@ -253,6 +262,7 @@ export interface FileRouteTypes {
     | '/play/challenge-sent'
     | '/play/direct-word'
     | '/play/match-select'
+    | '/play/matches'
     | '/play/quick'
     | '/play/random'
     | '/play/themed'
@@ -279,6 +289,7 @@ export interface FileRouteTypes {
     | '/play/challenge-sent'
     | '/play/direct-word'
     | '/play/match-select'
+    | '/play/matches'
     | '/play/quick'
     | '/play/random'
     | '/play/themed'
@@ -305,6 +316,7 @@ export interface FileRouteTypes {
     | '/play/challenge-sent'
     | '/play/direct-word'
     | '/play/match-select'
+    | '/play/matches'
     | '/play/quick'
     | '/play/random'
     | '/play/themed'
@@ -328,6 +340,13 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
   StatsRoute: typeof StatsRoute
+  PlayChallengeSentRoute: typeof PlayChallengeSentRoute
+  PlayDirectWordRoute: typeof PlayDirectWordRoute
+  PlayMatchSelectRoute: typeof PlayMatchSelectRoute
+  PlayMatchesRoute: typeof PlayMatchesRoute
+  PlayQuickRoute: typeof PlayQuickRoute
+  PlayRandomRoute: typeof PlayRandomRoute
+  PlayYourTurnRoute: typeof PlayYourTurnRoute
   PlayIndexRoute: typeof PlayIndexRoute
 }
 
@@ -433,10 +452,10 @@ declare module '@tanstack/react-router' {
     }
     '/play/your-turn': {
       id: '/play/your-turn'
-      path: '/your-turn'
+      path: '/play/your-turn'
       fullPath: '/play/your-turn'
       preLoaderRoute: typeof PlayYourTurnRouteImport
-      parentRoute: typeof PlayRoute
+      parentRoute: typeof rootRouteImport
     }
     '/play/waiting': {
       id: '/play/waiting'
@@ -454,38 +473,45 @@ declare module '@tanstack/react-router' {
     }
     '/play/random': {
       id: '/play/random'
-      path: '/random'
+      path: '/play/random'
       fullPath: '/play/random'
       preLoaderRoute: typeof PlayRandomRouteImport
-      parentRoute: typeof PlayRoute
+      parentRoute: typeof rootRouteImport
     }
     '/play/quick': {
       id: '/play/quick'
-      path: '/quick'
+      path: '/play/quick'
       fullPath: '/play/quick'
       preLoaderRoute: typeof PlayQuickRouteImport
-      parentRoute: typeof PlayRoute
+      parentRoute: typeof rootRouteImport
+    }
+    '/play/matches': {
+      id: '/play/matches'
+      path: '/play/matches'
+      fullPath: '/play/matches'
+      preLoaderRoute: typeof PlayMatchesRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/play/match-select': {
       id: '/play/match-select'
-      path: '/match-select'
+      path: '/play/match-select'
       fullPath: '/play/match-select'
       preLoaderRoute: typeof PlayMatchSelectRouteImport
-      parentRoute: typeof PlayRoute
+      parentRoute: typeof rootRouteImport
     }
     '/play/direct-word': {
       id: '/play/direct-word'
-      path: '/direct-word'
+      path: '/play/direct-word'
       fullPath: '/play/direct-word'
       preLoaderRoute: typeof PlayDirectWordRouteImport
-      parentRoute: typeof PlayRoute
+      parentRoute: typeof rootRouteImport
     }
     '/play/challenge-sent': {
       id: '/play/challenge-sent'
-      path: '/challenge-sent'
+      path: '/play/challenge-sent'
       fullPath: '/play/challenge-sent'
       preLoaderRoute: typeof PlayChallengeSentRouteImport
-      parentRoute: typeof PlayRoute
+      parentRoute: typeof rootRouteImport
     }
     '/match/result': {
       id: '/match/result'
@@ -537,6 +563,13 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
   StatsRoute: StatsRoute,
+  PlayChallengeSentRoute: PlayChallengeSentRoute,
+  PlayDirectWordRoute: PlayDirectWordRoute,
+  PlayMatchSelectRoute: PlayMatchSelectRoute,
+  PlayMatchesRoute: PlayMatchesRoute,
+  PlayQuickRoute: PlayQuickRoute,
+  PlayRandomRoute: PlayRandomRoute,
+  PlayYourTurnRoute: PlayYourTurnRoute,
   PlayIndexRoute: PlayIndexRoute,
 }
 export const routeTree = rootRouteImport
