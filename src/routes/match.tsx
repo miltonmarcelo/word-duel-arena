@@ -77,14 +77,14 @@ function MatchPage() {
           outcome,
           word: SECRET,
           attempts: guesses.length,
-          pointsEarned: outcome === "win" ? 120 : -30,
+          pointsEarned: outcome === "win" ? points : -32,
           hintsUsed: revealed.length,
           mode: search.mode ?? "quick",
           opponent: opponentName,
         },
       });
     },
-    [navigate, SECRET, guesses.length, revealed.length, search.mode, opponentName],
+    [navigate, SECRET, guesses.length, points, revealed.length, search.mode, opponentName],
   );
 
   // Auto-fail when all rows are used without solving
