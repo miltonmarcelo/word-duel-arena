@@ -15,7 +15,12 @@ import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+type QuickSearch = { theme?: string };
+
 export const Route = createFileRoute("/play/quick")({
+  validateSearch: (s: Record<string, unknown>): QuickSearch => ({
+    theme: typeof s.theme === "string" ? s.theme : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Quick Play — WordClash" },
@@ -52,7 +57,10 @@ const DIFFICULTIES: { id: Difficulty; label: string; desc: string }[] = [
 ];
 
 function QuickPlay() {
-  const [theme, setTheme] = useState<string>("general");
+  const search = Route.useSearch();
+  const initialTheme =
+    search.theme && THEMES.some((t) => t.id === search.theme) ? search.theme : "general";
+  const [theme, setTheme] = useState<string>(initialTheme);
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
 
   return (
