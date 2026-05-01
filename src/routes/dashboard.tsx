@@ -70,7 +70,7 @@ function Dashboard() {
               </div>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Link to="/match">
+              <Link to="/play">
                 <Button size="lg">
                   <Zap className="size-4" /> Start new duel
                 </Button>
