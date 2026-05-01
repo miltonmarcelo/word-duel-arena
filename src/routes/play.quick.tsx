@@ -57,7 +57,10 @@ const DIFFICULTIES: { id: Difficulty; label: string; desc: string }[] = [
 ];
 
 function QuickPlay() {
-  const [theme, setTheme] = useState<string>("general");
+  const search = Route.useSearch();
+  const initialTheme =
+    search.theme && THEMES.some((t) => t.id === search.theme) ? search.theme : "general";
+  const [theme, setTheme] = useState<string>(initialTheme);
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
 
   return (
