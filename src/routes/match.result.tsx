@@ -203,6 +203,8 @@ function ResultPage() {
               points={targetPoints}
               isWinner={OUTCOME === "win"}
               hints={revealedHints}
+              word={yourWord}
+              time={yourTime}
             />
 
             {/* VS divider */}
@@ -224,6 +226,8 @@ function ResultPage() {
               points={opponentPoints}
               isWinner={OUTCOME === "loss"}
               hints={0}
+              word={opponentWord}
+              time={opponentTime}
             />
           </div>
         </div>
