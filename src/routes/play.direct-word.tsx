@@ -148,10 +148,20 @@ function DirectWord() {
       <div className="animate-fade-up mx-auto max-w-3xl">
         {/* Back link */}
         <button
-          onClick={() => navigate({ to: "/play/match-select" })}
+          onClick={() =>
+            navigate({
+              to: "/play/choose-word",
+              search: {
+                opp: search.opp,
+                name: search.name,
+                handle: search.handle,
+                rating: search.rating,
+              } as never,
+            })
+          }
           className="mb-4 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground transition hover:text-foreground"
         >
-          <ArrowLeft className="size-3.5" /> Back to opponents
+          <ArrowLeft className="size-3.5" /> Back
         </button>
 
         {/* Header */}
