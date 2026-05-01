@@ -119,7 +119,7 @@ function Dashboard() {
                     Solve before midnight to keep your{" "}
                     <span className="font-semibold text-foreground">12-day streak</span> alive.
                   </p>
-                  <Link to="/match" className="mt-4 inline-block">
+                  <Link to="/play/your-turn" className="mt-4 inline-block">
                     <Button>
                       Play daily <ArrowRight className="size-4" />
                     </Button>
