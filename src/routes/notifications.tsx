@@ -319,6 +319,55 @@ function ActionRow({ type }: { type: NotificationType }) {
       </div>
     );
   }
+  if (type === "challenge_accepted") {
+    return (
+      <div className="mt-2.5 flex gap-2">
+        <Link to="/play/choose-word">
+          <Button size="sm" className="h-7 gap-1 text-xs">
+            <Lock className="h-3 w-3" /> Choose your word
+          </Button>
+        </Link>
+        <Link to="/play/matches">
+          <Button size="sm" variant="ghost" className="h-7 gap-1 text-xs">
+            View match
+          </Button>
+        </Link>
+      </div>
+    );
+  }
+  if (type === "challenge_declined") {
+    return (
+      <div className="mt-2.5 flex gap-2">
+        <Link to="/play">
+          <Button size="sm" variant="secondary" className="h-7 gap-1 text-xs">
+            <Swords className="h-3 w-3" /> Find another opponent
+          </Button>
+        </Link>
+      </div>
+    );
+  }
+  if (type === "word_locked") {
+    return (
+      <div className="mt-2.5 flex gap-2">
+        <Link to="/match">
+          <Button size="sm" className="h-7 gap-1 text-xs">
+            <Play className="h-3 w-3" /> Start guessing
+          </Button>
+        </Link>
+      </div>
+    );
+  }
+  if (type === "opponent_finished") {
+    return (
+      <div className="mt-2.5 flex gap-2">
+        <Link to="/match">
+          <Button size="sm" className="h-7 gap-1 text-xs">
+            <Play className="h-3 w-3" /> Take your turn
+          </Button>
+        </Link>
+      </div>
+    );
+  }
   if (type === "turn" || type === "starting") {
     return (
       <div className="mt-2.5">
@@ -333,9 +382,12 @@ function ActionRow({ type }: { type: NotificationType }) {
   if (type === "result") {
     return (
       <div className="mt-2.5">
-        <Link to="/match/result">
+        <Link
+          to="/match/result"
+          search={{ from: "history", outcome: "win" }}
+        >
           <Button size="sm" variant="secondary" className="h-7 gap-1 text-xs">
-            <Flag className="h-3 w-3" /> View recap
+            <Flag className="h-3 w-3" /> View result
           </Button>
         </Link>
       </div>
