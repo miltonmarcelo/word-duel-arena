@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Radar, Users, Zap, Trophy, Globe2, Check, X, Shuffle } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
