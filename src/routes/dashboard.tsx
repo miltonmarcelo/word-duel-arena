@@ -160,7 +160,7 @@ function Dashboard() {
                         {n.body} · {n.time}
                       </p>
                     </div>
-                    <Link to="/match">
+                    <Link to="/play/your-turn">
                       <Button size="sm">
                         <Check className="size-3" /> Accept
                       </Button>
