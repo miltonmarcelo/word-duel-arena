@@ -131,13 +131,17 @@ function DirectWord() {
 
   function handleSend() {
     if (!valid) return;
-    toast.success("Challenge sent!", {
-      description: `${opponent.name} will be notified to play "${trimmed}".`,
+    navigate({
+      to: "/play/lock-word",
+      search: {
+        opp: search.opp,
+        name: search.name,
+        handle: search.handle,
+        rating: search.rating,
+        word: trimmed,
+        from: "manual",
+      } as never,
     });
-    setTimeout(
-      () => navigate({ to: "/play/challenge-sent" }),
-      600,
-    );
   }
 
   // Build 5 tiles for live preview (filled = letter typed, empty otherwise).
