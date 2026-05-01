@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Clock, Flag, Sparkles, Lightbulb, Trophy, Zap, AlertTriangle } from "lucide-react";
+import { Clock, Flag, Sparkles, Lightbulb, Trophy, Zap, AlertTriangle, Bot } from "lucide-react";
 import { Delete, CornerDownLeft } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Avatar } from "@/components/Avatar";
@@ -9,18 +9,52 @@ import { WordBoard } from "@/components/WordBoard";
 import { cn } from "@/lib/utils";
 import { currentUser, opponentGuesses, players, type TileState, type Guess } from "@/lib/mock-data";
 
+type MatchSearch = {
+  word?: string;
+  mode?: "direct" | "random" | "quick" | "themed";
+  theme?: string;
+  opponent?: string;
+  opponentRating?: number;
+};
+
 export const Route = createFileRoute("/match")({
   head: () => ({ meta: [{ title: "Live duel — WordClash" }] }),
+  validateSearch: (search: Record<string, unknown>): MatchSearch => {
+    const modeRaw = typeof search.mode === "string" ? search.mode : "quick";
+    const mode = (["direct", "random", "quick", "themed"].includes(modeRaw)
+      ? modeRaw
+      : "quick") as MatchSearch["mode"];
+    const wordRaw = typeof search.word === "string" ? search.word.toUpperCase() : undefined;
+    const word = wordRaw && /^[A-Z]{5}$/.test(wordRaw) ? wordRaw : undefined;
+    const ratingNum =
+      typeof search.opponentRating === "number"
+        ? search.opponentRating
+        : typeof search.opponentRating === "string"
+          ? Number(search.opponentRating)
+          : undefined;
+    return {
+      word,
+      mode,
+      theme: typeof search.theme === "string" ? search.theme : undefined,
+      opponent: typeof search.opponent === "string" ? search.opponent : undefined,
+      opponentRating: Number.isFinite(ratingNum) ? ratingNum : undefined,
+    };
+  },
   component: MatchPage,
 });
 
-const SECRET = "PLATE";
+const FALLBACK_SECRET = "PLATE";
 const MAX_ROWS = 6;
 const STARTING_POINTS = 240;
 const REVEAL_COST = 35;
 
 function MatchPage() {
-  const opponent = players[0];
+  const search = Route.useSearch();
+  const SECRET = search.word ?? FALLBACK_SECRET;
+  const isSolo = !search.opponent || search.mode === "quick";
+  const opponent = isSolo
+    ? null
+    : players.find((p) => p.handle === `@${search.opponent}` || p.name.toLowerCase().includes(search.opponent!.toLowerCase())) ?? players[0];
 
   // --- Game state ---
   const [guesses, setGuesses] = useState<Guess[]>([]);
@@ -176,9 +210,11 @@ function MatchPage() {
 
             {/* Center: theme + timer */}
             <div className="flex flex-1 flex-col items-center gap-1">
-              <span className="chip chip-lilac">
-                <Sparkles className="size-3" /> Nature
-              </span>
+              {search.theme && (
+                <span className="chip chip-lilac">
+                  <Sparkles className="size-3" /> {search.theme.charAt(0).toUpperCase() + search.theme.slice(1)}
+                </span>
+              )}
               <span
                 className={cn(
                   "inline-flex items-center gap-1 font-mono text-base font-bold tabular-nums md:text-lg",
@@ -192,13 +228,28 @@ function MatchPage() {
 
             {/* Opponent */}
             <div className="flex min-w-0 items-center gap-2 justify-end">
-              <div className="min-w-0 text-right">
-                <p className="truncate text-xs font-semibold">{opponent.name.split(" ")[0]}</p>
-                <p className="text-[10px] text-muted-foreground">
-                  {opponentGuesses.length}/{MAX_ROWS} · typing…
-                </p>
-              </div>
-              <Avatar player={opponent} size={36} ring="lilac" />
+              {opponent ? (
+                <>
+                  <div className="min-w-0 text-right">
+                    <p className="truncate text-xs font-semibold">{opponent.name.split(" ")[0]}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {opponentGuesses.length}/{MAX_ROWS} · typing…
+                      {search.opponentRating ? ` · ${search.opponentRating}` : ""}
+                    </p>
+                  </div>
+                  <Avatar player={opponent} size={36} ring="lilac" />
+                </>
+              ) : (
+                <>
+                  <div className="min-w-0 text-right">
+                    <p className="truncate text-xs font-semibold">vs Computer</p>
+                    <p className="text-[10px] text-muted-foreground">solo run</p>
+                  </div>
+                  <div className="flex size-9 items-center justify-center rounded-full bg-muted text-muted-foreground ring-2 ring-[var(--player-b,var(--accent))]/40">
+                    <Bot className="size-4" />
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -215,7 +266,7 @@ function MatchPage() {
             <div
               className="h-full"
               style={{
-                width: `${(opponentGuesses.length / MAX_ROWS) * 50}%`,
+                width: `${(opponent ? opponentGuesses.length / MAX_ROWS : 0) * 50}%`,
                 background: "var(--player-b, var(--accent))",
               }}
             />
@@ -308,28 +359,47 @@ function MatchPage() {
           </div>
 
           {/* Opponent mini board */}
-          <aside className="player-card player-b order-first lg:order-none">
-            <div className="mb-3 flex items-center gap-3">
-              <Avatar player={opponent} size={36} ring="lilac" />
-              <div className="flex-1 min-w-0">
-                <p className="truncate text-sm font-semibold">{opponent.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  <span className="player-dot player-b mr-1 inline-block" /> typing…
+          {opponent ? (
+            <aside className="player-card player-b order-first lg:order-none">
+              <div className="mb-3 flex items-center gap-3">
+                <Avatar player={opponent} size={36} ring="lilac" />
+                <div className="flex-1 min-w-0">
+                  <p className="truncate text-sm font-semibold">{opponent.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    <span className="player-dot player-b mr-1 inline-block" /> typing…
+                  </p>
+                </div>
+                <p className="font-display text-lg">
+                  {opponentGuesses.length}<span className="text-muted-foreground">/{MAX_ROWS}</span>
                 </p>
               </div>
-              <p className="font-display text-lg">
-                {opponentGuesses.length}<span className="text-muted-foreground">/{MAX_ROWS}</span>
-              </p>
-            </div>
-            <div className="mx-auto w-fit">
-              <WordBoard guesses={opponentGuesses} rows={MAX_ROWS} size="sm" />
-            </div>
-            <Link to="/match/result" className="mt-3 block">
-              <Button size="sm" variant="ghost" className="w-full gap-1.5">
-                <Flag className="size-3.5" /> Forfeit duel
-              </Button>
-            </Link>
-          </aside>
+              <div className="mx-auto w-fit">
+                <WordBoard guesses={opponentGuesses} rows={MAX_ROWS} size="sm" />
+              </div>
+              <Link to="/match/result" className="mt-3 block">
+                <Button size="sm" variant="ghost" className="w-full gap-1.5">
+                  <Flag className="size-3.5" /> Forfeit duel
+                </Button>
+              </Link>
+            </aside>
+          ) : (
+            <aside className="player-card order-first lg:order-none">
+              <div className="mb-3 flex items-center gap-3">
+                <div className="flex size-9 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                  <Bot className="size-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="truncate text-sm font-semibold">Solo run</p>
+                  <p className="text-xs text-muted-foreground">No opponent — practice mode</p>
+                </div>
+              </div>
+              <Link to="/match/result" className="mt-3 block">
+                <Button size="sm" variant="ghost" className="w-full gap-1.5">
+                  <Flag className="size-3.5" /> End run
+                </Button>
+              </Link>
+            </aside>
+          )}
         </div>
       </div>
 
