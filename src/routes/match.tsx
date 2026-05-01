@@ -11,7 +11,7 @@ import { currentUser, opponentGuesses, players, type TileState, type Guess } fro
 
 type MatchSearch = {
   word?: string;
-  mode: "direct" | "random" | "quick" | "themed";
+  mode?: "direct" | "random" | "quick" | "themed";
   theme?: string;
   opponent?: string;
   opponentRating?: number;
