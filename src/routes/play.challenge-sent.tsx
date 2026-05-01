@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check, Home, Swords, Trophy, Bell } from "lucide-react";
+import { Bell, Check, Hourglass, Sparkles, Swords, Trophy } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Avatar } from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ export const Route = createFileRoute("/play/challenge-sent")({
       {
         name: "description",
         content:
-          "Your WordClash duel is on its way. Wait for your opponent to take their turn.",
+          "Your WordClash duel is on its way. Track it from your matches in progress.",
       },
       { property: "og:title", content: "Challenge sent — WordClash" },
       {
@@ -25,25 +25,40 @@ export const Route = createFileRoute("/play/challenge-sent")({
 });
 
 function ChallengeSent() {
-  // Visual prototype — pull the same default opponent + a sample chosen word.
+  // Visual prototype — pull a sample opponent (Player B).
   const opponent = players[0];
-  const word = "CRANE";
-  const tiles = word.split("");
+  const firstName = opponent.name.split(" ")[0];
 
   return (
     <AppShell>
       <div className="animate-fade-up mx-auto flex max-w-xl flex-col">
         <section
-          className="surface-elevated glow-mint relative overflow-hidden p-8 text-center sm:p-10"
+          className="surface-elevated glow-mint relative overflow-hidden p-8 text-center sm:p-12"
           style={{ background: "var(--gradient-hero), var(--surface-elevated)" }}
         >
+          {/* Floating sparkles */}
+          <Sparkles
+            className="pointer-events-none absolute left-6 top-6 size-4 text-[var(--primary)] opacity-60"
+            style={{ animation: "tile-pop 0.6s ease-out 0.3s both" }}
+            aria-hidden
+          />
+          <Sparkles
+            className="pointer-events-none absolute right-8 top-10 size-3 text-[var(--accent)] opacity-70"
+            style={{ animation: "tile-pop 0.6s ease-out 0.5s both" }}
+            aria-hidden
+          />
+          <Sparkles
+            className="pointer-events-none absolute bottom-24 left-10 size-3 text-[var(--accent)] opacity-50"
+            style={{ animation: "tile-pop 0.6s ease-out 0.7s both" }}
+            aria-hidden
+          />
+
           {/* Animated checkmark */}
           <div className="mx-auto mb-6 grid place-items-center">
             <span
-              className="relative grid size-24 place-items-center rounded-full"
+              className="relative grid size-28 place-items-center rounded-full"
               style={{
-                background:
-                  "color-mix(in oklch, var(--primary) 20%, transparent)",
+                background: "color-mix(in oklch, var(--primary) 18%, transparent)",
                 boxShadow: "var(--shadow-glow-mint)",
               }}
             >
@@ -57,13 +72,23 @@ function ChallengeSent() {
                 aria-hidden
               />
               <span
-                className="relative grid size-16 place-items-center rounded-full text-[var(--primary-foreground)]"
+                className="absolute inset-2 rounded-full"
+                style={{
+                  background:
+                    "color-mix(in oklch, var(--primary) 22%, transparent)",
+                  animation: "ping 1.8s cubic-bezier(0,0,0.2,1) infinite",
+                  animationDelay: "0.4s",
+                }}
+                aria-hidden
+              />
+              <span
+                className="relative grid size-20 place-items-center rounded-full text-[var(--primary-foreground)]"
                 style={{
                   background: "var(--gradient-mint)",
-                  animation: "tile-pop 0.45s ease-out",
+                  animation: "tile-pop 0.5s ease-out",
                 }}
               >
-                <Check className="size-9" strokeWidth={3.2} />
+                <Check className="size-10" strokeWidth={3.2} />
               </span>
             </span>
           </div>
@@ -72,14 +97,11 @@ function ChallengeSent() {
             <Swords className="size-3" /> Challenge locked in
           </p>
           <h1 className="font-display text-3xl leading-tight sm:text-4xl">
-            Challenge sent!
+            Challenge sent to {firstName}!
           </h1>
-          <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
-            Waiting for{" "}
-            <span className="font-semibold text-foreground">
-              {opponent.handle}
-            </span>{" "}
-            to play their first guess.
+          <p className="mx-auto mt-3 max-w-sm text-sm text-muted-foreground">
+            We've sent {firstName} a notification. Once they take their turn, you'll
+            be pinged to play yours.
           </p>
 
           {/* Opponent card */}
@@ -104,56 +126,30 @@ function ChallengeSent() {
             </div>
           </div>
 
-          {/* Word reminder (masked, visible only to challenger) */}
-          <div className="mt-6">
-            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-              Your secret word
-            </p>
-            <div className="flex justify-center gap-1.5 sm:gap-2">
-              {tiles.map((letter, i) => (
-                <div
-                  key={i}
-                  className="group relative grid h-12 w-12 place-items-center rounded-lg border-2 font-display text-xl font-bold uppercase sm:h-14 sm:w-14 sm:text-2xl"
-                  style={{
-                    background: "var(--absent)",
-                    borderColor: "var(--absent)",
-                    color: "var(--absent-foreground)",
-                    opacity: 0.55,
-                  }}
-                  title={letter}
-                  aria-label={`hidden letter ${i + 1}`}
-                >
-                  ?
-                </div>
-              ))}
-            </div>
-            <p className="mt-2 text-[11px] text-muted-foreground">
-              Only you can see the word — it stays hidden to {opponent.name.split(" ")[0]}.
-            </p>
+          {/* Status hints */}
+          <div className="mt-5 flex flex-col items-center gap-1.5 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5">
+              <Bell className="size-3.5" />
+              {firstName} just received a "New challenge" notification.
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Hourglass className="size-3.5" />
+              Average response time: ~12 min.
+            </span>
           </div>
 
           <div className="divider-soft mt-6" />
 
-          <p className="mt-4 inline-flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
-            <Bell className="size-3.5" />
-            You'll get a notification when it's their turn.
-          </p>
-
           {/* CTAs */}
           <div className="mt-6 flex flex-col gap-2 sm:flex-row">
-            <Link to="/play/match-select" className="flex-1">
-              <Button variant="outline" size="lg" className="w-full gap-2">
-                <Swords className="size-4" /> Challenge another player
-              </Button>
-            </Link>
-            <Link to="/dashboard" className="flex-1">
+            <Link to="/play/matches" className="flex-1">
               <Button size="lg" className="w-full gap-2">
-                <Home className="size-4" /> Go to Home
+                <Hourglass className="size-4" /> Matches in progress
               </Button>
             </Link>
-            <Link to="/play/waiting" className="flex-1">
+            <Link to="/play" className="flex-1">
               <Button variant="outline" size="lg" className="w-full gap-2">
-                View match status
+                Back to Play
               </Button>
             </Link>
           </div>
