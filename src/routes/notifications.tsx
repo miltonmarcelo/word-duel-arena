@@ -297,7 +297,7 @@ function ActionRow({ type }: { type: NotificationType }) {
   if (type === "challenge") {
     return (
       <div className="mt-2.5 flex gap-2">
-        <Link to="/match">
+        <Link to="/play/your-turn">
           <Button size="sm" className="h-7 gap-1 text-xs">
             <Check className="h-3 w-3" /> Accept
           </Button>
@@ -311,7 +311,7 @@ function ActionRow({ type }: { type: NotificationType }) {
   if (type === "turn" || type === "starting") {
     return (
       <div className="mt-2.5">
-        <Link to="/match">
+        <Link to="/play/your-turn">
           <Button size="sm" className="h-7 gap-1 text-xs">
             <Play className="h-3 w-3" /> {type === "turn" ? "Play now" : "Join match"}
           </Button>

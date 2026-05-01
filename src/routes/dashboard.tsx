@@ -70,12 +70,12 @@ function Dashboard() {
               </div>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Link to="/match">
+              <Link to="/play">
                 <Button size="lg">
                   <Zap className="size-4" /> Start new duel
                 </Button>
               </Link>
-              <Link to="/match">
+              <Link to="/play">
                 <Button size="lg" variant="secondary">
                   <Sparkles className="size-4" /> Daily puzzle
                 </Button>
@@ -119,7 +119,7 @@ function Dashboard() {
                     Solve before midnight to keep your{" "}
                     <span className="font-semibold text-foreground">12-day streak</span> alive.
                   </p>
-                  <Link to="/match" className="mt-4 inline-block">
+                  <Link to="/play/your-turn" className="mt-4 inline-block">
                     <Button>
                       Play daily <ArrowRight className="size-4" />
                     </Button>
@@ -160,7 +160,7 @@ function Dashboard() {
                         {n.body} · {n.time}
                       </p>
                     </div>
-                    <Link to="/match">
+                    <Link to="/play/your-turn">
                       <Button size="sm">
                         <Check className="size-3" /> Accept
                       </Button>
