@@ -34,6 +34,7 @@ type ResultSearch = {
   hintsUsed?: number;
   mode?: string;
   opponent?: string;
+  from?: "match" | "history";
 };
 
 export const Route = createFileRoute("/match/result")({
@@ -49,6 +50,11 @@ export const Route = createFileRoute("/match/result")({
     const a = num(search.attempts);
     const p = num(search.pointsEarned);
     const h = num(search.hintsUsed);
+    const fromRaw = typeof search.from === "string" ? search.from : undefined;
+    const from = (fromRaw === "history" || fromRaw === "match" ? fromRaw : undefined) as
+      | "match"
+      | "history"
+      | undefined;
     return {
       outcome,
       word: wordRaw && /^[A-Z]{5}$/.test(wordRaw) ? wordRaw : undefined,
@@ -57,6 +63,7 @@ export const Route = createFileRoute("/match/result")({
       hintsUsed: Number.isFinite(h) ? h : undefined,
       mode: typeof search.mode === "string" ? search.mode : undefined,
       opponent: typeof search.opponent === "string" ? search.opponent : undefined,
+      from,
     };
   },
   component: ResultPage,
