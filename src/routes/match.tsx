@@ -301,7 +301,7 @@ function MatchPage() {
             {/* Opponent status badge (right) */}
             <div className="justify-self-end">
               <OpponentStatusBadge
-                opponent={opponent}
+                opponent={opponent ?? undefined}
                 opponentName={opponentName}
                 isSolo={isSolo}
                 status={opponentStatus}
