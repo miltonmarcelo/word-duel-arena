@@ -216,11 +216,25 @@ function RandomMatch() {
                   <Button variant="outline" size="sm" onClick={leaveQueue}>
                     Decline
                   </Button>
-                  <Link to="/match">
-                    <Button size="sm" className="gap-1.5" onClick={() => setConfirmed(true)}>
-                      <Zap className="size-4" /> Accept duel
-                    </Button>
-                  </Link>
+                  <Button
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={() => {
+                      setConfirmed(true);
+                      navigate({
+                        to: "/play/direct-word",
+                        search: {
+                          opp: opponent.id,
+                          name: opponent.name,
+                          handle: opponent.handle,
+                          rating: opponent.rating,
+                          mode: "random",
+                        },
+                      });
+                    }}
+                  >
+                    <Zap className="size-4" /> Accept duel
+                  </Button>
                 </div>
               </>
             )}
