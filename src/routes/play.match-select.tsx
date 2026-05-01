@@ -77,7 +77,7 @@ function MatchSelect() {
   function confirmChallenge() {
     if (!selected) return;
     navigate({
-      to: "/play/direct-word",
+      to: "/play/choose-word",
       search: {
         opp: selected.id,
         name: selected.name,
