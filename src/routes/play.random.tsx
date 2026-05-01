@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Radar, Users, Zap, Trophy, Globe2, Check, X, Shuffle } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
@@ -15,6 +15,7 @@ export const Route = createFileRoute("/play/random")({
 type Pair = { a: Player; b: Player; status: "matching" | "ready" };
 
 function RandomMatch() {
+  const navigate = useNavigate();
   const [inQueue, setInQueue] = useState(true);
   const [seconds, setSeconds] = useState(0);
   const [eta, setEta] = useState(14);
@@ -215,11 +216,25 @@ function RandomMatch() {
                   <Button variant="outline" size="sm" onClick={leaveQueue}>
                     Decline
                   </Button>
-                  <Link to="/match">
-                    <Button size="sm" className="gap-1.5" onClick={() => setConfirmed(true)}>
-                      <Zap className="size-4" /> Accept duel
-                    </Button>
-                  </Link>
+                  <Button
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={() => {
+                      setConfirmed(true);
+                      navigate({
+                        to: "/play/direct-word",
+                        search: {
+                          opp: opponent.id,
+                          name: opponent.name,
+                          handle: opponent.handle,
+                          rating: opponent.rating,
+                          mode: "random",
+                        },
+                      });
+                    }}
+                  >
+                    <Zap className="size-4" /> Accept duel
+                  </Button>
                 </div>
               </>
             )}

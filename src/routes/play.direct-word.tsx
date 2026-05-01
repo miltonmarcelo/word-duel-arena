@@ -23,6 +23,7 @@ type DirectWordSearch = {
   name?: string;
   handle?: string;
   rating?: number;
+  mode?: string;
 };
 
 export const Route = createFileRoute("/play/direct-word")({
@@ -31,6 +32,7 @@ export const Route = createFileRoute("/play/direct-word")({
     name: typeof s.name === "string" ? s.name : undefined,
     handle: typeof s.handle === "string" ? s.handle : undefined,
     rating: typeof s.rating === "number" ? s.rating : Number(s.rating) || undefined,
+    mode: typeof s.mode === "string" ? s.mode : undefined,
   }),
   head: () => ({
     meta: [
