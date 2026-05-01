@@ -119,6 +119,7 @@ function ThemedSubmode() {
               <Link
                 key={m.id}
                 to={m.to}
+                search={{ theme }}
                 className="surface-elevated card-premium-interactive group relative flex items-center gap-4 overflow-hidden p-5"
               >
                 <div
