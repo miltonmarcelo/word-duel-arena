@@ -331,36 +331,49 @@ function StatsPage() {
           </div>
           <ul className="divide-y divide-border">
             {recentMatches.map((m) => (
-              <li key={m.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
-                <div
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold text-background"
-                  style={{ background: m.opponent.avatarColor }}
+              <li key={m.id}>
+                <Link
+                  to="/match/result"
+                  search={{
+                    outcome: m.result,
+                    word: m.word,
+                    attempts: m.guesses,
+                    pointsEarned: m.xp,
+                    opponent: m.opponent.name,
+                    from: "history",
+                  }}
+                  className="group flex items-center gap-3 py-3 -mx-2 px-2 rounded-lg transition-colors hover:bg-surface/50"
                 >
-                  {m.opponent.initials}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="truncate text-sm font-semibold">{m.opponent.name}</p>
-                    <ResultChip result={m.result} />
-                  </div>
-                  <p className="truncate text-xs text-muted-foreground">
-                    Word <span className="font-mono font-semibold tracking-widest text-foreground">{m.word}</span> · {m.guesses} guesses · {m.date}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p
-                    className={cn(
-                      "font-display text-lg",
-                      m.result === "win" && "text-[color:var(--correct)]",
-                      m.result === "loss" && "text-[color:var(--absent)]",
-                      m.result === "draw" && "text-[color:var(--warning)]",
-                    )}
+                  <div
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold text-background"
+                    style={{ background: m.opponent.avatarColor }}
                   >
-                    {m.result === "loss" ? "−" : "+"}
-                    {m.xp}
-                  </p>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">XP</p>
-                </div>
+                    {m.opponent.initials}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="truncate text-sm font-semibold group-hover:text-primary transition-colors">{m.opponent.name}</p>
+                      <ResultChip result={m.result} />
+                    </div>
+                    <p className="truncate text-xs text-muted-foreground">
+                      Word <span className="font-mono font-semibold tracking-widest text-foreground">{m.word}</span> · {m.guesses} guesses · {m.date}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p
+                      className={cn(
+                        "font-display text-lg",
+                        m.result === "win" && "text-[color:var(--correct)]",
+                        m.result === "loss" && "text-[color:var(--absent)]",
+                        m.result === "draw" && "text-[color:var(--warning)]",
+                      )}
+                    >
+                      {m.result === "loss" ? "−" : "+"}
+                      {m.xp}
+                    </p>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">XP</p>
+                  </div>
+                </Link>
               </li>
             ))}
           </ul>

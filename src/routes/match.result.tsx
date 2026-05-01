@@ -34,6 +34,7 @@ type ResultSearch = {
   hintsUsed?: number;
   mode?: string;
   opponent?: string;
+  from?: "match" | "history";
 };
 
 export const Route = createFileRoute("/match/result")({
@@ -49,6 +50,11 @@ export const Route = createFileRoute("/match/result")({
     const a = num(search.attempts);
     const p = num(search.pointsEarned);
     const h = num(search.hintsUsed);
+    const fromRaw = typeof search.from === "string" ? search.from : undefined;
+    const from = (fromRaw === "history" || fromRaw === "match" ? fromRaw : undefined) as
+      | "match"
+      | "history"
+      | undefined;
     return {
       outcome,
       word: wordRaw && /^[A-Z]{5}$/.test(wordRaw) ? wordRaw : undefined,
@@ -57,6 +63,7 @@ export const Route = createFileRoute("/match/result")({
       hintsUsed: Number.isFinite(h) ? h : undefined,
       mode: typeof search.mode === "string" ? search.mode : undefined,
       opponent: typeof search.opponent === "string" ? search.opponent : undefined,
+      from,
     };
   },
   component: ResultPage,
@@ -86,9 +93,22 @@ function ResultPage() {
   const ratingDelta = OUTCOME === "win" ? 18 : OUTCOME === "draw" ? 0 : -12;
   const opponentPoints = OUTCOME === "win" ? -22 : OUTCOME === "draw" ? 40 : 96;
 
+  const isHistory = search.from === "history";
+
   return (
     <AppShell>
       <div className="space-y-5 pb-6 md:space-y-6">
+        {isHistory && (
+          <div className="flex items-center justify-between rounded-xl border border-border bg-surface/60 px-3 py-2 text-xs">
+            <span className="inline-flex items-center gap-2 text-muted-foreground">
+              <History className="size-3.5" />
+              Viewing from match history
+            </span>
+            <Link to="/dashboard" className="font-semibold text-primary hover:underline">
+              Back to dashboard
+            </Link>
+          </div>
+        )}
         {/* === HERO BANNER === */}
         <div
           className={cn(

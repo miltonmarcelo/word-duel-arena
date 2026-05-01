@@ -186,10 +186,24 @@ function Dashboard() {
               />
               <div className="divide-y divide-border">
                 {recentMatches.slice(0, 3).map((m) => (
-                  <div key={m.id} className="flex items-center gap-4 py-3 first:pt-0">
+                  <Link
+                    key={m.id}
+                    to="/match/result"
+                    search={{
+                      outcome: m.result,
+                      word: m.word,
+                      attempts: m.guesses,
+                      pointsEarned: m.xp,
+                      opponent: m.opponent.name,
+                      from: "history",
+                    }}
+                    className="group flex items-center gap-4 py-3 first:pt-0 transition-colors hover:bg-surface/50 -mx-2 px-2 rounded-lg"
+                  >
                     <Avatar player={m.opponent} size={36} />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold">vs {m.opponent.name}</p>
+                      <p className="truncate text-sm font-semibold group-hover:text-primary transition-colors">
+                        vs {m.opponent.name}
+                      </p>
                       <p className="text-xs text-muted-foreground">
                         {m.word} · {m.guesses} guesses · {m.date}
                       </p>
@@ -204,7 +218,7 @@ function Dashboard() {
                     <span className="hidden text-sm font-semibold tabular-nums sm:inline">
                       +{m.xp} XP
                     </span>
-                  </div>
+                  </Link>
                 ))}
                 {recentNotifs.map((n) => (
                   <div key={n.id} className="flex items-center gap-4 py-3 last:pb-0">
