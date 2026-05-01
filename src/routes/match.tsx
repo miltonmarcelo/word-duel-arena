@@ -359,28 +359,47 @@ function MatchPage() {
           </div>
 
           {/* Opponent mini board */}
-          <aside className="player-card player-b order-first lg:order-none">
-            <div className="mb-3 flex items-center gap-3">
-              <Avatar player={opponent} size={36} ring="lilac" />
-              <div className="flex-1 min-w-0">
-                <p className="truncate text-sm font-semibold">{opponent.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  <span className="player-dot player-b mr-1 inline-block" /> typing…
+          {opponent ? (
+            <aside className="player-card player-b order-first lg:order-none">
+              <div className="mb-3 flex items-center gap-3">
+                <Avatar player={opponent} size={36} ring="lilac" />
+                <div className="flex-1 min-w-0">
+                  <p className="truncate text-sm font-semibold">{opponent.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    <span className="player-dot player-b mr-1 inline-block" /> typing…
+                  </p>
+                </div>
+                <p className="font-display text-lg">
+                  {opponentGuesses.length}<span className="text-muted-foreground">/{MAX_ROWS}</span>
                 </p>
               </div>
-              <p className="font-display text-lg">
-                {opponentGuesses.length}<span className="text-muted-foreground">/{MAX_ROWS}</span>
-              </p>
-            </div>
-            <div className="mx-auto w-fit">
-              <WordBoard guesses={opponentGuesses} rows={MAX_ROWS} size="sm" />
-            </div>
-            <Link to="/match/result" className="mt-3 block">
-              <Button size="sm" variant="ghost" className="w-full gap-1.5">
-                <Flag className="size-3.5" /> Forfeit duel
-              </Button>
-            </Link>
-          </aside>
+              <div className="mx-auto w-fit">
+                <WordBoard guesses={opponentGuesses} rows={MAX_ROWS} size="sm" />
+              </div>
+              <Link to="/match/result" className="mt-3 block">
+                <Button size="sm" variant="ghost" className="w-full gap-1.5">
+                  <Flag className="size-3.5" /> Forfeit duel
+                </Button>
+              </Link>
+            </aside>
+          ) : (
+            <aside className="player-card order-first lg:order-none">
+              <div className="mb-3 flex items-center gap-3">
+                <div className="flex size-9 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                  <Bot className="size-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="truncate text-sm font-semibold">Solo run</p>
+                  <p className="text-xs text-muted-foreground">No opponent — practice mode</p>
+                </div>
+              </div>
+              <Link to="/match/result" className="mt-3 block">
+                <Button size="sm" variant="ghost" className="w-full gap-1.5">
+                  <Flag className="size-3.5" /> End run
+                </Button>
+              </Link>
+            </aside>
+          )}
         </div>
       </div>
 
