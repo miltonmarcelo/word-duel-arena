@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   RotateCcw,
-  Share2,
   Trophy,
   Home,
   Lightbulb,
@@ -11,6 +10,7 @@ import {
   Sparkles,
   TrendingUp,
   TrendingDown,
+  History,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Avatar } from "@/components/Avatar";
