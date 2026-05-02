@@ -121,40 +121,44 @@ function Dashboard() {
               </div>
             </Card>
 
-            {/* Your Rooms */}
-            <RoomsWidget />
+            {/* Your Rooms — desktop only (rooms reachable via bottom tab on mobile) */}
+            <div className="hidden md:block">
+              <RoomsWidget />
+            </div>
 
-            {/* Daily puzzle */}
-            <Card>
-              <div className="grid items-center gap-6 sm:grid-cols-[1fr,auto]">
-                <div>
-                  <span className="chip">
-                    <Sparkles className="size-3" /> Daily #482
-                  </span>
-                  <h3 className="mt-3 font-display text-2xl">Today's puzzle is live.</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Solve before midnight to keep your{" "}
-                    <span className="font-semibold text-foreground">12-day streak</span> alive.
-                  </p>
-                  <Link to="/play/your-turn" className="mt-4 inline-block">
-                    <Button>
-                      Play daily <ArrowRight className="size-4" />
-                    </Button>
-                  </Link>
+            {/* Daily puzzle — desktop only (CTA exists in hero on mobile) */}
+            <div className="hidden md:block">
+              <Card>
+                <div className="grid items-center gap-6 sm:grid-cols-[1fr,auto]">
+                  <div>
+                    <span className="chip">
+                      <Sparkles className="size-3" /> Daily #482
+                    </span>
+                    <h3 className="mt-3 font-display text-2xl">Today's puzzle is live.</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Solve before midnight to keep your{" "}
+                      <span className="font-semibold text-foreground">12-day streak</span> alive.
+                    </p>
+                    <Link to="/play/your-turn" className="mt-4 inline-block">
+                      <Button>
+                        Play daily <ArrowRight className="size-4" />
+                      </Button>
+                    </Link>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <WordRow
+                      guess={{
+                        letters: ["P", "L", "A", "T", "E"],
+                        states: ["correct", "correct", "correct", "correct", "correct"],
+                      }}
+                      size="sm"
+                    />
+                    <WordRow size="sm" empty />
+                    <WordRow size="sm" empty />
+                  </div>
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <WordRow
-                    guess={{
-                      letters: ["P", "L", "A", "T", "E"],
-                      states: ["correct", "correct", "correct", "correct", "correct"],
-                    }}
-                    size="sm"
-                  />
-                  <WordRow size="sm" empty />
-                  <WordRow size="sm" empty />
-                </div>
-              </div>
-            </Card>
+              </Card>
+            </div>
 
             {/* Pending friend requests banner */}
             {pendingFriendRequests > 0 && (
