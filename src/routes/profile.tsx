@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Award,
   Calendar,
+  Check,
+  Clock,
   Edit3,
   Flame,
   Globe2,
@@ -9,8 +11,10 @@ import {
   Share2,
   Sparkles,
   Trophy,
+  UserPlus,
   Zap,
 } from "lucide-react";
+import { z } from "zod";
 import { AppShell } from "@/components/AppShell";
 import { Avatar } from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
@@ -18,8 +22,14 @@ import { Progress } from "@/components/ui/progress";
 import { achievements, currentUser, players, recentMatches } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
+const profileSearchSchema = z.object({
+  viewing: z.string().optional(),
+  rel: z.enum(["none", "sent", "friend"]).optional(),
+});
+
 export const Route = createFileRoute("/profile")({
   head: () => ({ meta: [{ title: "Profile — Word Clash" }] }),
+  validateSearch: profileSearchSchema,
   component: ProfilePage,
 });
 
@@ -34,9 +44,20 @@ const FAVORITE_THEMES = [
 ];
 
 function ProfilePage() {
-  const xpPct = Math.round((currentUser.xp / currentUser.xpToNext) * 100);
+  const { viewing, rel } = Route.useSearch();
+  const viewedPlayer =
+    (viewing && players.find((p) => p.id === viewing || p.handle === viewing)) ||
+    currentUser;
+  const isOwnProfile = viewedPlayer.id === currentUser.id;
+  const relationship: "none" | "sent" | "friend" = rel ?? "none";
+
+  // Mock friends list (max 6 visible in row, 12 total)
+  const friendsList = players.filter((p) => p.id !== viewedPlayer.id).slice(0, 12);
+  const friendsCount = friendsList.length;
+
+  const xpPct = Math.round((viewedPlayer.xp / viewedPlayer.xpToNext) * 100);
   const sortedByRating = [...players].sort((a, b) => b.rating - a.rating);
-  const myRank = sortedByRating.findIndex((p) => p.id === currentUser.id) + 1;
+  const myRank = sortedByRating.findIndex((p) => p.id === viewedPlayer.id) + 1;
   const totalPoints = 84_210;
 
   const wins   = recentMatches.filter((m) => m.result === "win").length + 38;
@@ -75,30 +96,38 @@ function ProfilePage() {
           <div className="relative flex flex-col items-center gap-4 text-center sm:flex-row sm:items-end sm:justify-between sm:gap-6 sm:text-left">
             <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-end sm:gap-5">
               <div className="rounded-full ring-4 ring-card">
-                <Avatar player={currentUser} size={88} ring="mint" />
+                <Avatar player={viewedPlayer} size={88} ring="mint" />
               </div>
               <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                  <h1 className="font-display text-3xl leading-none sm:text-4xl">{currentUser.name}</h1>
+                  <h1 className="font-display text-3xl leading-none sm:text-4xl">{viewedPlayer.name}</h1>
                   <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
-                    Lvl {currentUser.level}
+                    Lvl {viewedPlayer.level}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground sm:text-sm">
-                  {currentUser.handle} · <Globe2 className="-mt-0.5 inline h-3 w-3" /> {currentUser.country}
+                  {viewedPlayer.handle} · <Globe2 className="-mt-0.5 inline h-3 w-3" /> {viewedPlayer.country}
                 </p>
-                <p className="mx-auto max-w-md text-sm text-foreground/80 sm:mx-0">{BIO}</p>
+                {isOwnProfile && (
+                  <p className="mx-auto max-w-md text-sm text-foreground/80 sm:mx-0">{BIO}</p>
+                )}
               </div>
             </div>
             <div className="flex w-full gap-2 sm:w-auto">
-              <Button variant="secondary" size="sm" className="flex-1 gap-1.5 sm:flex-none">
-                <Share2 className="h-4 w-4" /> Share
-              </Button>
-              <Button asChild size="sm" className="flex-1 gap-1.5 sm:flex-none">
-                <Link to="/settings">
-                  <Edit3 className="h-4 w-4" /> Edit
-                </Link>
-              </Button>
+              {isOwnProfile ? (
+                <>
+                  <Button variant="secondary" size="sm" className="flex-1 gap-1.5 sm:flex-none">
+                    <Share2 className="h-4 w-4" /> Share
+                  </Button>
+                  <Button asChild size="sm" className="flex-1 gap-1.5 sm:flex-none">
+                    <Link to="/settings">
+                      <Edit3 className="h-4 w-4" /> Edit
+                    </Link>
+                  </Button>
+                </>
+              ) : (
+                <FriendActionButton relationship={relationship} />
+              )}
             </div>
           </div>
         </header>
@@ -274,6 +303,54 @@ function ProfilePage() {
               </ul>
             </Panel>
 
+            {/* Friends */}
+            <Panel>
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                    Network
+                  </p>
+                  <h2 className="font-display text-2xl">
+                    Friends{" "}
+                    <span className="text-base font-sans text-muted-foreground">
+                      · {friendsCount}
+                    </span>
+                  </h2>
+                </div>
+                <Link
+                  to="/friends"
+                  className="text-xs font-semibold text-primary hover:underline"
+                >
+                  View all
+                </Link>
+              </div>
+
+              {/* Horizontal scrollable row of up to 6 friends */}
+              <div className="-mx-1 flex gap-3 overflow-x-auto pb-2">
+                {friendsList.slice(0, 6).map((f) => (
+                  <Link
+                    key={f.id}
+                    to="/profile"
+                    search={{ viewing: f.id, rel: "none" as const }}
+                    className="surface-soft flex w-24 shrink-0 flex-col items-center gap-2 rounded-xl p-3 text-center transition-transform hover:-translate-y-0.5"
+                  >
+                    <Avatar player={f} size={44} />
+                    <p className="w-full truncate text-xs font-semibold">
+                      {f.name.split(" ")[0]}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+
+              {isOwnProfile && (
+                <Link to="/friends" className="mt-4 block">
+                  <Button variant="secondary" size="sm" className="w-full gap-2">
+                    <UserPlus className="h-4 w-4" /> Find more players
+                  </Button>
+                </Link>
+              )}
+            </Panel>
+
             {/* Achievements */}
             <Panel>
               <div className="mb-3 flex items-center justify-between">
@@ -319,6 +396,32 @@ function ProfilePage() {
 
 function Panel({ children }: { children: React.ReactNode }) {
   return <div className="surface-elevated rounded-2xl p-5 sm:p-6">{children}</div>;
+}
+
+function FriendActionButton({
+  relationship,
+}: {
+  relationship: "none" | "sent" | "friend";
+}) {
+  if (relationship === "friend") {
+    return (
+      <Button variant="secondary" size="sm" className="flex-1 gap-1.5 sm:flex-none" disabled>
+        <Check className="h-4 w-4" /> Friends
+      </Button>
+    );
+  }
+  if (relationship === "sent") {
+    return (
+      <Button variant="secondary" size="sm" className="flex-1 gap-1.5 sm:flex-none" disabled>
+        <Clock className="h-4 w-4" /> Request sent
+      </Button>
+    );
+  }
+  return (
+    <Button size="sm" className="flex-1 gap-1.5 sm:flex-none">
+      <UserPlus className="h-4 w-4" /> Add friend
+    </Button>
+  );
 }
 
 function StatTile({
