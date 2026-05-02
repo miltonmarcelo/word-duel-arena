@@ -85,9 +85,8 @@ function Dashboard() {
         </section>
 
         {/* KPI strip */}
-        <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <Kpi label="This week" value="2,480" delta="+820 XP" tone="mint" />
-          
           <Kpi label="All-time" value="64.8k" delta="412 matches" tone="muted" />
           <Kpi label="Global rank" value={`#${myRank}`} delta="↑ 14 this week" tone="mint" highlight />
         </section>
