@@ -399,6 +399,32 @@ function Panel({ children }: { children: React.ReactNode }) {
   return <div className="surface-elevated rounded-2xl p-5 sm:p-6">{children}</div>;
 }
 
+function FriendActionButton({
+  relationship,
+}: {
+  relationship: "none" | "sent" | "friend";
+}) {
+  if (relationship === "friend") {
+    return (
+      <Button variant="secondary" size="sm" className="flex-1 gap-1.5 sm:flex-none" disabled>
+        <Check className="h-4 w-4" /> Friends
+      </Button>
+    );
+  }
+  if (relationship === "sent") {
+    return (
+      <Button variant="secondary" size="sm" className="flex-1 gap-1.5 sm:flex-none" disabled>
+        <Clock className="h-4 w-4" /> Request sent
+      </Button>
+    );
+  }
+  return (
+    <Button size="sm" className="flex-1 gap-1.5 sm:flex-none">
+      <UserPlus className="h-4 w-4" /> Add friend
+    </Button>
+  );
+}
+
 function StatTile({
   label,
   value,
