@@ -200,6 +200,46 @@ function RoomsPage() {
   const [codeCopied, setCodeCopied] = useState(false);
   const [myRooms, setMyRooms] = useState<MyRoom[]>(myRoomsSeed);
   const [publicRooms, setPublicRooms] = useState<PublicRoom[]>(publicRoomsSeed);
+  const [joinPreview, setJoinPreview] = useState<{
+    name: string;
+    host: typeof players[number];
+    members: number;
+    theme: string;
+    emoji: string;
+    timeLimit: string;
+    privacy: "public" | "private";
+  } | null>(null);
+  const [joinLoading, setJoinLoading] = useState(false);
+
+  // Mock: any non-empty code shows a preview after a brief loading state
+  useEffect(() => {
+    const cleaned = joinCode.replace(/[^A-Z0-9]/g, "");
+    if (cleaned.length === 0) {
+      setJoinPreview(null);
+      setJoinLoading(false);
+      return;
+    }
+    setJoinLoading(true);
+    setJoinPreview(null);
+    const seed = cleaned.charCodeAt(0) || 0;
+    const hostIdx = seed % MOCK_PREVIEW_HOSTS.length;
+    const themeIdx = (seed + cleaned.length) % MOCK_PREVIEW_THEMES.length;
+    const t = setTimeout(() => {
+      const host = players.find((p) => p.name === MOCK_PREVIEW_HOSTS[hostIdx]) ?? players[0];
+      setJoinPreview({
+        name: `${MOCK_PREVIEW_THEMES[themeIdx]} Clash`,
+        host,
+        members: 3 + (seed % 8),
+        theme: MOCK_PREVIEW_THEMES[themeIdx],
+        emoji: MOCK_PREVIEW_EMOJI[themeIdx % MOCK_PREVIEW_EMOJI.length],
+        timeLimit: MOCK_PREVIEW_TIMES[seed % MOCK_PREVIEW_TIMES.length],
+        privacy: cleaned.length % 2 === 0 ? "private" : "public",
+      });
+      setJoinLoading(false);
+    }, 450);
+    return () => clearTimeout(t);
+  }, [joinCode]);
+
 
   const timeLimitLabel = useMemo(
     () => TIME_LIMITS.find((t) => t.id === timeLimit)!.label,
