@@ -94,12 +94,17 @@ function Dashboard() {
           </div>
         </section>
 
-        {/* KPI strip */}
-        <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <Kpi label="This week" value="2,480" delta="+820 XP" tone="mint" />
-          <Kpi label="All-time" value="64.8k" delta="412 matches" tone="muted" />
-          <Kpi label="Global rank" value={`#${myRank}`} delta="↑ 14 this week" tone="mint" highlight />
+        {/* KPI strip — horizontal scroll on mobile, grid on desktop */}
+        <section className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0">
+          <Kpi label="This week" value="2,480" delta="+820 XP" tone="mint" className="min-w-[160px] shrink-0 sm:min-w-0" />
+          <Kpi label="All-time" value="64.8k" delta="412 matches" tone="muted" className="min-w-[160px] shrink-0 sm:min-w-0" />
+          <Kpi label="Global rank" value={`#${myRank}`} delta="↑ 14 this week" tone="mint" highlight className="min-w-[160px] shrink-0 sm:min-w-0" />
         </section>
+
+        {/* Mobile-only Streak (appears right after KPIs on mobile) */}
+        <div className="md:hidden">
+          <StreakCard />
+        </div>
 
         {/* Two-column main */}
         <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
