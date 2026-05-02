@@ -45,9 +45,20 @@ const FAVORITE_THEMES = [
 ];
 
 function ProfilePage() {
-  const xpPct = Math.round((currentUser.xp / currentUser.xpToNext) * 100);
+  const { viewing, rel } = Route.useSearch();
+  const viewedPlayer =
+    (viewing && players.find((p) => p.id === viewing || p.handle === viewing)) ||
+    currentUser;
+  const isOwnProfile = viewedPlayer.id === currentUser.id;
+  const relationship: "none" | "sent" | "friend" = rel ?? "none";
+
+  // Mock friends list (max 6 visible in row, 12 total)
+  const friendsList = players.filter((p) => p.id !== viewedPlayer.id).slice(0, 12);
+  const friendsCount = friendsList.length;
+
+  const xpPct = Math.round((viewedPlayer.xp / viewedPlayer.xpToNext) * 100);
   const sortedByRating = [...players].sort((a, b) => b.rating - a.rating);
-  const myRank = sortedByRating.findIndex((p) => p.id === currentUser.id) + 1;
+  const myRank = sortedByRating.findIndex((p) => p.id === viewedPlayer.id) + 1;
   const totalPoints = 84_210;
 
   const wins   = recentMatches.filter((m) => m.result === "win").length + 38;
