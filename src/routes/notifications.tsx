@@ -48,12 +48,23 @@ const TYPE_META: Record<
   ranking:            { label: "Ranking",           icon: ArrowUp,    color: "var(--present)" },
   achievement:        { label: "Achievements",      icon: Award,      color: "var(--warning)" },
   friend:             { label: "Friends",           icon: UserPlus,   color: "var(--accent)" },
+  friend_request:     { label: "Friend request",    icon: UserPlus,   color: "var(--accent)" },
+  friend_accepted:    { label: "Friend accepted",   icon: ThumbsUp,   color: "var(--correct)" },
+  friend_now:         { label: "New friend",        icon: Check,      color: "var(--correct)" },
   system:             { label: "System",            icon: Sparkles,   color: "var(--muted-foreground)" },
 };
+
+const FRIEND_TYPES: NotificationType[] = [
+  "friend",
+  "friend_request",
+  "friend_accepted",
+  "friend_now",
+];
 
 const FILTERS: { id: Filter; label: string }[] = [
   { id: "all",                label: "All" },
   { id: "unread",             label: "Unread" },
+  { id: "friend_request",     label: "Friends" },
   { id: "challenge",          label: "Challenges" },
   { id: "challenge_accepted", label: "Accepted" },
   { id: "word_locked",        label: "Word locked" },
@@ -73,6 +84,8 @@ function NotificationsPage() {
   const filtered = useMemo(() => {
     if (filter === "all") return items;
     if (filter === "unread") return items.filter((n) => n.unread);
+    if (filter === "friend_request")
+      return items.filter((n) => FRIEND_TYPES.includes(n.type));
     return items.filter((n) => n.type === filter);
   }, [items, filter]);
 
@@ -89,6 +102,22 @@ function NotificationsPage() {
     setItems((prev) => prev.map((n) => ({ ...n, unread: false })));
   const dismiss = (id: string) =>
     setItems((prev) => prev.filter((n) => n.id !== id));
+  const acceptFriend = (id: string) =>
+    setItems((prev) =>
+      prev.map((n) =>
+        n.id === id
+          ? {
+              ...n,
+              type: "friend_now",
+              title: n.actor
+                ? `You are now friends with ${n.actor.name.split(" ")[0]}`
+                : "You are now friends",
+              body: "Send them a duel to break the ice.",
+              unread: false,
+            }
+          : n,
+      ),
+    );
 
   return (
     <AppShell>
@@ -147,9 +176,9 @@ function NotificationsPage() {
           <EmptyState />
         ) : (
           <div className="space-y-6">
-            <Section title="Today"     items={groups.today}     onRead={markRead} onDismiss={dismiss} />
-            <Section title="Yesterday" items={groups.yesterday} onRead={markRead} onDismiss={dismiss} />
-            <Section title="Earlier"   items={groups.earlier}   onRead={markRead} onDismiss={dismiss} />
+            <Section title="Today"     items={groups.today}     onRead={markRead} onDismiss={dismiss} onAcceptFriend={acceptFriend} />
+            <Section title="Yesterday" items={groups.yesterday} onRead={markRead} onDismiss={dismiss} onAcceptFriend={acceptFriend} />
+            <Section title="Earlier"   items={groups.earlier}   onRead={markRead} onDismiss={dismiss} onAcceptFriend={acceptFriend} />
           </div>
         )}
       </div>
@@ -164,11 +193,13 @@ function Section({
   items,
   onRead,
   onDismiss,
+  onAcceptFriend,
 }: {
   title: string;
   items: NotificationItem[];
   onRead: (id: string) => void;
   onDismiss: (id: string) => void;
+  onAcceptFriend: (id: string) => void;
 }) {
   if (!items.length) return null;
   return (
@@ -178,7 +209,13 @@ function Section({
       </h2>
       <div className="surface-elevated divide-y divide-border overflow-hidden rounded-2xl">
         {items.map((n) => (
-          <NotificationRow key={n.id} n={n} onRead={onRead} onDismiss={onDismiss} />
+          <NotificationRow
+            key={n.id}
+            n={n}
+            onRead={onRead}
+            onDismiss={onDismiss}
+            onAcceptFriend={onAcceptFriend}
+          />
         ))}
       </div>
     </section>
@@ -189,10 +226,12 @@ function NotificationRow({
   n,
   onRead,
   onDismiss,
+  onAcceptFriend,
 }: {
   n: NotificationItem;
   onRead: (id: string) => void;
   onDismiss: (id: string) => void;
+  onAcceptFriend: (id: string) => void;
 }) {
   const meta = TYPE_META[n.type];
   const Icon = meta.icon;
@@ -286,7 +325,7 @@ function NotificationRow({
         )}
 
         {/* Actions */}
-        <ActionRow type={n.type} />
+        <ActionRow n={n} onAccept={() => onAcceptFriend(n.id)} onDismiss={() => onDismiss(n.id)} />
       </div>
 
       {/* Dismiss */}
@@ -304,7 +343,55 @@ function NotificationRow({
   );
 }
 
-function ActionRow({ type }: { type: NotificationType }) {
+function ActionRow({
+  n,
+  onAccept,
+  onDismiss,
+}: {
+  n: NotificationItem;
+  onAccept: () => void;
+  onDismiss: () => void;
+}) {
+  const type = n.type;
+
+  if (type === "friend_request") {
+    return (
+      <div className="mt-2.5 flex gap-2">
+        <Button
+          size="sm"
+          className="h-7 gap-1 text-xs"
+          onClick={(e) => {
+            e.stopPropagation();
+            onAccept();
+          }}
+        >
+          <Check className="h-3 w-3" /> Accept
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          className="h-7 gap-1 text-xs"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDismiss();
+          }}
+        >
+          <X className="h-3 w-3" /> Decline
+        </Button>
+      </div>
+    );
+  }
+  if (type === "friend_accepted" || type === "friend_now") {
+    return (
+      <div className="mt-2.5">
+        <Link to="/play/match-select">
+          <Button size="sm" className="h-7 gap-1 text-xs">
+            <Swords className="h-3 w-3" /> Challenge them
+          </Button>
+        </Link>
+      </div>
+    );
+  }
   if (type === "challenge") {
     return (
       <div className="mt-2.5 flex gap-2">
