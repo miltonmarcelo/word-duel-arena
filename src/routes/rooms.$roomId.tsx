@@ -147,6 +147,9 @@ function RoomHub() {
   const code = useMemo(() => roomCodeFor(room.id), [room]);
   const [copied, setCopied] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
+  // Host-leave flow
+  const [hostLeaveOpen, setHostLeaveOpen] = useState(false);
+  const [transferTarget, setTransferTarget] = useState<RoomMember | null>(null);
   const navigate = useNavigate();
 
   // Settings sheet
