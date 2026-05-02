@@ -592,31 +592,100 @@ function RoomsPage() {
       </Dialog>
 
       {/* Join with code Dialog */}
-      <Dialog open={joinOpen} onOpenChange={setJoinOpen}>
-        <DialogContent className="sm:max-w-sm">
+      <Dialog
+        open={joinOpen}
+        onOpenChange={(v) => {
+          setJoinOpen(v);
+          if (!v) {
+            setJoinCode("");
+            setJoinPreview(null);
+            setJoinLoading(false);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="font-display text-2xl">Join with code</DialogTitle>
+            <DialogTitle className="font-display text-2xl">Join a Room</DialogTitle>
             <DialogDescription>
-              Got a room code from a friend? Drop it in.
+              Enter the invite code shared by your friend.
             </DialogDescription>
           </DialogHeader>
-          <div className="py-2">
-            <Label htmlFor="join-code">Room code</Label>
-            <Input
-              id="join-code"
-              value={joinCode}
-              onChange={(e) => setJoinCode(e.target.value)}
-              placeholder="e.g. WORD-42AB"
-              className="mt-1.5 uppercase tracking-widest font-display"
-              autoFocus
-            />
+
+          <div className="space-y-4 py-2">
+            <div>
+              <Label
+                htmlFor="join-code"
+                className="text-xs uppercase tracking-[0.14em] text-muted-foreground"
+              >
+                Invite code
+              </Label>
+              <Input
+                id="join-code"
+                value={joinCode}
+                onChange={(e) => setJoinCode(formatJoinCode(e.target.value))}
+                placeholder="XXXX-XXXX"
+                maxLength={9}
+                autoFocus
+                className="mt-1.5 h-14 text-center font-display text-2xl tracking-[0.4em] uppercase"
+              />
+            </div>
+
+            {joinLoading && (
+              <div className="surface-elevated flex items-center gap-3 p-4">
+                <Loader2 className="size-5 animate-spin text-primary" />
+                <p className="text-sm text-muted-foreground">Looking up room…</p>
+              </div>
+            )}
+
+            {!joinLoading && joinPreview && (
+              <div className="surface-elevated p-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">{joinPreview.emoji}</span>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-display text-lg leading-tight">{joinPreview.name}</h4>
+                    <div className="mt-1.5 flex flex-wrap gap-1">
+                      <span className="chip chip-muted">{joinPreview.theme}</span>
+                      <span className="chip chip-muted">
+                        <Clock className="size-3" /> {joinPreview.timeLimit}
+                      </span>
+                      <span className="chip chip-muted">
+                        {joinPreview.privacy === "private" ? (
+                          <>
+                            <Lock className="size-3" /> Private
+                          </>
+                        ) : (
+                          <>
+                            <Globe2 className="size-3" /> Public
+                          </>
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Avatar player={joinPreview.host} size={24} />
+                    <span>
+                      Hosted by{" "}
+                      <span className="font-semibold text-foreground">
+                        {joinPreview.host.name}
+                      </span>
+                    </span>
+                  </div>
+                  <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                    <Users className="size-3.5" /> {joinPreview.members}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
+
           <DialogFooter>
             <Button variant="ghost" onClick={() => setJoinOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleJoin}>
-              <KeyRound className="size-4" /> Join
+            <Button onClick={handleJoin} disabled={!joinPreview || joinLoading}>
+              <KeyRound className="size-4" /> Join Room
             </Button>
           </DialogFooter>
         </DialogContent>
