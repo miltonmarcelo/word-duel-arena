@@ -116,6 +116,9 @@ function Dashboard() {
               </div>
             </Card>
 
+            {/* Your Rooms */}
+            <RoomsWidget />
+
             {/* Daily puzzle */}
             <Card>
               <div className="grid items-center gap-6 sm:grid-cols-[1fr,auto]">
