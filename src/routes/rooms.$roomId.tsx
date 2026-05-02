@@ -1004,7 +1004,15 @@ function ExpiredWord({
   );
 }
 
-function WaitingWord({ isHost, canLaunch }: { isHost: boolean; canLaunch: boolean }) {
+function WaitingWord({
+  isHost,
+  canLaunch,
+  onLaunch,
+}: {
+  isHost: boolean;
+  canLaunch: boolean;
+  onLaunch: () => void;
+}) {
   return (
     <div className="surface-elevated flex flex-col items-center gap-3 p-10 text-center">
       <Hourglass className="size-10 text-muted-foreground" />
@@ -1015,11 +1023,7 @@ function WaitingWord({ isHost, canLaunch }: { isHost: boolean; canLaunch: boolea
             <p className="max-w-sm text-sm text-muted-foreground">
               Ready when you are. Launching a new word kicks off the timer for everyone.
             </p>
-            <Button
-              size="lg"
-              className="mt-2"
-              onClick={() => toast.success("New word launched!", { description: "Members are notified." })}
-            >
+            <Button size="lg" className="mt-2" onClick={onLaunch}>
               <Sparkles className="size-4" /> Launch New Word
             </Button>
           </>
@@ -1028,9 +1032,22 @@ function WaitingWord({ isHost, canLaunch }: { isHost: boolean; canLaunch: boolea
             <p className="max-w-sm text-sm text-muted-foreground">
               Cooldown active to keep things fair.
             </p>
-            <Button size="lg" className="mt-2" disabled>
-              <Clock className="size-4" /> Next word available in 4h
-            </Button>
+            <TooltipProvider delayDuration={150}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  {/* span wrapper so tooltip works on disabled button */}
+                  <span tabIndex={0} className="inline-flex">
+                    <Button size="lg" className="mt-2" disabled>
+                      <Sparkles className="size-4" /> Launch New Word
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  You must wait until the current word period ends.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <p className="text-xs text-muted-foreground">Available in 4h 12m</p>
           </>
         )
       ) : (
