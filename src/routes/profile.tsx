@@ -12,7 +12,6 @@ import {
   Sparkles,
   Trophy,
   UserPlus,
-  Users,
   Zap,
 } from "lucide-react";
 import { z } from "zod";
