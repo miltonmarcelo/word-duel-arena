@@ -43,9 +43,29 @@ const THEMES = [
   { id: "science", label: "Science", emoji: "🔬" },
   { id: "music", label: "Music", emoji: "🎵" },
   { id: "food", label: "Food", emoji: "🍜" },
+  { id: "geography", label: "Geography", emoji: "🌍" },
 ] as const;
 
-const MAX_PLAYERS = [2, 4, 6, 8] as const;
+const TIME_LIMITS = [
+  { id: "8h", label: "8 hours" },
+  { id: "12h", label: "12 hours" },
+  { id: "24h", label: "24 hours" },
+] as const;
+
+type MaxMembers = 4 | 8 | 16 | "unlimited";
+const MAX_MEMBERS_OPTS: { value: MaxMembers; label: string }[] = [
+  { value: 4, label: "4" },
+  { value: 8, label: "8" },
+  { value: 16, label: "16" },
+  { value: "unlimited", label: "∞" },
+];
+
+function generateInviteCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let s = "";
+  for (let i = 0; i < 4; i++) s += chars[Math.floor(Math.random() * chars.length)];
+  return `CLASH-${s}`;
+}
 
 type RoomStatus = "active" | "played" | "waiting";
 
