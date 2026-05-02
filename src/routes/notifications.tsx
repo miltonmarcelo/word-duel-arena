@@ -193,11 +193,13 @@ function Section({
   items,
   onRead,
   onDismiss,
+  onAcceptFriend,
 }: {
   title: string;
   items: NotificationItem[];
   onRead: (id: string) => void;
   onDismiss: (id: string) => void;
+  onAcceptFriend: (id: string) => void;
 }) {
   if (!items.length) return null;
   return (
@@ -207,7 +209,13 @@ function Section({
       </h2>
       <div className="surface-elevated divide-y divide-border overflow-hidden rounded-2xl">
         {items.map((n) => (
-          <NotificationRow key={n.id} n={n} onRead={onRead} onDismiss={onDismiss} />
+          <NotificationRow
+            key={n.id}
+            n={n}
+            onRead={onRead}
+            onDismiss={onDismiss}
+            onAcceptFriend={onAcceptFriend}
+          />
         ))}
       </div>
     </section>
