@@ -6,6 +6,7 @@ import {
   Globe2,
   Hash,
   KeyRound,
+  Loader2,
   Lock,
   Plus,
   Trophy,
