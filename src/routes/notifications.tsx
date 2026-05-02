@@ -325,7 +325,7 @@ function NotificationRow({
         )}
 
         {/* Actions */}
-        <ActionRow type={n.type} />
+        <ActionRow n={n} onAccept={() => onAcceptFriend(n.id)} onDismiss={() => onDismiss(n.id)} />
       </div>
 
       {/* Dismiss */}
