@@ -84,6 +84,8 @@ function NotificationsPage() {
   const filtered = useMemo(() => {
     if (filter === "all") return items;
     if (filter === "unread") return items.filter((n) => n.unread);
+    if (filter === "friend_request")
+      return items.filter((n) => FRIEND_TYPES.includes(n.type));
     return items.filter((n) => n.type === filter);
   }, [items, filter]);
 
@@ -100,6 +102,22 @@ function NotificationsPage() {
     setItems((prev) => prev.map((n) => ({ ...n, unread: false })));
   const dismiss = (id: string) =>
     setItems((prev) => prev.filter((n) => n.id !== id));
+  const acceptFriend = (id: string) =>
+    setItems((prev) =>
+      prev.map((n) =>
+        n.id === id
+          ? {
+              ...n,
+              type: "friend_now",
+              title: n.actor
+                ? `You are now friends with ${n.actor.name.split(" ")[0]}`
+                : "You are now friends",
+              body: "Send them a duel to break the ice.",
+              unread: false,
+            }
+          : n,
+      ),
+    );
 
   return (
     <AppShell>
