@@ -190,68 +190,70 @@ function Dashboard() {
               </Link>
             )}
 
-            {/* Friends online */}
-            <Card>
-              <CardHeader
-                title="Friends Online"
-                subtitle={
-                  onlineFriends.length > 0
-                    ? `${onlineFriends.length} ready to play right now`
-                    : "Nobody online at the moment"
-                }
-                action={
-                  <Link
-                    to="/friends"
-                    className="text-xs font-semibold text-primary hover:underline"
-                  >
-                    See all friends
-                  </Link>
-                }
-              />
-              <div className="-mb-2 flex items-center gap-2 text-muted-foreground">
-                <Users className="size-4 shrink-0 text-primary" />
-                {onlineFriends.length === 0 ? (
-                  <p className="text-sm">
-                    No friends online.{" "}
+            {/* Friends online — desktop only (Friends tab in mobile bottom bar) */}
+            <div className="hidden md:block">
+              <Card>
+                <CardHeader
+                  title="Friends Online"
+                  subtitle={
+                    onlineFriends.length > 0
+                      ? `${onlineFriends.length} ready to play right now`
+                      : "Nobody online at the moment"
+                  }
+                  action={
                     <Link
                       to="/friends"
-                      className="font-semibold text-primary hover:underline"
+                      className="text-xs font-semibold text-primary hover:underline"
                     >
-                      Find players
+                      See all friends
                     </Link>
-                  </p>
-                ) : null}
-              </div>
-              {onlineFriends.length > 0 && (
-                <div className="-mx-1 mt-3 flex gap-3 overflow-x-auto pb-2">
-                  {onlineFriends.map((f) => (
-                    <div
-                      key={f.id}
-                      className="surface-soft flex w-36 shrink-0 flex-col items-center gap-2 rounded-xl p-3 text-center"
-                    >
-                      <div className="relative">
-                        <span className="avatar-ring inline-block">
-                          <Avatar player={f} size={48} />
-                        </span>
-                        <span
-                          className="absolute -bottom-0.5 -right-0.5 block size-3 rounded-full border-2 border-background"
-                          style={{ background: "var(--correct)" }}
-                          aria-label="Online"
-                        />
-                      </div>
-                      <p className="w-full truncate text-sm font-semibold">
-                        {f.name.split(" ")[0]}
-                      </p>
-                      <Link to="/play/match-select" className="w-full">
-                        <Button size="sm" className="w-full gap-1.5">
-                          <Swords className="size-3" /> Challenge
-                        </Button>
+                  }
+                />
+                <div className="-mb-2 flex items-center gap-2 text-muted-foreground">
+                  <Users className="size-4 shrink-0 text-primary" />
+                  {onlineFriends.length === 0 ? (
+                    <p className="text-sm">
+                      No friends online.{" "}
+                      <Link
+                        to="/friends"
+                        className="font-semibold text-primary hover:underline"
+                      >
+                        Find players
                       </Link>
-                    </div>
-                  ))}
+                    </p>
+                  ) : null}
                 </div>
-              )}
-            </Card>
+                {onlineFriends.length > 0 && (
+                  <div className="-mx-1 mt-3 flex gap-3 overflow-x-auto pb-2">
+                    {onlineFriends.map((f) => (
+                      <div
+                        key={f.id}
+                        className="surface-soft flex w-36 shrink-0 flex-col items-center gap-2 rounded-xl p-3 text-center"
+                      >
+                        <div className="relative">
+                          <span className="avatar-ring inline-block">
+                            <Avatar player={f} size={48} />
+                          </span>
+                          <span
+                            className="absolute -bottom-0.5 -right-0.5 block size-3 rounded-full border-2 border-background"
+                            style={{ background: "var(--correct)" }}
+                            aria-label="Online"
+                          />
+                        </div>
+                        <p className="w-full truncate text-sm font-semibold">
+                          {f.name.split(" ")[0]}
+                        </p>
+                        <Link to="/play/match-select" className="w-full">
+                          <Button size="sm" className="w-full gap-1.5">
+                            <Swords className="size-3" /> Challenge
+                          </Button>
+                        </Link>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Card>
+            </div>
 
             {/* Pending challenges */}
             <Card>
