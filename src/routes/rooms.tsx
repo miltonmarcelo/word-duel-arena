@@ -175,32 +175,54 @@ const statusMeta: Record<
 };
 
 function RoomsPage() {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [joinOpen, setJoinOpen] = useState(false);
   const [joinCode, setJoinCode] = useState("");
   const [name, setName] = useState("");
   const [themeId, setThemeId] = useState<(typeof THEMES)[number]["id"]>("general");
-  const [maxPlayers, setMaxPlayers] = useState<(typeof MAX_PLAYERS)[number]>(4);
+  const [maxMembers, setMaxMembers] = useState<MaxMembers>(8);
+  const [timeLimit, setTimeLimit] = useState<(typeof TIME_LIMITS)[number]["id"]>("12h");
   const [privacy, setPrivacy] = useState<"public" | "private">("public");
+  const [inviteCode, setInviteCode] = useState(() => generateInviteCode());
+  const [codeCopied, setCodeCopied] = useState(false);
   const [myRooms, setMyRooms] = useState<MyRoom[]>(myRoomsSeed);
   const [publicRooms, setPublicRooms] = useState<PublicRoom[]>(publicRoomsSeed);
+
+  const timeLimitLabel = useMemo(
+    () => TIME_LIMITS.find((t) => t.id === timeLimit)!.label,
+    [timeLimit],
+  );
 
   function resetForm() {
     setName("");
     setThemeId("general");
-    setMaxPlayers(4);
+    setMaxMembers(8);
+    setTimeLimit("12h");
     setPrivacy("public");
+    setInviteCode(generateInviteCode());
+    setCodeCopied(false);
+  }
+
+  function copyInvite() {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(inviteCode).catch(() => {});
+    }
+    setCodeCopied(true);
+    setTimeout(() => setCodeCopied(false), 1600);
   }
 
   function handleCreate() {
     const theme = THEMES.find((t) => t.id === themeId)!;
     const finalName = name.trim() || `${theme.label} Room`;
+    const memberLabel = maxMembers === "unlimited" ? "unlimited members" : `up to ${maxMembers} players`;
+    const newRoomId = `r-new-${Date.now()}`;
     const newRoom: MyRoom = {
-      id: `r-new-${Date.now()}`,
+      id: newRoomId,
       name: finalName,
       emoji: theme.emoji,
       activity: "live",
-      description: `${privacy === "public" ? "Public" : "Private"} · ${theme.label} · up to ${maxPlayers} players`,
+      description: `${privacy === "public" ? "Public" : "Private"} · ${theme.label} · ${timeLimitLabel} · ${memberLabel}`,
       members: [currentUser],
       theme: theme.label,
       status: "waiting",
@@ -210,11 +232,13 @@ function RoomsPage() {
       isNew: true,
     };
     setMyRooms((prev) => [newRoom, ...prev]);
+    const codeForToast = inviteCode;
     setOpen(false);
     resetForm();
     toast.success("Room created!", {
-      description: `${finalName} is ready — invite your friends.`,
+      description: `Share your code: ${codeForToast}`,
     });
+    navigate({ to: "/rooms/$roomId", params: { roomId: newRoomId } });
   }
 
   function handleJoin() {
