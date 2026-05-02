@@ -51,6 +51,13 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { Switch } from "@/components/ui/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { rooms, currentUser, players, type Player } from "@/lib/mock-data";
@@ -143,6 +150,8 @@ function RoomHub() {
   // Mock state controls (toggleable for visual prototype)
   const [wordState, setWordState] = useState<WordState>(search.state ?? "active-not-played");
   const [isHost, setIsHost] = useState<boolean>((search.role ?? "host") === "host");
+  const [cooldownActive, setCooldownActive] = useState(false);
+  const [launchOpen, setLaunchOpen] = useState(false);
 
   const code = useMemo(() => roomCodeFor(room.id), [room]);
   const [copied, setCopied] = useState(false);
@@ -327,7 +336,13 @@ function RoomHub() {
           {wordState === "expired" && (
             <ExpiredWord members={members} correctWord={correctWord} />
           )}
-          {wordState === "waiting" && <WaitingWord isHost={isHost} canLaunch={true} />}
+          {wordState === "waiting" && (
+            <WaitingWord
+              isHost={isHost}
+              canLaunch={!cooldownActive}
+              onLaunch={() => setLaunchOpen(true)}
+            />
+          )}
         </TabsContent>
 
         {/* TAB 2 — Leaderboard */}
@@ -718,6 +733,19 @@ function RoomHub() {
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Launch new word sheet (host only, after expiry) */}
+      <LaunchWordSheet
+        open={launchOpen}
+        onOpenChange={setLaunchOpen}
+        roomTheme="Cinema"
+        onLaunched={() => {
+          setLaunchOpen(false);
+          setWordState("active-not-played");
+          setCooldownActive(true);
+          toast.success("New word launched! Good luck everyone.");
+        }}
+      />
+
       {/* Leave confirm — MEMBER */}
       <AlertDialog open={leaveOpen} onOpenChange={setLeaveOpen}>
         <AlertDialogContent>
@@ -996,7 +1024,15 @@ function ExpiredWord({
   );
 }
 
-function WaitingWord({ isHost, canLaunch }: { isHost: boolean; canLaunch: boolean }) {
+function WaitingWord({
+  isHost,
+  canLaunch,
+  onLaunch,
+}: {
+  isHost: boolean;
+  canLaunch: boolean;
+  onLaunch: () => void;
+}) {
   return (
     <div className="surface-elevated flex flex-col items-center gap-3 p-10 text-center">
       <Hourglass className="size-10 text-muted-foreground" />
@@ -1007,11 +1043,7 @@ function WaitingWord({ isHost, canLaunch }: { isHost: boolean; canLaunch: boolea
             <p className="max-w-sm text-sm text-muted-foreground">
               Ready when you are. Launching a new word kicks off the timer for everyone.
             </p>
-            <Button
-              size="lg"
-              className="mt-2"
-              onClick={() => toast.success("New word launched!", { description: "Members are notified." })}
-            >
+            <Button size="lg" className="mt-2" onClick={onLaunch}>
               <Sparkles className="size-4" /> Launch New Word
             </Button>
           </>
@@ -1020,9 +1052,22 @@ function WaitingWord({ isHost, canLaunch }: { isHost: boolean; canLaunch: boolea
             <p className="max-w-sm text-sm text-muted-foreground">
               Cooldown active to keep things fair.
             </p>
-            <Button size="lg" className="mt-2" disabled>
-              <Clock className="size-4" /> Next word available in 4h
-            </Button>
+            <TooltipProvider delayDuration={150}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  {/* span wrapper so tooltip works on disabled button */}
+                  <span tabIndex={0} className="inline-flex">
+                    <Button size="lg" className="mt-2" disabled>
+                      <Sparkles className="size-4" /> Launch New Word
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  You must wait until the current word period ends.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <p className="text-xs text-muted-foreground">Available in 4h 12m</p>
           </>
         )
       ) : (
@@ -1050,5 +1095,222 @@ function Stat({
       </p>
       <p className={cn("mt-1 font-display text-2xl", accent && "text-primary")}>{value}</p>
     </div>
+  );
+}
+
+const LAUNCH_THEMES = [
+  "General",
+  "Cinema",
+  "Sports",
+  "Science",
+  "Music",
+  "Food",
+  "Geography",
+] as const;
+const LAUNCH_DIFFICULTIES = ["Auto", "Easy", "Medium", "Hard"] as const;
+const SAMPLE_WORDS = ["PLATE", "BRAVE", "CRANE", "LIGHT", "STORE", "BREAD"];
+
+function LaunchWordSheet({
+  open,
+  onOpenChange,
+  roomTheme,
+  onLaunched,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  roomTheme: string;
+  onLaunched: () => void;
+}) {
+  const [overrideTheme, setOverrideTheme] = useState(false);
+  const [theme, setTheme] = useState<string>(roomTheme);
+  const [difficulty, setDifficulty] =
+    useState<(typeof LAUNCH_DIFFICULTIES)[number]>("Auto");
+  const [pickWord, setPickWord] = useState(false);
+  const [chosenWord, setChosenWord] = useState("");
+
+  useEffect(() => {
+    if (open) {
+      setOverrideTheme(false);
+      setTheme(roomTheme);
+      setDifficulty("Auto");
+      setPickWord(false);
+      setChosenWord("");
+    }
+  }, [open, roomTheme]);
+
+  const canLaunch = !pickWord || /^[A-Za-z]{5}$/.test(chosenWord);
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        side="right"
+        className="w-full overflow-y-auto p-0 sm:max-w-lg"
+      >
+        <div className="flex h-full flex-col">
+          <SheetHeader className="border-b border-border p-6">
+            <SheetTitle className="font-display text-2xl">Launch new word</SheetTitle>
+            <SheetDescription>
+              Pick the vibe. The countdown starts the moment you launch.
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="flex-1 space-y-6 p-6">
+            {/* Theme */}
+            <div className="rounded-xl border border-border bg-surface p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                    Using room theme
+                  </p>
+                  <p className="mt-0.5 font-display text-lg">{theme}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="override-theme" className="text-xs text-muted-foreground">
+                    Override
+                  </Label>
+                  <Switch
+                    id="override-theme"
+                    checked={overrideTheme}
+                    onCheckedChange={(v) => {
+                      setOverrideTheme(v);
+                      if (!v) setTheme(roomTheme);
+                    }}
+                  />
+                </div>
+              </div>
+              {overrideTheme && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {LAUNCH_THEMES.map((t) => {
+                    const active = t === theme;
+                    return (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => setTheme(t)}
+                        className={cn(
+                          "rounded-full border-2 px-3 py-1 text-xs font-semibold transition",
+                          active
+                            ? "border-primary bg-primary/10 text-foreground"
+                            : "border-border text-muted-foreground hover:border-primary/40",
+                        )}
+                      >
+                        {t}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Difficulty */}
+            <div>
+              <Label>Difficulty</Label>
+              <div className="mt-1.5 grid grid-cols-4 gap-2">
+                {LAUNCH_DIFFICULTIES.map((d) => {
+                  const active = d === difficulty;
+                  return (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => setDifficulty(d)}
+                      className={cn(
+                        "rounded-xl border-2 py-2 text-sm font-display transition",
+                        active
+                          ? "border-primary bg-primary/10 text-foreground"
+                          : "border-border text-muted-foreground hover:border-primary/40",
+                      )}
+                    >
+                      {d}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Word preview / picker */}
+            <div className="rounded-xl border border-border bg-surface p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                    Word
+                  </p>
+                  {!pickWord ? (
+                    <p className="mt-0.5 text-sm">
+                      System will choose a random word from{" "}
+                      <span className="font-semibold text-foreground">
+                        {theme} · {difficulty}
+                      </span>
+                      .
+                    </p>
+                  ) : (
+                    <p className="mt-0.5 text-sm text-muted-foreground">
+                      Type a 5-letter word. Members will guess it.
+                    </p>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="pick-word" className="text-xs text-muted-foreground">
+                    Pick it
+                  </Label>
+                  <Switch
+                    id="pick-word"
+                    checked={pickWord}
+                    onCheckedChange={setPickWord}
+                  />
+                </div>
+              </div>
+
+              {pickWord && (
+                <div className="mt-3 space-y-2">
+                  <Input
+                    value={chosenWord}
+                    onChange={(e) =>
+                      setChosenWord(
+                        e.target.value
+                          .toUpperCase()
+                          .replace(/[^A-Z]/g, "")
+                          .slice(0, 5),
+                      )
+                    }
+                    placeholder="WORDS"
+                    className="h-12 text-center font-display text-2xl tracking-[0.4em] uppercase"
+                    maxLength={5}
+                  />
+                  <div className="flex flex-wrap gap-1.5">
+                    {SAMPLE_WORDS.map((w) => (
+                      <button
+                        key={w}
+                        type="button"
+                        onClick={() => setChosenWord(w)}
+                        className="rounded-full border border-border px-2.5 py-1 text-[11px] font-semibold text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
+                      >
+                        {w}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Time reminder */}
+            <div className="flex items-start gap-2 rounded-xl bg-surface p-3 text-xs text-muted-foreground">
+              <Clock className="mt-0.5 size-3.5 shrink-0 text-primary" />
+              <span>
+                Members will have <span className="font-semibold text-foreground">24h</span> to solve this word.
+              </span>
+            </div>
+          </div>
+
+          <SheetFooter className="border-t border-border p-4 sm:flex-row sm:justify-end">
+            <Button variant="ghost" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button onClick={onLaunched} disabled={!canLaunch}>
+              <Sparkles className="size-4" /> Launch!
+            </Button>
+          </SheetFooter>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }
