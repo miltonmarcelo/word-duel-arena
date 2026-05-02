@@ -661,17 +661,9 @@ function RoomRow({ room }: { room: DashRoom }) {
         </div>
       </div>
       {room.status === "play-now" && (
-        <Button
-          size="sm"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            // mock: navigate via Link wrapper would lose params; use anchor
-            window.location.assign(`/rooms/${room.id}`);
-          }}
-        >
+        <span className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-[var(--shadow-sm)]">
           <Play className="size-3" /> Play
-        </Button>
+        </span>
       )}
     </Link>
   );
