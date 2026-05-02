@@ -1,463 +1,690 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import {
-  Copy,
-  Check,
-  Crown,
-  Settings2,
-  BookOpen,
-  Send,
-  Zap,
-  Share2,
-  Users,
   ArrowLeft,
+  Check,
+  ChevronDown,
+  Clock,
+  Copy,
+  Crown,
+  Hourglass,
+  LogOut,
+  MoreHorizontal,
+  Settings,
+  Share2,
+  Sparkles,
+  Trophy,
+  UserCog,
+  UserMinus,
+  Users,
 } from "lucide-react";
+import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { Avatar } from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { rooms, currentUser, players, type Player } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/rooms/$roomId")({
-  head: () => ({ meta: [{ title: "Room lobby — WordClash" }] }),
-  component: RoomLobby,
+  head: () => ({ meta: [{ title: "Room — WordClash" }] }),
+  validateSearch: (s: Record<string, unknown>): { state?: WordState; role?: "host" | "member" } => ({
+    state:
+      s.state === "active-not-played" ||
+      s.state === "active-played" ||
+      s.state === "expired" ||
+      s.state === "waiting"
+        ? s.state
+        : undefined,
+    role: s.role === "host" || s.role === "member" ? s.role : undefined,
+  }),
+  component: RoomHub,
 });
 
-type Member = Player & {
-  status: "ready" | "waiting" | "away";
-  host?: boolean;
+type WordState = "active-not-played" | "active-played" | "expired" | "waiting";
+
+type MemberStatus = "playing" | "finished" | "not-started";
+
+type RoomMember = Player & {
+  role: "host" | "member";
+  joinedAt: string;
+  status: MemberStatus;
+  attempts?: number;
+  timeTaken?: string;
+  points?: number;
+  solved?: boolean;
+  totalPoints: number;
+  wordsSolved: number;
+  avgAttempts: number;
 };
 
-type ChatMsg = {
-  id: string;
-  author: Player;
-  text?: string;
-  reaction?: string;
-  time: string;
-  system?: boolean;
-};
+function roomCodeFor(id: string) {
+  const seed = id.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  const alpha = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let out = "";
+  let n = seed * 9301 + 49297;
+  for (let i = 0; i < 4; i++) {
+    n = (n * 9301 + 49297) % 233280;
+    out += alpha[n % alpha.length];
+  }
+  return `CLASH-${out}`;
+}
 
-const REACTIONS = ["🔥", "👏", "😂", "🤯", "🧠", "💀", "🎯", "✨"];
+const JOIN_DATES = [
+  "Joined Mar 12",
+  "Joined Apr 02",
+  "Joined Apr 18",
+  "Joined May 05",
+  "Joined Jun 01",
+  "Joined Jul 19",
+  "Joined Aug 24",
+  "Joined Sep 08",
+];
 
-function RoomLobby() {
+function RoomHub() {
   const { roomId } = useParams({ from: "/rooms/$roomId" });
+  const search = Route.useSearch();
   const room = useMemo(() => rooms.find((r) => r.id === roomId) ?? rooms[0], [roomId]);
 
-  // Derive members for the lobby (visual prototype)
-  const members: Member[] = useMemo(() => {
-    const baseList: Player[] = [currentUser, ...room.members.filter((m) => m.id !== currentUser.id)];
-    const statuses: Member["status"][] = ["ready", "waiting", "away"];
-    return baseList.slice(0, 8).map((p, i) => ({
-      ...p,
-      status: i === 0 ? "ready" : statuses[i % 3],
-      host: i === 1, // pick someone other than user as host for variety
-    }));
-  }, [room]);
+  // Mock state controls (toggleable for visual prototype)
+  const [wordState, setWordState] = useState<WordState>(search.state ?? "active-not-played");
+  const [isHost, setIsHost] = useState<boolean>((search.role ?? "host") === "host");
 
   const code = useMemo(() => roomCodeFor(room.id), [room]);
   const [copied, setCopied] = useState(false);
-  const [theme, setTheme] = useState("General");
-  const [openTheme, setOpenTheme] = useState(false);
-  const [openRules, setOpenRules] = useState(false);
-  const [chat, setChat] = useState<ChatMsg[]>(() => seedChat(members));
-  const [input, setInput] = useState("");
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [leaveOpen, setLeaveOpen] = useState(false);
 
-  const readyCount = members.filter((m) => m.status === "ready").length;
-  const totalCount = members.length;
-  const allReady = readyCount === totalCount;
-  const youReady = members[0].status === "ready";
+  // Build mock members for the hub
+  const members: RoomMember[] = useMemo(() => {
+    const base: Player[] = [
+      currentUser,
+      ...room.members.filter((m) => m.id !== currentUser.id),
+      ...players.filter(
+        (p) => p.id !== currentUser.id && !room.members.some((m) => m.id === p.id),
+      ),
+    ].slice(0, 8);
 
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [chat]);
+    const statuses: MemberStatus[] = ["finished", "playing", "not-started"];
+    return base.map((p, i) => {
+      const status: MemberStatus = i === 0 ? (wordState === "active-played" ? "finished" : "playing") : statuses[i % 3];
+      const solved = status === "finished" ? i % 4 !== 3 : false;
+      return {
+        ...p,
+        role: i === (isHost ? -1 : 1) ? "host" : i === 0 && isHost ? "host" : i === 1 ? "host" : "member",
+        joinedAt: JOIN_DATES[i % JOIN_DATES.length],
+        status,
+        attempts: solved ? 2 + (i % 4) : status === "finished" ? 6 : undefined,
+        timeTaken: solved ? `${1 + (i % 4)}m ${10 + i * 7}s` : undefined,
+        points: solved ? 120 - i * 12 : status === "finished" ? 0 : undefined,
+        solved,
+        totalPoints: 980 - i * 73,
+        wordsSolved: 14 - i,
+        avgAttempts: 3.2 + i * 0.18,
+      };
+    }).map((m, i, arr) => {
+      // Ensure exactly one host
+      const hostIdx = isHost ? 0 : 1;
+      return { ...m, role: i === hostIdx ? "host" : "member" };
+    }) as RoomMember[];
+  }, [room, wordState, isHost]);
+
+  const wordsPlayed = 14;
+  const correctWord = "PLATE";
+  const youResult = members[0];
 
   function copyCode() {
-    navigator.clipboard?.writeText(code).catch(() => {});
+    if (typeof navigator !== "undefined") {
+      navigator.clipboard?.writeText(code).catch(() => {});
+    }
     setCopied(true);
+    toast.success("Room code copied");
     setTimeout(() => setCopied(false), 1500);
-  }
-
-  function send(text: string) {
-    if (!text.trim()) return;
-    setChat((c) => [
-      ...c,
-      { id: Math.random().toString(36).slice(2), author: currentUser, text, time: "now" },
-    ]);
-    setInput("");
-  }
-
-  function react(emoji: string) {
-    setChat((c) => [
-      ...c,
-      { id: Math.random().toString(36).slice(2), author: currentUser, reaction: emoji, time: "now" },
-    ]);
   }
 
   return (
     <AppShell>
-      {/* Top bar: back + room title */}
-      <div className="mb-5 flex items-center gap-3">
+      {/* Top bar */}
+      <div className="mb-5 flex items-center justify-between gap-3">
         <Link to="/rooms">
           <Button variant="ghost" size="sm" className="gap-1.5">
             <ArrowLeft className="size-4" /> Rooms
           </Button>
         </Link>
-        <span
-          className={cn(
-            "chip",
-            room.activity === "live" ? "" : "chip-muted",
+        <div className="flex items-center gap-2">
+          {/* Visual-prototype state toggles */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground">
+                Mock state <ChevronDown className="size-3.5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {(
+                [
+                  ["active-not-played", "Word active — not played"],
+                  ["active-played", "Word active — you played"],
+                  ["expired", "Word expired"],
+                  ["waiting", "No active word"],
+                ] as const
+              ).map(([k, label]) => (
+                <DropdownMenuItem key={k} onClick={() => setWordState(k)}>
+                  {wordState === k && <Check className="mr-1 size-3.5 text-primary" />}
+                  {label}
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuItem onClick={() => setIsHost((h) => !h)}>
+                <UserCog className="mr-1 size-3.5" /> View as {isHost ? "Member" : "Host"}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {isHost && (
+            <Button variant="ghost" size="icon" aria-label="Room settings">
+              <Settings className="size-4" />
+            </Button>
           )}
-        >
-          <span
-            className={cn(
-              "size-1.5 rounded-full",
-              room.activity === "live" ? "bg-primary animate-pulse" : "bg-muted-foreground",
-            )}
-          />
-          {room.activity}
-        </span>
+        </div>
       </div>
 
-      {/* Hero card */}
+      {/* Room header */}
       <div className="surface-elevated relative overflow-hidden p-5 md:p-7">
         <div
           className="pointer-events-none absolute inset-0 opacity-60"
           style={{ background: "var(--gradient-hero)" }}
         />
-        <div className="relative flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+        <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="min-w-0">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
-              Room lobby
-            </p>
-            <h1 className="font-display text-3xl md:text-4xl">
-              <span className="mr-2 text-3xl md:text-4xl">{room.emoji}</span>
-              {room.name}
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">{room.description}</p>
-          </div>
-
-          {/* Room code */}
-          <div className="flex flex-col gap-2 md:items-end">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-              Room code
-            </p>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={copyCode}
-                className="group flex items-center gap-2 rounded-xl border border-border bg-background/70 px-3 py-2 backdrop-blur transition hover:border-primary/40"
-              >
-                <span className="font-mono text-xl font-bold tracking-[0.35em]">{code}</span>
-                <span className="text-muted-foreground group-hover:text-primary">
-                  {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-                </span>
-              </button>
-              <Button size="sm" variant="secondary" onClick={copyCode} className="gap-1.5">
-                <Share2 className="size-3.5" /> Invite
-              </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="chip chip-muted">{room.emoji} Theme · General</span>
+              {isHost && <span className="chip">👑 You're the host</span>}
             </div>
+            <h1 className="mt-2 font-display text-3xl md:text-4xl">{room.name}</h1>
+            <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+              <Users className="size-3.5" /> {members.length} members
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Two-column layout */}
-      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[1.25fr,1fr]">
-        {/* LEFT: members + actions */}
-        <div className="space-y-5">
-          {/* Ready bar */}
-          <div className="surface-elevated p-4">
-            <div className="flex items-center justify-between">
+      {/* Tabs */}
+      <Tabs defaultValue="word" className="mt-6">
+        <TabsList className="grid w-full grid-cols-3 sm:w-auto">
+          <TabsTrigger value="word">Current Word</TabsTrigger>
+          <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
+          <TabsTrigger value="members">Members</TabsTrigger>
+        </TabsList>
+
+        {/* TAB 1 — Current Word */}
+        <TabsContent value="word" className="mt-5 space-y-5">
+          {wordState === "active-not-played" && (
+            <ActiveNotPlayed
+              roomId={room.id}
+              members={members}
+              theme="General"
+              correctWord={correctWord}
+            />
+          )}
+          {wordState === "active-played" && (
+            <ActivePlayed members={members} you={youResult} />
+          )}
+          {wordState === "expired" && (
+            <ExpiredWord members={members} correctWord={correctWord} />
+          )}
+          {wordState === "waiting" && <WaitingWord isHost={isHost} canLaunch={true} />}
+        </TabsContent>
+
+        {/* TAB 2 — Leaderboard */}
+        <TabsContent value="leaderboard" className="mt-5 space-y-4">
+          <div className="surface-elevated flex items-center justify-between p-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                Words played
+              </p>
+              <p className="font-display text-2xl">{wordsPlayed}</p>
+            </div>
+            <span className="chip">
+              <Trophy className="size-3 text-accent" /> All-time
+            </span>
+          </div>
+
+          <div className="surface-elevated divide-y divide-border overflow-hidden">
+            <div className="grid grid-cols-[36px_1fr_auto_auto_auto] items-center gap-3 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+              <span>#</span>
+              <span>Player</span>
+              <span className="text-right">Points</span>
+              <span className="hidden sm:inline text-right">Solved</span>
+              <span className="hidden sm:inline text-right">Avg</span>
+            </div>
+            {[...members]
+              .sort((a, b) => b.totalPoints - a.totalPoints)
+              .map((m, i) => {
+                const isYou = m.id === currentUser.id;
+                return (
+                  <div
+                    key={m.id}
+                    className={cn(
+                      "grid grid-cols-[36px_1fr_auto_auto_auto] items-center gap-3 px-4 py-3 transition",
+                      isYou && "bg-primary/8",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "font-display text-lg",
+                        i === 0 && "text-warning",
+                        i === 1 && "text-muted-foreground",
+                        i === 2 && "text-present",
+                      )}
+                    >
+                      {i + 1}
+                    </span>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Avatar player={m} size={32} ring={isYou ? "lilac" : "none"} />
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold">
+                          {m.name}
+                          {isYou && <span className="ml-1 text-muted-foreground">(you)</span>}
+                        </p>
+                        <p className="truncate text-[11px] text-muted-foreground">{m.handle}</p>
+                      </div>
+                    </div>
+                    <span className="text-right font-display text-base">{m.totalPoints}</span>
+                    <span className="hidden sm:inline text-right text-sm text-muted-foreground">
+                      {m.wordsSolved}
+                    </span>
+                    <span className="hidden sm:inline text-right text-sm text-muted-foreground">
+                      {m.avgAttempts.toFixed(1)}
+                    </span>
+                  </div>
+                );
+              })}
+          </div>
+        </TabsContent>
+
+        {/* TAB 3 — Members */}
+        <TabsContent value="members" className="mt-5 space-y-5">
+          {/* Invite + code */}
+          <div className="surface-elevated p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Players ready
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                  Room code
                 </p>
-                <p className="font-display text-2xl">
-                  <span className={cn(allReady && "text-[var(--correct)]")}>{readyCount}</span>
-                  <span className="text-muted-foreground"> / {totalCount}</span>
-                </p>
+                <button
+                  onClick={copyCode}
+                  className="mt-1 flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 transition hover:border-primary/40"
+                >
+                  <span className="font-display text-xl tracking-[0.3em]">{code}</span>
+                  <span className="text-muted-foreground">
+                    {copied ? <Check className="size-4 text-correct" /> : <Copy className="size-4" />}
+                  </span>
+                </button>
               </div>
-              <div className="text-right">
-                <p className="text-xs text-muted-foreground">Theme</p>
-                <p className="font-semibold">{theme}</p>
-              </div>
-            </div>
-            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full transition-all"
-                style={{
-                  width: `${(readyCount / totalCount) * 100}%`,
-                  background: "var(--gradient-primary)",
+              <Button
+                onClick={() => {
+                  copyCode();
+                  toast.success("Invite link ready", { description: "Share the room code with friends." });
                 }}
-              />
-            </div>
-            <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1.5"
-                onClick={() => setOpenTheme(true)}
               >
-                <Settings2 className="size-3.5" /> Theme
+                <Share2 className="size-4" /> Invite Friends
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1.5"
-                onClick={() => setOpenRules(true)}
-              >
-                <BookOpen className="size-3.5" /> Rules
-              </Button>
-              <Button variant="secondary" size="sm" className="gap-1.5" onClick={copyCode}>
-                <Copy className="size-3.5" /> Copy code
-              </Button>
-              <Link to="/match" className="contents">
-                <Button size="sm" className="gap-1.5" disabled={!allReady && !youReady}>
-                  <Zap className="size-3.5" /> {allReady ? "Start match" : "Start when ready"}
-                </Button>
-              </Link>
             </div>
           </div>
 
           {/* Members list */}
-          <div className="surface-elevated p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <span className="chip">
-                <Users className="size-3" /> Participants
-              </span>
-              <span className="text-xs text-muted-foreground">{totalCount} in lobby</span>
-            </div>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {members.map((m) => (
-                <MemberRow key={m.id} member={m} isYou={m.id === currentUser.id} />
-              ))}
-            </div>
-          </div>
-        </div>
+          <div className="surface-elevated divide-y divide-border overflow-hidden">
+            {members.map((m) => {
+              const isYou = m.id === currentUser.id;
+              return (
+                <div key={m.id} className="flex items-center gap-3 p-4">
+                  <Avatar player={m} size={42} ring={isYou ? "lilac" : "none"} />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <p className="truncate text-sm font-semibold">
+                        {m.name}
+                        {isYou && <span className="ml-1 text-muted-foreground">(you)</span>}
+                      </p>
+                      {m.role === "host" ? (
+                        <span className="chip">
+                          <Crown className="size-3 text-warning" /> Host
+                        </span>
+                      ) : (
+                        <span className="chip chip-muted">Member</span>
+                      )}
+                    </div>
+                    <p className="truncate text-[11px] text-muted-foreground">
+                      {m.handle} · {m.rating} · {m.joinedAt}
+                    </p>
+                  </div>
 
-        {/* RIGHT: chat + reactions */}
-        <div className="surface-elevated flex h-[460px] flex-col p-4 lg:h-auto lg:min-h-[460px]">
-          <div className="mb-3 flex items-center justify-between">
-            <span className="chip chip-lilac">Chat & reactions</span>
-            <span className="text-xs text-muted-foreground">{chat.length} messages</span>
+                  {/* Host controls */}
+                  {isHost && !isYou && (
+                    <div className="flex items-center gap-1">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="hidden sm:inline-flex"
+                        onClick={() =>
+                          toast.success(`Host transferred to ${m.name}`, {
+                            description: "They now manage the room.",
+                          })
+                        }
+                      >
+                        <UserCog className="size-3.5" /> Transfer Host
+                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button size="icon" variant="ghost" aria-label="Member actions">
+                            <MoreHorizontal className="size-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            className="sm:hidden"
+                            onClick={() =>
+                              toast.success(`Host transferred to ${m.name}`)
+                            }
+                          >
+                            <UserCog className="mr-1 size-3.5" /> Transfer Host
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-destructive focus:text-destructive"
+                            onClick={() =>
+                              toast.success(`${m.name} removed from room`)
+                            }
+                          >
+                            <UserMinus className="mr-1 size-3.5" /> Remove from Room
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
-          <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto pr-1">
-            {chat.map((m) => (
-              <ChatBubble key={m.id} msg={m} isYou={m.author.id === currentUser.id} />
-            ))}
-          </div>
-
-          {/* Quick reactions */}
-          <div className="mt-3 flex flex-wrap gap-1.5 border-t border-border pt-3">
-            {REACTIONS.map((e) => (
-              <button
-                key={e}
-                onClick={() => react(e)}
-                className="grid size-9 place-items-center rounded-lg border border-border bg-background/40 text-base transition hover:-translate-y-0.5 hover:border-primary/40 hover:bg-muted/50"
-                aria-label={`React ${e}`}
-              >
-                {e}
-              </button>
-            ))}
-          </div>
-
-          {/* Input */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              send(input);
-            }}
-            className="mt-3 flex items-center gap-2"
-          >
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Say something nice (or trash talk)…"
-              className="h-10"
-            />
-            <Button type="submit" size="icon" aria-label="Send">
-              <Send className="size-4" />
+          {/* Leave Room */}
+          <div className="flex justify-center">
+            <Button
+              variant="outline"
+              className="border-destructive/50 text-destructive hover:bg-destructive/10 hover:text-destructive"
+              onClick={() => setLeaveOpen(true)}
+            >
+              <LogOut className="size-4" /> Leave Room
             </Button>
-          </form>
-        </div>
-      </div>
-
-      {/* Theme dialog */}
-      <Dialog open={openTheme} onOpenChange={setOpenTheme}>
-        <DialogContent className="surface-elevated border-border">
-          <DialogHeader>
-            <DialogTitle className="font-display text-2xl">Choose a theme</DialogTitle>
-            <DialogDescription>
-              Pick a category for this room's match. The host can change it any time.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {["General", "Nature", "Tech", "Food", "Sports", "Movies"].map((t) => (
-              <button
-                key={t}
-                onClick={() => {
-                  setTheme(t);
-                  setOpenTheme(false);
-                }}
-                className={cn(
-                  "rounded-xl border p-3 text-left transition",
-                  theme === t
-                    ? "border-primary bg-primary/10"
-                    : "border-border hover:border-primary/40 hover:bg-muted/40",
-                )}
-              >
-                <p className="text-sm font-semibold">{t}</p>
-                <p className="text-[11px] text-muted-foreground">5-letter words</p>
-              </button>
-            ))}
           </div>
-        </DialogContent>
-      </Dialog>
+        </TabsContent>
+      </Tabs>
 
-      {/* Rules dialog */}
-      <Dialog open={openRules} onOpenChange={setOpenRules}>
-        <DialogContent className="surface-elevated border-border">
-          <DialogHeader>
-            <DialogTitle className="font-display text-2xl">Room rules</DialogTitle>
-            <DialogDescription>How matches work in this room.</DialogDescription>
-          </DialogHeader>
-          <ul className="space-y-2 text-sm">
-            {[
-              "Each round: 6 guesses, 60 seconds per guess.",
-              "Theme is chosen by the host before each match.",
-              "Score = correctness + speed bonus + streak multiplier.",
-              "Top scorer after 3 rounds wins the room badge.",
-              "Be kind in chat. Trash talk is fine, slurs are not.",
-            ].map((line) => (
-              <li key={line} className="flex gap-2">
-                <Check className="mt-0.5 size-4 shrink-0 text-[var(--correct)]" />
-                <span>{line}</span>
-              </li>
-            ))}
-          </ul>
-          <DialogFooter>
-            <Button onClick={() => setOpenRules(false)}>Got it</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Leave confirm */}
+      <AlertDialog open={leaveOpen} onOpenChange={setLeaveOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-display text-2xl">
+              Leave {room.name}?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              You'll lose your spot in the room leaderboard. You can rejoin later with the room code.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => toast.success(`Left ${room.name}`)}
+            >
+              Leave Room
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppShell>
   );
 }
 
-function MemberRow({ member, isYou }: { member: Member; isYou: boolean }) {
-  const statusColor =
-    member.status === "ready"
-      ? "var(--correct)"
-      : member.status === "waiting"
-        ? "var(--warning)"
-        : "var(--muted-foreground)";
+/* ─────────────────── Sub-views ─────────────────── */
+
+function CountdownBlock({ label = "remaining" }: { label?: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-border bg-background/40 p-2.5">
-      <div className="relative">
-        <Avatar player={member} size={40} ring={isYou ? "lilac" : "none"} />
-        <span
-          className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-background"
-          style={{ background: statusColor }}
-        />
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-1.5">
-          <p className="truncate text-sm font-semibold">
-            {member.name}
-            {isYou && <span className="ml-1 text-muted-foreground">(you)</span>}
-          </p>
-          {member.host && (
-            <Crown className="size-3.5 text-[var(--warning)]" aria-label="Host" />
-          )}
-        </div>
-        <p className="truncate text-[11px] text-muted-foreground">
-          {member.handle} · {member.rating}
-        </p>
-      </div>
-      <span
-        className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
-        style={{
-          background: `color-mix(in oklch, ${statusColor} 18%, transparent)`,
-          color: statusColor,
-        }}
-      >
-        {member.status}
+    <div className="surface-elevated flex flex-col items-center gap-1 p-5 text-center">
+      <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+        Word ends in
       </span>
+      <p className="font-display text-4xl text-primary md:text-5xl">
+        <Clock className="mr-2 inline size-7 -translate-y-1" />
+        6h 22m
+      </p>
+      <span className="text-xs text-muted-foreground">{label}</span>
     </div>
   );
 }
 
-function ChatBubble({ msg, isYou }: { msg: ChatMsg; isYou: boolean }) {
-  if (msg.system) {
+function MemberStatusList({ members, revealResults }: { members: RoomMember[]; revealResults?: boolean }) {
+  return (
+    <div className="surface-elevated divide-y divide-border overflow-hidden">
+      <div className="px-4 py-3">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
+          Members status
+        </p>
+      </div>
+      {members.map((m) => {
+        const isYou = m.id === currentUser.id;
+        return (
+          <div key={m.id} className="flex items-center gap-3 px-4 py-3">
+            <Avatar player={m} size={32} ring={isYou ? "lilac" : "none"} />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold">
+                {m.name}
+                {isYou && <span className="ml-1 text-muted-foreground">(you)</span>}
+              </p>
+              {revealResults && m.status === "finished" && (
+                <p className="truncate text-[11px] text-muted-foreground">
+                  {m.solved
+                    ? `Solved in ${m.attempts} · ${m.timeTaken} · ${m.points} pts`
+                    : "Did not solve — 0 pts"}
+                </p>
+              )}
+            </div>
+            <StatusPill status={m.status} />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function StatusPill({ status }: { status: MemberStatus }) {
+  if (status === "playing") {
     return (
-      <div className="text-center text-[11px] text-muted-foreground">{msg.text}</div>
+      <span className="chip" style={{ color: "var(--warning)" }}>
+        <span className="size-1.5 rounded-full bg-warning animate-pulse" /> Still playing
+      </span>
     );
   }
-  if (msg.reaction) {
+  if (status === "finished") {
     return (
-      <div className={cn("flex items-center gap-2", isYou && "justify-end")}>
-        {!isYou && <Avatar player={msg.author} size={20} />}
-        <span className="rounded-full border border-border bg-background/60 px-2 py-0.5 text-base">
-          {msg.reaction}
-        </span>
-        <span className="text-[10px] text-muted-foreground">
-          {isYou ? "You" : msg.author.name.split(" ")[0]}
-        </span>
-      </div>
+      <span className="chip" style={{ color: "var(--correct)" }}>
+        <Check className="size-3" /> Finished
+      </span>
     );
   }
   return (
-    <div className={cn("flex items-start gap-2", isYou && "flex-row-reverse")}>
-      <Avatar player={msg.author} size={24} />
-      <div className={cn("max-w-[80%]", isYou && "items-end text-right")}>
-        <p className="text-[11px] text-muted-foreground">
-          {isYou ? "You" : msg.author.name.split(" ")[0]} · {msg.time}
+    <span className="chip chip-muted">
+      <span className="size-1.5 rounded-full bg-muted-foreground" /> Not started
+    </span>
+  );
+}
+
+function ActiveNotPlayed({
+  roomId,
+  members,
+  theme,
+  correctWord,
+}: {
+  roomId: string;
+  members: RoomMember[];
+  theme: string;
+  correctWord: string;
+}) {
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="chip">{theme}</span>
+        <span className="chip chip-muted">
+          <Sparkles className="size-3 text-accent" /> Difficulty · Medium
+        </span>
+      </div>
+
+      <CountdownBlock />
+
+      <Link
+        to="/match"
+        search={{ word: correctWord, theme, mode: "themed" as const }}
+        className="block"
+      >
+        <Button size="xl" className="w-full">
+          <Sparkles className="size-5" /> Play Now
+        </Button>
+      </Link>
+
+      <MemberStatusList members={members} />
+    </div>
+  );
+}
+
+function ActivePlayed({ members, you }: { members: RoomMember[]; you: RoomMember }) {
+  return (
+    <div className="space-y-5">
+      <div
+        className="surface-elevated p-5"
+        style={{ borderColor: "color-mix(in oklch, var(--correct) 40%, transparent)" }}
+      >
+        <p className="font-display text-2xl">You finished! ✅</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Results stay hidden until the timer runs out.
         </p>
-        <div
-          className={cn(
-            "mt-0.5 inline-block rounded-2xl px-3 py-1.5 text-sm",
-            isYou
-              ? "bg-primary text-primary-foreground rounded-tr-sm"
-              : "bg-muted text-foreground rounded-tl-sm",
-          )}
-        >
-          {msg.text}
+        <div className="mt-4 grid grid-cols-3 gap-3">
+          <Stat label="Attempts" value={String(you.attempts ?? 4)} />
+          <Stat label="Time" value={you.timeTaken ?? "2m 18s"} />
+          <Stat label="Points" value={String(you.points ?? 96)} accent />
         </div>
+      </div>
+
+      <CountdownBlock label="Results revealed when timer ends" />
+
+      <MemberStatusList members={members} />
+    </div>
+  );
+}
+
+function ExpiredWord({
+  members,
+  correctWord,
+}: {
+  members: RoomMember[];
+  correctWord: string;
+}) {
+  return (
+    <div className="space-y-5">
+      <div
+        className="surface-elevated p-5"
+        style={{ borderColor: "color-mix(in oklch, var(--warning) 40%, transparent)" }}
+      >
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-warning">
+          Word expired
+        </p>
+        <p className="mt-1 font-display text-2xl">
+          The word was{" "}
+          <span className="rounded-lg bg-correct/15 px-2 py-0.5 font-display text-correct">
+            {correctWord}
+          </span>
+        </p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Full results below. New word launches soon.
+        </p>
+      </div>
+
+      <a href="#room-results">
+        <Button variant="secondary" className="w-full sm:w-auto">
+          See full results
+        </Button>
+      </a>
+
+      <div id="room-results">
+        <MemberStatusList members={members} revealResults />
       </div>
     </div>
   );
 }
 
-function roomCodeFor(id: string) {
-  // Deterministic 6-char code from room id for stable display
-  const seed = id.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
-  const alpha = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let out = "";
-  let n = seed * 9301 + 49297;
-  for (let i = 0; i < 6; i++) {
-    n = (n * 9301 + 49297) % 233280;
-    out += alpha[n % alpha.length];
-  }
-  return out;
+function WaitingWord({ isHost, canLaunch }: { isHost: boolean; canLaunch: boolean }) {
+  return (
+    <div className="surface-elevated flex flex-col items-center gap-3 p-10 text-center">
+      <Hourglass className="size-10 text-muted-foreground" />
+      <h3 className="font-display text-2xl">No active word</h3>
+      {isHost ? (
+        canLaunch ? (
+          <>
+            <p className="max-w-sm text-sm text-muted-foreground">
+              Ready when you are. Launching a new word kicks off the timer for everyone.
+            </p>
+            <Button
+              size="lg"
+              className="mt-2"
+              onClick={() => toast.success("New word launched!", { description: "Members are notified." })}
+            >
+              <Sparkles className="size-4" /> Launch New Word
+            </Button>
+          </>
+        ) : (
+          <>
+            <p className="max-w-sm text-sm text-muted-foreground">
+              Cooldown active to keep things fair.
+            </p>
+            <Button size="lg" className="mt-2" disabled>
+              <Clock className="size-4" /> Next word available in 4h
+            </Button>
+          </>
+        )
+      ) : (
+        <p className="max-w-sm text-sm text-muted-foreground">
+          Waiting for host to launch the next word.
+        </p>
+      )}
+    </div>
+  );
 }
 
-function seedChat(members: Member[]): ChatMsg[] {
-  const m = members;
-  return [
-    { id: "s1", author: m[0], system: true, text: "Lobby opened · invite friends with the room code.", time: "" },
-    { id: "1", author: m[1] ?? m[0], text: "Ready when you are 🔥", time: "2m" },
-    { id: "2", author: m[2] ?? m[0], reaction: "👏", time: "2m" },
-    { id: "3", author: m[3] ?? m[0], text: "Last round was brutal lol", time: "1m" },
-    { id: "4", author: m[1] ?? m[0], text: "Let's go theme = nature this time", time: "1m" },
-    { id: "5", author: m[0], text: "Bring it on.", time: "now" },
-  ];
+function Stat({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value: string;
+  accent?: boolean;
+}) {
+  return (
+    <div className="rounded-xl bg-surface p-3 text-center">
+      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+        {label}
+      </p>
+      <p className={cn("mt-1 font-display text-2xl", accent && "text-primary")}>{value}</p>
+    </div>
+  );
 }
