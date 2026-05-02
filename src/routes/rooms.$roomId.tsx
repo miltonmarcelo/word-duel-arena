@@ -1,5 +1,5 @@
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   Check,
@@ -7,12 +7,15 @@ import {
   Clock,
   Copy,
   Crown,
+  Globe2,
   Hourglass,
+  Lock,
   LogOut,
   MoreHorizontal,
   Settings,
   Share2,
   Sparkles,
+  Trash2,
   Trophy,
   UserCog,
   UserMinus,
@@ -38,9 +41,44 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { rooms, currentUser, players, type Player } from "@/lib/mock-data";
+
+const SETTINGS_THEMES = [
+  { id: "general", label: "General", emoji: "✨" },
+  { id: "cinema", label: "Cinema", emoji: "🎬" },
+  { id: "sports", label: "Sports", emoji: "🏅" },
+  { id: "science", label: "Science", emoji: "🔬" },
+  { id: "music", label: "Music", emoji: "🎵" },
+  { id: "food", label: "Food", emoji: "🍜" },
+  { id: "geography", label: "Geography", emoji: "🌍" },
+] as const;
+
+const SETTINGS_TIMES = [
+  { id: "8h", label: "8 hours" },
+  { id: "12h", label: "12 hours" },
+  { id: "24h", label: "24 hours" },
+] as const;
+
+type SettingsMaxMembers = 4 | 8 | 16 | "unlimited";
+const SETTINGS_MAX_MEMBERS: { value: SettingsMaxMembers; label: string }[] = [
+  { value: 4, label: "4" },
+  { value: 8, label: "8" },
+  { value: 16, label: "16" },
+  { value: "unlimited", label: "∞" },
+];
+
 
 export const Route = createFileRoute("/rooms/$roomId")({
   head: () => ({ meta: [{ title: "Room — WordClash" }] }),
@@ -109,6 +147,42 @@ function RoomHub() {
   const code = useMemo(() => roomCodeFor(room.id), [room]);
   const [copied, setCopied] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
+  const navigate = useNavigate();
+
+  // Settings sheet
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [closeRoomOpen, setCloseRoomOpen] = useState(false);
+  const [sName, setSName] = useState(room.name);
+  const [sThemeId, setSThemeId] = useState<(typeof SETTINGS_THEMES)[number]["id"]>("general");
+  const [sPrivacy, setSPrivacy] = useState<"public" | "private">("public");
+  const [sTimeLimit, setSTimeLimit] = useState<(typeof SETTINGS_TIMES)[number]["id"]>("12h");
+  const [sMaxMembers, setSMaxMembers] = useState<SettingsMaxMembers>(8);
+
+  // Reset settings form whenever the sheet opens
+  useEffect(() => {
+    if (settingsOpen) {
+      setSName(room.name);
+      setSThemeId("general");
+      setSPrivacy("public");
+      setSTimeLimit("12h");
+      setSMaxMembers(8);
+    }
+  }, [settingsOpen, room.name]);
+
+  function handleSaveSettings() {
+    setSettingsOpen(false);
+    toast.success("Room settings saved", {
+      description: `${sName.trim() || room.name} updated.`,
+    });
+  }
+
+  function handleCloseRoom() {
+    setCloseRoomOpen(false);
+    setSettingsOpen(false);
+    toast.success("Room closed.");
+    navigate({ to: "/rooms" });
+  }
+
 
   // Build mock members for the hub
   const members: RoomMember[] = useMemo(() => {
@@ -194,7 +268,12 @@ function RoomHub() {
             </DropdownMenuContent>
           </DropdownMenu>
           {isHost && (
-            <Button variant="ghost" size="icon" aria-label="Room settings">
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Room settings"
+              onClick={() => setSettingsOpen(true)}
+            >
               <Settings className="size-4" />
             </Button>
           )}
@@ -430,6 +509,204 @@ function RoomHub() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Settings sheet (host only) */}
+      <Sheet open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <SheetContent
+          side="right"
+          className="w-full overflow-y-auto p-0 sm:max-w-lg"
+        >
+          <div className="flex h-full flex-col">
+            <SheetHeader className="border-b border-border p-6">
+              <SheetTitle className="font-display text-2xl">Room settings</SheetTitle>
+              <SheetDescription>
+                Tune the room. Changes apply to future words.
+              </SheetDescription>
+            </SheetHeader>
+
+            <div className="flex-1 space-y-6 p-6">
+              {/* Name */}
+              <div>
+                <Label htmlFor="settings-name">Room name</Label>
+                <Input
+                  id="settings-name"
+                  value={sName}
+                  onChange={(e) => setSName(e.target.value)}
+                  maxLength={32}
+                  className="mt-1.5"
+                />
+              </div>
+
+              {/* Theme */}
+              <div>
+                <Label>Theme</Label>
+                <div className="mt-1.5 flex flex-wrap gap-2">
+                  {SETTINGS_THEMES.map((t) => {
+                    const active = t.id === sThemeId;
+                    return (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => setSThemeId(t.id)}
+                        className={cn(
+                          "inline-flex items-center gap-1.5 rounded-full border-2 px-3 py-1.5 text-sm transition",
+                          active
+                            ? "border-primary bg-primary/10 text-foreground"
+                            : "border-border bg-surface text-muted-foreground hover:border-primary/40",
+                        )}
+                      >
+                        <span aria-hidden>{t.emoji}</span>
+                        <span className="font-semibold">{t.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Privacy */}
+              <div>
+                <Label>Privacy</Label>
+                <div className="mt-1.5 grid grid-cols-2 gap-2">
+                  {([
+                    { id: "public", label: "Public", Icon: Globe2, desc: "Anyone with the link" },
+                    { id: "private", label: "Private", Icon: Lock, desc: "Invite only" },
+                  ] as const).map((opt) => {
+                    const active = opt.id === sPrivacy;
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => setSPrivacy(opt.id)}
+                        className={cn(
+                          "flex items-start gap-2 rounded-xl border-2 p-3 text-left transition",
+                          active
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-primary/40",
+                        )}
+                      >
+                        <opt.Icon
+                          className={cn(
+                            "mt-0.5 size-4 shrink-0",
+                            active ? "text-primary" : "text-muted-foreground",
+                          )}
+                        />
+                        <div>
+                          <p className="text-sm font-semibold">{opt.label}</p>
+                          <p className="text-[11px] text-muted-foreground">{opt.desc}</p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Word time limit */}
+              <div>
+                <Label>Word time limit</Label>
+                <div className="mt-1.5 grid grid-cols-3 gap-2">
+                  {SETTINGS_TIMES.map((t) => {
+                    const active = t.id === sTimeLimit;
+                    return (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => setSTimeLimit(t.id)}
+                        className={cn(
+                          "rounded-xl border-2 py-2.5 text-sm font-display transition",
+                          active
+                            ? "border-primary bg-primary/10 text-foreground"
+                            : "border-border text-muted-foreground hover:border-primary/40",
+                        )}
+                      >
+                        {t.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="mt-1.5 text-[11px] text-muted-foreground">
+                  Also the minimum wait before launching the next word.
+                </p>
+              </div>
+
+              {/* Max members */}
+              <div>
+                <Label>Max members</Label>
+                <div className="mt-1.5 grid grid-cols-4 gap-2">
+                  {SETTINGS_MAX_MEMBERS.map((opt) => {
+                    const active = opt.value === sMaxMembers;
+                    return (
+                      <button
+                        key={String(opt.value)}
+                        type="button"
+                        onClick={() => setSMaxMembers(opt.value)}
+                        className={cn(
+                          "rounded-xl border-2 py-2 text-sm font-display transition",
+                          active
+                            ? "border-primary bg-primary/10 text-foreground"
+                            : "border-border text-muted-foreground hover:border-primary/40",
+                        )}
+                      >
+                        {opt.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Danger zone */}
+              <div
+                className="rounded-2xl border p-5"
+                style={{ borderColor: "color-mix(in oklch, var(--destructive) 35%, transparent)" }}
+              >
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-destructive">
+                  Danger zone
+                </p>
+                <h4 className="mt-1 font-display text-lg">Close this room</h4>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  All members will be removed and the room history will be lost. This cannot be undone.
+                </p>
+                <Button
+                  variant="destructive"
+                  className="mt-3"
+                  onClick={() => setCloseRoomOpen(true)}
+                >
+                  <Trash2 className="size-4" /> Close Room
+                </Button>
+              </div>
+            </div>
+
+            <SheetFooter className="border-t border-border p-4 sm:flex-row sm:justify-end">
+              <Button variant="ghost" onClick={() => setSettingsOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSaveSettings}>Save changes</Button>
+            </SheetFooter>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Close Room confirm */}
+      <AlertDialog open={closeRoomOpen} onOpenChange={setCloseRoomOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-display text-2xl">
+              Close {room.name}?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure? All members will be removed and the room history will be lost.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={handleCloseRoom}
+            >
+              Close Room
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Leave confirm */}
       <AlertDialog open={leaveOpen} onOpenChange={setLeaveOpen}>
