@@ -528,7 +528,7 @@ function Kpi({
     tone === "mint" ? "text-primary" : tone === "lilac" ? "text-accent" : "text-muted-foreground";
   return (
     <div
-      className={`surface-elevated p-4 ${highlight ? "ring-1 ring-primary/40 glow-mint" : ""}`}
+      className={`surface-elevated p-4 ${highlight ? "ring-1 ring-primary/40 glow-mint" : ""} ${className ?? ""}`}
     >
       <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
         {label}
