@@ -226,10 +226,12 @@ function NotificationRow({
   n,
   onRead,
   onDismiss,
+  onAcceptFriend,
 }: {
   n: NotificationItem;
   onRead: (id: string) => void;
   onDismiss: (id: string) => void;
+  onAcceptFriend: (id: string) => void;
 }) {
   const meta = TYPE_META[n.type];
   const Icon = meta.icon;
