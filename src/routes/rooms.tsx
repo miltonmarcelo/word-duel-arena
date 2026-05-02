@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Check,
   Copy,
   Globe2,
   Hash,
   KeyRound,
+  Loader2,
   Lock,
   Plus,
   Trophy,
@@ -66,6 +67,17 @@ function generateInviteCode() {
   for (let i = 0; i < 4; i++) s += chars[Math.floor(Math.random() * chars.length)];
   return `CLASH-${s}`;
 }
+
+function formatJoinCode(raw: string) {
+  const cleaned = raw.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
+  if (cleaned.length <= 4) return cleaned;
+  return `${cleaned.slice(0, 4)}-${cleaned.slice(4)}`;
+}
+
+const MOCK_PREVIEW_HOSTS = ["Mira Chen", "Diego Alvarez", "Yuki Tanaka", "Nora Lindqvist"];
+const MOCK_PREVIEW_THEMES = ["Cinema", "Music", "Sports", "Science", "Food"];
+const MOCK_PREVIEW_EMOJI = ["🎬", "🎵", "🏅", "🔬", "🍜"];
+const MOCK_PREVIEW_TIMES = ["8h per word", "12h per word", "24h per word"];
 
 type RoomStatus = "active" | "played" | "waiting";
 
@@ -188,6 +200,46 @@ function RoomsPage() {
   const [codeCopied, setCodeCopied] = useState(false);
   const [myRooms, setMyRooms] = useState<MyRoom[]>(myRoomsSeed);
   const [publicRooms, setPublicRooms] = useState<PublicRoom[]>(publicRoomsSeed);
+  const [joinPreview, setJoinPreview] = useState<{
+    name: string;
+    host: typeof players[number];
+    members: number;
+    theme: string;
+    emoji: string;
+    timeLimit: string;
+    privacy: "public" | "private";
+  } | null>(null);
+  const [joinLoading, setJoinLoading] = useState(false);
+
+  // Mock: any non-empty code shows a preview after a brief loading state
+  useEffect(() => {
+    const cleaned = joinCode.replace(/[^A-Z0-9]/g, "");
+    if (cleaned.length === 0) {
+      setJoinPreview(null);
+      setJoinLoading(false);
+      return;
+    }
+    setJoinLoading(true);
+    setJoinPreview(null);
+    const seed = cleaned.charCodeAt(0) || 0;
+    const hostIdx = seed % MOCK_PREVIEW_HOSTS.length;
+    const themeIdx = (seed + cleaned.length) % MOCK_PREVIEW_THEMES.length;
+    const t = setTimeout(() => {
+      const host = players.find((p) => p.name === MOCK_PREVIEW_HOSTS[hostIdx]) ?? players[0];
+      setJoinPreview({
+        name: `${MOCK_PREVIEW_THEMES[themeIdx]} Clash`,
+        host,
+        members: 3 + (seed % 8),
+        theme: MOCK_PREVIEW_THEMES[themeIdx],
+        emoji: MOCK_PREVIEW_EMOJI[themeIdx % MOCK_PREVIEW_EMOJI.length],
+        timeLimit: MOCK_PREVIEW_TIMES[seed % MOCK_PREVIEW_TIMES.length],
+        privacy: cleaned.length % 2 === 0 ? "private" : "public",
+      });
+      setJoinLoading(false);
+    }, 450);
+    return () => clearTimeout(t);
+  }, [joinCode]);
+
 
   const timeLimitLabel = useMemo(
     () => TIME_LIMITS.find((t) => t.id === timeLimit)!.label,
@@ -242,28 +294,29 @@ function RoomsPage() {
   }
 
   function handleJoin() {
-    const code = joinCode.trim().toUpperCase();
-    if (!code) return;
-    const found = publicRooms.find((r) => r.id.toUpperCase() === code);
-    if (found) {
-      setPublicRooms((prev) => prev.filter((r) => r.id !== found.id));
-      setMyRooms((prev) => [
-        {
-          ...found,
-          status: "active",
-          remaining: "11h 58m remaining",
-          position: found.members.length + 1,
-          total: found.members.length + 1,
-          isNew: true,
-        },
-        ...prev,
-      ]);
-      toast.success(`Joined ${found.name}`);
-    } else {
-      toast.success("Joined room!", { description: `Welcome to room ${code}.` });
-    }
+    if (!joinPreview) return;
+    const newRoomId = `r-join-${Date.now()}`;
+    const newRoom: MyRoom = {
+      id: newRoomId,
+      name: joinPreview.name,
+      emoji: joinPreview.emoji,
+      activity: "live",
+      description: `${joinPreview.privacy === "public" ? "Public" : "Private"} · ${joinPreview.theme} · ${joinPreview.timeLimit}`,
+      members: [currentUser, joinPreview.host, ...players.slice(0, Math.max(0, joinPreview.members - 2))],
+      theme: joinPreview.theme,
+      status: "active",
+      remaining: "11h 58m remaining",
+      position: joinPreview.members + 1,
+      total: joinPreview.members + 1,
+      isNew: true,
+    };
+    setMyRooms((prev) => [newRoom, ...prev]);
+    const joinedName = joinPreview.name;
     setJoinOpen(false);
     setJoinCode("");
+    setJoinPreview(null);
+    toast.success(`You joined ${joinedName}!`);
+    navigate({ to: "/rooms/$roomId", params: { roomId: newRoomId } });
   }
 
   function joinPublic(room: PublicRoom) {
@@ -539,31 +592,100 @@ function RoomsPage() {
       </Dialog>
 
       {/* Join with code Dialog */}
-      <Dialog open={joinOpen} onOpenChange={setJoinOpen}>
-        <DialogContent className="sm:max-w-sm">
+      <Dialog
+        open={joinOpen}
+        onOpenChange={(v) => {
+          setJoinOpen(v);
+          if (!v) {
+            setJoinCode("");
+            setJoinPreview(null);
+            setJoinLoading(false);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="font-display text-2xl">Join with code</DialogTitle>
+            <DialogTitle className="font-display text-2xl">Join a Room</DialogTitle>
             <DialogDescription>
-              Got a room code from a friend? Drop it in.
+              Enter the invite code shared by your friend.
             </DialogDescription>
           </DialogHeader>
-          <div className="py-2">
-            <Label htmlFor="join-code">Room code</Label>
-            <Input
-              id="join-code"
-              value={joinCode}
-              onChange={(e) => setJoinCode(e.target.value)}
-              placeholder="e.g. WORD-42AB"
-              className="mt-1.5 uppercase tracking-widest font-display"
-              autoFocus
-            />
+
+          <div className="space-y-4 py-2">
+            <div>
+              <Label
+                htmlFor="join-code"
+                className="text-xs uppercase tracking-[0.14em] text-muted-foreground"
+              >
+                Invite code
+              </Label>
+              <Input
+                id="join-code"
+                value={joinCode}
+                onChange={(e) => setJoinCode(formatJoinCode(e.target.value))}
+                placeholder="XXXX-XXXX"
+                maxLength={9}
+                autoFocus
+                className="mt-1.5 h-14 text-center font-display text-2xl tracking-[0.4em] uppercase"
+              />
+            </div>
+
+            {joinLoading && (
+              <div className="surface-elevated flex items-center gap-3 p-4">
+                <Loader2 className="size-5 animate-spin text-primary" />
+                <p className="text-sm text-muted-foreground">Looking up room…</p>
+              </div>
+            )}
+
+            {!joinLoading && joinPreview && (
+              <div className="surface-elevated p-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">{joinPreview.emoji}</span>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-display text-lg leading-tight">{joinPreview.name}</h4>
+                    <div className="mt-1.5 flex flex-wrap gap-1">
+                      <span className="chip chip-muted">{joinPreview.theme}</span>
+                      <span className="chip chip-muted">
+                        <Clock className="size-3" /> {joinPreview.timeLimit}
+                      </span>
+                      <span className="chip chip-muted">
+                        {joinPreview.privacy === "private" ? (
+                          <>
+                            <Lock className="size-3" /> Private
+                          </>
+                        ) : (
+                          <>
+                            <Globe2 className="size-3" /> Public
+                          </>
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Avatar player={joinPreview.host} size={24} />
+                    <span>
+                      Hosted by{" "}
+                      <span className="font-semibold text-foreground">
+                        {joinPreview.host.name}
+                      </span>
+                    </span>
+                  </div>
+                  <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                    <Users className="size-3.5" /> {joinPreview.members}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
+
           <DialogFooter>
             <Button variant="ghost" onClick={() => setJoinOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleJoin}>
-              <KeyRound className="size-4" /> Join
+            <Button onClick={handleJoin} disabled={!joinPreview || joinLoading}>
+              <KeyRound className="size-4" /> Join Room
             </Button>
           </DialogFooter>
         </DialogContent>
