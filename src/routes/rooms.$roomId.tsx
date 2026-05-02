@@ -733,6 +733,19 @@ function RoomHub() {
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Launch new word sheet (host only, after expiry) */}
+      <LaunchWordSheet
+        open={launchOpen}
+        onOpenChange={setLaunchOpen}
+        roomTheme="Cinema"
+        onLaunched={() => {
+          setLaunchOpen(false);
+          setWordState("active-not-played");
+          setCooldownActive(true);
+          toast.success("New word launched! Good luck everyone.");
+        }}
+      />
+
       {/* Leave confirm — MEMBER */}
       <AlertDialog open={leaveOpen} onOpenChange={setLeaveOpen}>
         <AlertDialogContent>
