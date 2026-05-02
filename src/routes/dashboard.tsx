@@ -94,12 +94,17 @@ function Dashboard() {
           </div>
         </section>
 
-        {/* KPI strip */}
-        <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <Kpi label="This week" value="2,480" delta="+820 XP" tone="mint" />
-          <Kpi label="All-time" value="64.8k" delta="412 matches" tone="muted" />
-          <Kpi label="Global rank" value={`#${myRank}`} delta="↑ 14 this week" tone="mint" highlight />
+        {/* KPI strip — horizontal scroll on mobile, grid on desktop */}
+        <section className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0">
+          <Kpi label="This week" value="2,480" delta="+820 XP" tone="mint" className="min-w-[160px] shrink-0 sm:min-w-0" />
+          <Kpi label="All-time" value="64.8k" delta="412 matches" tone="muted" className="min-w-[160px] shrink-0 sm:min-w-0" />
+          <Kpi label="Global rank" value={`#${myRank}`} delta="↑ 14 this week" tone="mint" highlight className="min-w-[160px] shrink-0 sm:min-w-0" />
         </section>
+
+        {/* Mobile-only Streak (appears right after KPIs on mobile) */}
+        <div className="md:hidden">
+          <StreakCard />
+        </div>
 
         {/* Two-column main */}
         <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -116,46 +121,50 @@ function Dashboard() {
               </div>
             </Card>
 
-            {/* Your Rooms */}
-            <RoomsWidget />
+            {/* Your Rooms — desktop only (rooms reachable via bottom tab on mobile) */}
+            <div className="hidden md:block">
+              <RoomsWidget />
+            </div>
 
-            {/* Daily puzzle */}
-            <Card>
-              <div className="grid items-center gap-6 sm:grid-cols-[1fr,auto]">
-                <div>
-                  <span className="chip">
-                    <Sparkles className="size-3" /> Daily #482
-                  </span>
-                  <h3 className="mt-3 font-display text-2xl">Today's puzzle is live.</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Solve before midnight to keep your{" "}
-                    <span className="font-semibold text-foreground">12-day streak</span> alive.
-                  </p>
-                  <Link to="/play/your-turn" className="mt-4 inline-block">
-                    <Button>
-                      Play daily <ArrowRight className="size-4" />
-                    </Button>
-                  </Link>
+            {/* Daily puzzle — desktop only (CTA exists in hero on mobile) */}
+            <div className="hidden md:block">
+              <Card>
+                <div className="grid items-center gap-6 sm:grid-cols-[1fr,auto]">
+                  <div>
+                    <span className="chip">
+                      <Sparkles className="size-3" /> Daily #482
+                    </span>
+                    <h3 className="mt-3 font-display text-2xl">Today's puzzle is live.</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Solve before midnight to keep your{" "}
+                      <span className="font-semibold text-foreground">12-day streak</span> alive.
+                    </p>
+                    <Link to="/play/your-turn" className="mt-4 inline-block">
+                      <Button>
+                        Play daily <ArrowRight className="size-4" />
+                      </Button>
+                    </Link>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <WordRow
+                      guess={{
+                        letters: ["P", "L", "A", "T", "E"],
+                        states: ["correct", "correct", "correct", "correct", "correct"],
+                      }}
+                      size="sm"
+                    />
+                    <WordRow size="sm" empty />
+                    <WordRow size="sm" empty />
+                  </div>
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <WordRow
-                    guess={{
-                      letters: ["P", "L", "A", "T", "E"],
-                      states: ["correct", "correct", "correct", "correct", "correct"],
-                    }}
-                    size="sm"
-                  />
-                  <WordRow size="sm" empty />
-                  <WordRow size="sm" empty />
-                </div>
-              </div>
-            </Card>
+              </Card>
+            </div>
 
-            {/* Pending friend requests banner */}
+            {/* Pending friend requests banner — desktop only (badge in mobile top bar) */}
             {pendingFriendRequests > 0 && (
               <Link
                 to="/friends"
-                className="surface-elevated group flex items-center gap-3 p-4 transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]"
+                className="surface-elevated group hidden items-center gap-3 p-4 transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)] md:flex"
                 style={{
                   background:
                     "linear-gradient(135deg, color-mix(in oklch, var(--accent) 14%, var(--surface-elevated)), var(--surface-elevated))",
@@ -181,68 +190,70 @@ function Dashboard() {
               </Link>
             )}
 
-            {/* Friends online */}
-            <Card>
-              <CardHeader
-                title="Friends Online"
-                subtitle={
-                  onlineFriends.length > 0
-                    ? `${onlineFriends.length} ready to play right now`
-                    : "Nobody online at the moment"
-                }
-                action={
-                  <Link
-                    to="/friends"
-                    className="text-xs font-semibold text-primary hover:underline"
-                  >
-                    See all friends
-                  </Link>
-                }
-              />
-              <div className="-mb-2 flex items-center gap-2 text-muted-foreground">
-                <Users className="size-4 shrink-0 text-primary" />
-                {onlineFriends.length === 0 ? (
-                  <p className="text-sm">
-                    No friends online.{" "}
+            {/* Friends online — desktop only (Friends tab in mobile bottom bar) */}
+            <div className="hidden md:block">
+              <Card>
+                <CardHeader
+                  title="Friends Online"
+                  subtitle={
+                    onlineFriends.length > 0
+                      ? `${onlineFriends.length} ready to play right now`
+                      : "Nobody online at the moment"
+                  }
+                  action={
                     <Link
                       to="/friends"
-                      className="font-semibold text-primary hover:underline"
+                      className="text-xs font-semibold text-primary hover:underline"
                     >
-                      Find players
+                      See all friends
                     </Link>
-                  </p>
-                ) : null}
-              </div>
-              {onlineFriends.length > 0 && (
-                <div className="-mx-1 mt-3 flex gap-3 overflow-x-auto pb-2">
-                  {onlineFriends.map((f) => (
-                    <div
-                      key={f.id}
-                      className="surface-soft flex w-36 shrink-0 flex-col items-center gap-2 rounded-xl p-3 text-center"
-                    >
-                      <div className="relative">
-                        <span className="avatar-ring inline-block">
-                          <Avatar player={f} size={48} />
-                        </span>
-                        <span
-                          className="absolute -bottom-0.5 -right-0.5 block size-3 rounded-full border-2 border-background"
-                          style={{ background: "var(--correct)" }}
-                          aria-label="Online"
-                        />
-                      </div>
-                      <p className="w-full truncate text-sm font-semibold">
-                        {f.name.split(" ")[0]}
-                      </p>
-                      <Link to="/play/match-select" className="w-full">
-                        <Button size="sm" className="w-full gap-1.5">
-                          <Swords className="size-3" /> Challenge
-                        </Button>
+                  }
+                />
+                <div className="-mb-2 flex items-center gap-2 text-muted-foreground">
+                  <Users className="size-4 shrink-0 text-primary" />
+                  {onlineFriends.length === 0 ? (
+                    <p className="text-sm">
+                      No friends online.{" "}
+                      <Link
+                        to="/friends"
+                        className="font-semibold text-primary hover:underline"
+                      >
+                        Find players
                       </Link>
-                    </div>
-                  ))}
+                    </p>
+                  ) : null}
                 </div>
-              )}
-            </Card>
+                {onlineFriends.length > 0 && (
+                  <div className="-mx-1 mt-3 flex gap-3 overflow-x-auto pb-2">
+                    {onlineFriends.map((f) => (
+                      <div
+                        key={f.id}
+                        className="surface-soft flex w-36 shrink-0 flex-col items-center gap-2 rounded-xl p-3 text-center"
+                      >
+                        <div className="relative">
+                          <span className="avatar-ring inline-block">
+                            <Avatar player={f} size={48} />
+                          </span>
+                          <span
+                            className="absolute -bottom-0.5 -right-0.5 block size-3 rounded-full border-2 border-background"
+                            style={{ background: "var(--correct)" }}
+                            aria-label="Online"
+                          />
+                        </div>
+                        <p className="w-full truncate text-sm font-semibold">
+                          {f.name.split(" ")[0]}
+                        </p>
+                        <Link to="/play/match-select" className="w-full">
+                          <Button size="sm" className="w-full gap-1.5">
+                            <Swords className="size-3" /> Challenge
+                          </Button>
+                        </Link>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Card>
+            </div>
 
             {/* Pending challenges */}
             <Card>
@@ -290,7 +301,7 @@ function Dashboard() {
                 }
               />
               <div className="divide-y divide-border">
-                {recentMatches.slice(0, 3).map((m) => (
+                {recentMatches.slice(0, 3).map((m, idx) => (
                   <Link
                     key={m.id}
                     to="/match/result"
@@ -302,7 +313,9 @@ function Dashboard() {
                       opponent: m.opponent.name,
                       from: "history",
                     }}
-                    className="group flex items-center gap-4 py-3 first:pt-0 transition-colors hover:bg-surface/50 -mx-2 px-2 rounded-lg"
+                    className={`group items-center gap-4 py-3 first:pt-0 transition-colors hover:bg-surface/50 -mx-2 px-2 rounded-lg ${
+                      idx >= 2 ? "hidden md:flex" : "flex"
+                    }`}
                   >
                     <Avatar player={m.opponent} size={36} />
                     <div className="min-w-0 flex-1">
@@ -344,37 +357,10 @@ function Dashboard() {
 
           {/* RIGHT (1/3) */}
           <div className="space-y-6">
-            {/* Streak */}
-            <Card>
-              <div className="mb-4 flex items-center justify-between">
-                <span className="chip chip-lilac">
-                  <Flame className="size-3" /> Streak
-                </span>
-                <span className="text-xs text-muted-foreground">Best: 27</span>
-              </div>
-              <p className="font-display text-6xl text-gradient-mint leading-none">12</p>
-              <p className="mt-1 text-sm text-muted-foreground">days in a row</p>
-              <div className="mt-4 grid grid-cols-7 gap-1.5">
-                {Array.from({ length: 7 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className={`h-8 rounded-md ${
-                      i < 5
-                        ? "bg-primary"
-                        : i === 5
-                          ? "bg-primary/40 ring-2 ring-primary"
-                          : "bg-surface"
-                    }`}
-                    title={["M", "T", "W", "T", "F", "S", "S"][i]}
-                  />
-                ))}
-              </div>
-              <div className="mt-3 flex justify-between text-[10px] uppercase tracking-wider text-muted-foreground">
-                {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
-                  <span key={i}>{d}</span>
-                ))}
-              </div>
-            </Card>
+            {/* Streak — hidden on mobile (rendered above KPIs section instead) */}
+            <div className="hidden md:block">
+              <StreakCard />
+            </div>
 
             {/* Progress + badges */}
             <Card>
@@ -504,24 +490,61 @@ function CardHeader({
   );
 }
 
+function StreakCard() {
+  return (
+    <Card>
+      <div className="mb-4 flex items-center justify-between">
+        <span className="chip chip-lilac">
+          <Flame className="size-3" /> Streak
+        </span>
+        <span className="text-xs text-muted-foreground">Best: 27</span>
+      </div>
+      <p className="font-display text-6xl text-gradient-mint leading-none">12</p>
+      <p className="mt-1 text-sm text-muted-foreground">days in a row</p>
+      <div className="mt-4 grid grid-cols-7 gap-1.5">
+        {Array.from({ length: 7 }).map((_, i) => (
+          <div
+            key={i}
+            className={`h-8 rounded-md ${
+              i < 5
+                ? "bg-primary"
+                : i === 5
+                  ? "bg-primary/40 ring-2 ring-primary"
+                  : "bg-surface"
+            }`}
+            title={["M", "T", "W", "T", "F", "S", "S"][i]}
+          />
+        ))}
+      </div>
+      <div className="mt-3 flex justify-between text-[10px] uppercase tracking-wider text-muted-foreground">
+        {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
+          <span key={i}>{d}</span>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
 function Kpi({
   label,
   value,
   delta,
   tone,
   highlight,
+  className,
 }: {
   label: string;
   value: string;
   delta: string;
   tone: "mint" | "lilac" | "muted";
   highlight?: boolean;
+  className?: string;
 }) {
   const toneClass =
     tone === "mint" ? "text-primary" : tone === "lilac" ? "text-accent" : "text-muted-foreground";
   return (
     <div
-      className={`surface-elevated p-4 ${highlight ? "ring-1 ring-primary/40 glow-mint" : ""}`}
+      className={`surface-elevated p-4 ${highlight ? "ring-1 ring-primary/40 glow-mint" : ""} ${className ?? ""}`}
     >
       <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
         {label}
