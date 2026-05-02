@@ -7,10 +7,10 @@ import {
   Swords,
   Trophy,
   User,
+  Users,
   Users2,
   BarChart3,
   BookOpen,
-  UserPlus,
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { ThemeToggle } from "./ThemeToggle";
@@ -21,10 +21,10 @@ import { cn } from "@/lib/utils";
 const nav = [
   { to: "/dashboard",     label: "Dashboard",     icon: LayoutDashboard },
   { to: "/play",          label: "Play",          icon: Swords },
+  { to: "/friends",       label: "Friends",       icon: Users },
   { to: "/ranking",       label: "Ranking",       icon: Trophy },
   { to: "/stats",         label: "Stats",         icon: BarChart3 },
   { to: "/rooms",         label: "Rooms",         icon: Users2 },
-  { to: "/friends",       label: "Friends",       icon: UserPlus },
   { to: "/notifications", label: "Notifications", icon: Bell },
   { to: "/rules",         label: "How to play",   icon: BookOpen },
   { to: "/profile",       label: "Profile",       icon: User },
@@ -34,10 +34,13 @@ const nav = [
 const mobileTabs = [
   { to: "/dashboard", label: "Home",    icon: Home },
   { to: "/play",      label: "Play",    icon: Swords },
+  { to: "/friends",   label: "Friends", icon: Users },
   { to: "/ranking",   label: "Ranks",   icon: Trophy },
-  { to: "/rooms",     label: "Rooms",   icon: Users2 },
   { to: "/profile",   label: "Profile", icon: User },
 ] as const;
+
+// Mock pending friend requests indicator
+const hasPendingFriendRequests = true;
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation();
@@ -85,6 +88,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-background/75 px-4 py-3 backdrop-blur-xl md:hidden">
         <Logo />
         <div className="flex items-center gap-2">
+          <Link
+            to="/friends"
+            className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface-elevated transition-all hover:-translate-y-0.5 hover:border-primary/40"
+            aria-label="Friends"
+          >
+            <Users className="size-4" />
+            {hasPendingFriendRequests && (
+              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent shadow-[0_0_0_3px_color-mix(in_oklch,var(--accent)_25%,transparent)]" />
+            )}
+          </Link>
           <Link
             to="/notifications"
             className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface-elevated transition-all hover:-translate-y-0.5 hover:border-primary/40"
