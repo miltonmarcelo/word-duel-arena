@@ -505,7 +505,14 @@ function RoomHub() {
             <Button
               variant="outline"
               className="border-destructive/50 text-destructive hover:bg-destructive/10 hover:text-destructive"
-              onClick={() => setLeaveOpen(true)}
+              onClick={() => {
+                if (isHost) {
+                  setTransferTarget(null);
+                  setHostLeaveOpen(true);
+                } else {
+                  setLeaveOpen(true);
+                }
+              }}
             >
               <LogOut className="size-4" /> Leave Room
             </Button>
