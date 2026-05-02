@@ -1,5 +1,5 @@
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   Check,
@@ -7,12 +7,15 @@ import {
   Clock,
   Copy,
   Crown,
+  Globe2,
   Hourglass,
+  Lock,
   LogOut,
   MoreHorizontal,
   Settings,
   Share2,
   Sparkles,
+  Trash2,
   Trophy,
   UserCog,
   UserMinus,
@@ -38,9 +41,44 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { rooms, currentUser, players, type Player } from "@/lib/mock-data";
+
+const SETTINGS_THEMES = [
+  { id: "general", label: "General", emoji: "✨" },
+  { id: "cinema", label: "Cinema", emoji: "🎬" },
+  { id: "sports", label: "Sports", emoji: "🏅" },
+  { id: "science", label: "Science", emoji: "🔬" },
+  { id: "music", label: "Music", emoji: "🎵" },
+  { id: "food", label: "Food", emoji: "🍜" },
+  { id: "geography", label: "Geography", emoji: "🌍" },
+] as const;
+
+const SETTINGS_TIMES = [
+  { id: "8h", label: "8 hours" },
+  { id: "12h", label: "12 hours" },
+  { id: "24h", label: "24 hours" },
+] as const;
+
+type SettingsMaxMembers = 4 | 8 | 16 | "unlimited";
+const SETTINGS_MAX_MEMBERS: { value: SettingsMaxMembers; label: string }[] = [
+  { value: 4, label: "4" },
+  { value: 8, label: "8" },
+  { value: 16, label: "16" },
+  { value: "unlimited", label: "∞" },
+];
+
 
 export const Route = createFileRoute("/rooms/$roomId")({
   head: () => ({ meta: [{ title: "Room — WordClash" }] }),
