@@ -48,12 +48,23 @@ const TYPE_META: Record<
   ranking:            { label: "Ranking",           icon: ArrowUp,    color: "var(--present)" },
   achievement:        { label: "Achievements",      icon: Award,      color: "var(--warning)" },
   friend:             { label: "Friends",           icon: UserPlus,   color: "var(--accent)" },
+  friend_request:     { label: "Friend request",    icon: UserPlus,   color: "var(--accent)" },
+  friend_accepted:    { label: "Friend accepted",   icon: ThumbsUp,   color: "var(--correct)" },
+  friend_now:         { label: "New friend",        icon: Check,      color: "var(--correct)" },
   system:             { label: "System",            icon: Sparkles,   color: "var(--muted-foreground)" },
 };
+
+const FRIEND_TYPES: NotificationType[] = [
+  "friend",
+  "friend_request",
+  "friend_accepted",
+  "friend_now",
+];
 
 const FILTERS: { id: Filter; label: string }[] = [
   { id: "all",                label: "All" },
   { id: "unread",             label: "Unread" },
+  { id: "friend_request",     label: "Friends" },
   { id: "challenge",          label: "Challenges" },
   { id: "challenge_accepted", label: "Accepted" },
   { id: "word_locked",        label: "Word locked" },
