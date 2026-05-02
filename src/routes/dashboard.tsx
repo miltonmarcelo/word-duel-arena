@@ -5,8 +5,10 @@ import {
   Bell,
   Calendar,
   Check,
+  Clock,
   Dice5,
   Flame,
+  Play,
   Shapes,
   Sparkles,
   Swords,
@@ -113,6 +115,9 @@ function Dashboard() {
                 <ModeShortcut to="/rooms"             icon={Users2}  label="Rooms"   desc="Private league"   tone="lilac" />
               </div>
             </Card>
+
+            {/* Your Rooms */}
+            <RoomsWidget />
 
             {/* Daily puzzle */}
             <Card>
@@ -556,6 +561,110 @@ function ModeShortcut({
         <p className="text-sm font-semibold">{label}</p>
         <p className="text-[11px] text-muted-foreground">{desc}</p>
       </div>
+    </Link>
+  );
+}
+
+/* -------- Rooms widget -------- */
+
+type DashRoom = {
+  id: string;
+  name: string;
+  theme: { label: string; tone: "mint" | "lilac" };
+  status: "play-now" | "played" | "waiting";
+  timeLeft?: string;
+  rank: number;
+  total: number;
+};
+
+const dashRooms: DashRoom[] = [
+  { id: "r-1", name: "Wordsmiths",    theme: { label: "General", tone: "mint"  }, status: "play-now", timeLeft: "5h left",  rank: 2, total: 6 },
+  { id: "r-2", name: "Office League", theme: { label: "Cinema",  tone: "lilac" }, status: "played",   timeLeft: "11h left", rank: 1, total: 8 },
+  { id: "r-3", name: "Family Clash",  theme: { label: "Music",   tone: "mint"  }, status: "waiting",                        rank: 4, total: 5 },
+];
+
+function RoomsWidget() {
+  const myRooms = dashRooms.slice(0, 3);
+
+  return (
+    <Card>
+      <CardHeader
+        title="Your Rooms"
+        subtitle={myRooms.length > 0 ? `${myRooms.length} active` : "No active rooms"}
+        action={
+          <Link to="/rooms" className="text-xs font-semibold text-primary hover:underline">
+            See all
+          </Link>
+        }
+      />
+      {myRooms.length === 0 ? (
+        <div className="surface-soft flex flex-col items-center gap-3 rounded-xl p-6 text-center">
+          <span className="grid size-12 place-items-center rounded-full bg-accent/15 text-accent">
+            <Users2 className="size-5" />
+          </span>
+          <div>
+            <p className="text-sm font-semibold">No rooms yet</p>
+            <p className="text-xs text-muted-foreground">
+              Join a friend's room or start your own private league.
+            </p>
+          </div>
+          <Link to="/rooms">
+            <Button size="sm">
+              <Users2 className="size-3.5" /> Join or create a room
+            </Button>
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-2.5">
+          {myRooms.map((r) => (
+            <RoomRow key={r.id} room={r} />
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function RoomRow({ room }: { room: DashRoom }) {
+  const statusMeta =
+    room.status === "play-now"
+      ? { label: "Play now 🟢", className: "chip" }
+      : room.status === "played"
+        ? { label: "Already played ✅", className: "chip chip-muted" }
+        : { label: "Waiting ⚪", className: "chip chip-muted" };
+
+  return (
+    <Link
+      to="/rooms/$roomId"
+      params={{ roomId: room.id }}
+      className="surface-soft group flex items-center gap-3 rounded-xl p-3 transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]"
+    >
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <p className="truncate text-sm font-semibold group-hover:text-primary">
+            {room.name}
+          </p>
+          <span className={`chip ${room.theme.tone === "lilac" ? "chip-lilac" : ""}`}>
+            {room.theme.label}
+          </span>
+        </div>
+        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+          {room.status !== "waiting" && room.timeLeft && (
+            <span className="inline-flex items-center gap-1">
+              <Clock className="size-3" /> {room.timeLeft}
+            </span>
+          )}
+          <span className="inline-flex items-center gap-1">
+            <Trophy className="size-3" /> #{room.rank} of {room.total}
+          </span>
+          <span className={statusMeta.className}>{statusMeta.label}</span>
+        </div>
+      </div>
+      {room.status === "play-now" && (
+        <span className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-[var(--shadow-sm)]">
+          <Play className="size-3" /> Play
+        </span>
+      )}
     </Link>
   );
 }
