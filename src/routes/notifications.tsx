@@ -343,7 +343,55 @@ function NotificationRow({
   );
 }
 
-function ActionRow({ type }: { type: NotificationType }) {
+function ActionRow({
+  n,
+  onAccept,
+  onDismiss,
+}: {
+  n: NotificationItem;
+  onAccept: () => void;
+  onDismiss: () => void;
+}) {
+  const type = n.type;
+
+  if (type === "friend_request") {
+    return (
+      <div className="mt-2.5 flex gap-2">
+        <Button
+          size="sm"
+          className="h-7 gap-1 text-xs"
+          onClick={(e) => {
+            e.stopPropagation();
+            onAccept();
+          }}
+        >
+          <Check className="h-3 w-3" /> Accept
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          className="h-7 gap-1 text-xs"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDismiss();
+          }}
+        >
+          <X className="h-3 w-3" /> Decline
+        </Button>
+      </div>
+    );
+  }
+  if (type === "friend_accepted" || type === "friend_now") {
+    return (
+      <div className="mt-2.5">
+        <Link to="/play/match-select">
+          <Button size="sm" className="h-7 gap-1 text-xs">
+            <Swords className="h-3 w-3" /> Challenge them
+          </Button>
+        </Link>
+      </div>
+    );
+  }
   if (type === "challenge") {
     return (
       <div className="mt-2.5 flex gap-2">
