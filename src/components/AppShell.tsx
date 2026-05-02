@@ -10,6 +10,7 @@ import {
   Users2,
   BarChart3,
   BookOpen,
+  UserPlus,
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { ThemeToggle } from "./ThemeToggle";
@@ -23,6 +24,7 @@ const nav = [
   { to: "/ranking",       label: "Ranking",       icon: Trophy },
   { to: "/stats",         label: "Stats",         icon: BarChart3 },
   { to: "/rooms",         label: "Rooms",         icon: Users2 },
+  { to: "/friends",       label: "Friends",       icon: UserPlus },
   { to: "/notifications", label: "Notifications", icon: Bell },
   { to: "/rules",         label: "How to play",   icon: BookOpen },
   { to: "/profile",       label: "Profile",       icon: User },
