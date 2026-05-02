@@ -85,6 +85,9 @@ export type NotificationType =
   | "ranking"
   | "achievement"
   | "friend"
+  | "friend_request"
+  | "friend_accepted"
+  | "friend_now"
   | "system";
 
 export type NotificationItem = {
