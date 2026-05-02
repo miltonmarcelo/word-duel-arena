@@ -143,6 +143,8 @@ function RoomHub() {
   // Mock state controls (toggleable for visual prototype)
   const [wordState, setWordState] = useState<WordState>(search.state ?? "active-not-played");
   const [isHost, setIsHost] = useState<boolean>((search.role ?? "host") === "host");
+  const [cooldownActive, setCooldownActive] = useState(false);
+  const [launchOpen, setLaunchOpen] = useState(false);
 
   const code = useMemo(() => roomCodeFor(room.id), [room]);
   const [copied, setCopied] = useState(false);
