@@ -160,11 +160,11 @@ function Dashboard() {
               </Card>
             </div>
 
-            {/* Pending friend requests banner */}
+            {/* Pending friend requests banner — desktop only (badge in mobile top bar) */}
             {pendingFriendRequests > 0 && (
               <Link
                 to="/friends"
-                className="surface-elevated group flex items-center gap-3 p-4 transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]"
+                className="surface-elevated group hidden items-center gap-3 p-4 transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)] md:flex"
                 style={{
                   background:
                     "linear-gradient(135deg, color-mix(in oklch, var(--accent) 14%, var(--surface-elevated)), var(--surface-elevated))",
