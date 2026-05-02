@@ -146,6 +146,99 @@ function Dashboard() {
               </div>
             </Card>
 
+            {/* Pending friend requests banner */}
+            {pendingFriendRequests > 0 && (
+              <Link
+                to="/friends"
+                className="surface-elevated group flex items-center gap-3 p-4 transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]"
+                style={{
+                  background:
+                    "linear-gradient(135deg, color-mix(in oklch, var(--accent) 14%, var(--surface-elevated)), var(--surface-elevated))",
+                  borderColor:
+                    "color-mix(in oklch, var(--accent) 35%, var(--border))",
+                }}
+              >
+                <span className="grid size-10 place-items-center rounded-full bg-accent/20 text-accent">
+                  <UserPlus className="size-4" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold">
+                    You have {pendingFriendRequests} pending friend request
+                    {pendingFriendRequests === 1 ? "" : "s"}
+                  </p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    Accept or decline to grow your duel circle.
+                  </p>
+                </div>
+                <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent group-hover:underline">
+                  See requests <ArrowRight className="size-3" />
+                </span>
+              </Link>
+            )}
+
+            {/* Friends online */}
+            <Card>
+              <CardHeader
+                title="Friends Online"
+                subtitle={
+                  onlineFriends.length > 0
+                    ? `${onlineFriends.length} ready to play right now`
+                    : "Nobody online at the moment"
+                }
+                action={
+                  <Link
+                    to="/friends"
+                    className="text-xs font-semibold text-primary hover:underline"
+                  >
+                    See all friends
+                  </Link>
+                }
+              />
+              <div className="-mb-2 flex items-center gap-2 text-muted-foreground">
+                <Users className="size-4 shrink-0 text-primary" />
+                {onlineFriends.length === 0 ? (
+                  <p className="text-sm">
+                    No friends online.{" "}
+                    <Link
+                      to="/friends"
+                      className="font-semibold text-primary hover:underline"
+                    >
+                      Find players
+                    </Link>
+                  </p>
+                ) : null}
+              </div>
+              {onlineFriends.length > 0 && (
+                <div className="-mx-1 mt-3 flex gap-3 overflow-x-auto pb-2">
+                  {onlineFriends.map((f) => (
+                    <div
+                      key={f.id}
+                      className="surface-soft flex w-36 shrink-0 flex-col items-center gap-2 rounded-xl p-3 text-center"
+                    >
+                      <div className="relative">
+                        <span className="avatar-ring inline-block">
+                          <Avatar player={f} size={48} />
+                        </span>
+                        <span
+                          className="absolute -bottom-0.5 -right-0.5 block size-3 rounded-full border-2 border-background"
+                          style={{ background: "var(--correct)" }}
+                          aria-label="Online"
+                        />
+                      </div>
+                      <p className="w-full truncate text-sm font-semibold">
+                        {f.name.split(" ")[0]}
+                      </p>
+                      <Link to="/play/match-select" className="w-full">
+                        <Button size="sm" className="w-full gap-1.5">
+                          <Swords className="size-3" /> Challenge
+                        </Button>
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+
             {/* Pending challenges */}
             <Card>
               <CardHeader
