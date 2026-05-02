@@ -19,6 +19,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as MatchRouteImport } from './routes/match'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PlayIndexRouteImport } from './routes/play.index'
@@ -88,6 +89,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FriendsRoute = FriendsRouteImport.update({
+  id: '/friends',
+  path: '/friends',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -119,14 +125,14 @@ const PlayWordPickRoute = PlayWordPickRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlayWaitingRoute = PlayWaitingRouteImport.update({
-  id: '/waiting',
-  path: '/waiting',
-  getParentRoute: () => PlayRoute,
+  id: '/play/waiting',
+  path: '/play/waiting',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PlayThemedRoute = PlayThemedRouteImport.update({
-  id: '/themed',
-  path: '/themed',
-  getParentRoute: () => PlayRoute,
+  id: '/play/themed',
+  path: '/play/themed',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PlayRandomRoute = PlayRandomRouteImport.update({
   id: '/play/random',
@@ -182,6 +188,7 @@ const PlayThemedThemeRoute = PlayThemedThemeRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/friends': typeof FriendsRoute
   '/login': typeof LoginRoute
   '/match': typeof MatchRouteWithChildren
   '/notifications': typeof NotificationsRoute
@@ -212,6 +219,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/friends': typeof FriendsRoute
   '/login': typeof LoginRoute
   '/match': typeof MatchRouteWithChildren
   '/notifications': typeof NotificationsRoute
@@ -243,6 +251,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/friends': typeof FriendsRoute
   '/login': typeof LoginRoute
   '/match': typeof MatchRouteWithChildren
   '/notifications': typeof NotificationsRoute
@@ -275,6 +284,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/friends'
     | '/login'
     | '/match'
     | '/notifications'
@@ -305,6 +315,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dashboard'
+    | '/friends'
     | '/login'
     | '/match'
     | '/notifications'
@@ -335,6 +346,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/friends'
     | '/login'
     | '/match'
     | '/notifications'
@@ -366,6 +378,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
+  FriendsRoute: typeof FriendsRoute
   LoginRoute: typeof LoginRoute
   MatchRoute: typeof MatchRouteWithChildren
   NotificationsRoute: typeof NotificationsRoute
@@ -384,6 +397,8 @@ export interface RootRouteChildren {
   PlayMatchesRoute: typeof PlayMatchesRoute
   PlayQuickRoute: typeof PlayQuickRoute
   PlayRandomRoute: typeof PlayRandomRoute
+  PlayThemedRoute: typeof PlayThemedRouteWithChildren
+  PlayWaitingRoute: typeof PlayWaitingRoute
   PlayWordPickRoute: typeof PlayWordPickRoute
   PlayYourTurnRoute: typeof PlayYourTurnRoute
   PlayIndexRoute: typeof PlayIndexRoute
@@ -461,6 +476,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/friends': {
+      id: '/friends'
+      path: '/friends'
+      fullPath: '/friends'
+      preLoaderRoute: typeof FriendsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -505,17 +527,17 @@ declare module '@tanstack/react-router' {
     }
     '/play/waiting': {
       id: '/play/waiting'
-      path: '/waiting'
+      path: '/play/waiting'
       fullPath: '/play/waiting'
       preLoaderRoute: typeof PlayWaitingRouteImport
-      parentRoute: typeof PlayRoute
+      parentRoute: typeof rootRouteImport
     }
     '/play/themed': {
       id: '/play/themed'
-      path: '/themed'
+      path: '/play/themed'
       fullPath: '/play/themed'
       preLoaderRoute: typeof PlayThemedRouteImport
-      parentRoute: typeof PlayRoute
+      parentRoute: typeof rootRouteImport
     }
     '/play/random': {
       id: '/play/random'
@@ -610,9 +632,22 @@ const RoomsRouteChildren: RoomsRouteChildren = {
 
 const RoomsRouteWithChildren = RoomsRoute._addFileChildren(RoomsRouteChildren)
 
+interface PlayThemedRouteChildren {
+  PlayThemedThemeRoute: typeof PlayThemedThemeRoute
+}
+
+const PlayThemedRouteChildren: PlayThemedRouteChildren = {
+  PlayThemedThemeRoute: PlayThemedThemeRoute,
+}
+
+const PlayThemedRouteWithChildren = PlayThemedRoute._addFileChildren(
+  PlayThemedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
+  FriendsRoute: FriendsRoute,
   LoginRoute: LoginRoute,
   MatchRoute: MatchRouteWithChildren,
   NotificationsRoute: NotificationsRoute,
@@ -631,6 +666,8 @@ const rootRouteChildren: RootRouteChildren = {
   PlayMatchesRoute: PlayMatchesRoute,
   PlayQuickRoute: PlayQuickRoute,
   PlayRandomRoute: PlayRandomRoute,
+  PlayThemedRoute: PlayThemedRouteWithChildren,
+  PlayWaitingRoute: PlayWaitingRoute,
   PlayWordPickRoute: PlayWordPickRoute,
   PlayYourTurnRoute: PlayYourTurnRoute,
   PlayIndexRoute: PlayIndexRoute,
