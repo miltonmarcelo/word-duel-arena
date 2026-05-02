@@ -11,6 +11,8 @@ import {
   Sparkles,
   Swords,
   Trophy,
+  UserPlus,
+  Users,
   Users2,
   X,
   Zap,
@@ -38,6 +40,12 @@ function Dashboard() {
   const sortedPlayers = [...players].sort((a, b) => b.rating - a.rating);
   const myRank = sortedPlayers.findIndex((p) => p.id === currentUser.id) + 1;
   const friendsBoard = sortedPlayers.slice(0, 5);
+  // Mock online friends (max 4 shown)
+  const onlineFriends = players
+    .filter((p) => p.id !== currentUser.id)
+    .slice(0, 4);
+  // Mock pending friend requests count
+  const pendingFriendRequests = 2;
   const pendingChallenges = notifications.filter((n) => n.type === "challenge");
   const recentNotifs = notifications.filter((n) => n.type !== "challenge").slice(0, 3);
   const unlocked = achievements.filter((a) => a.unlocked);
