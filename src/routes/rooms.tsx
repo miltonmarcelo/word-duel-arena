@@ -1,6 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Globe2, KeyRound, Lock, Plus } from "lucide-react";
+import {
+  Globe2,
+  Hash,
+  KeyRound,
+  Lock,
+  Plus,
+  Trophy,
+  Users,
+  Clock,
+  Hourglass,
+  Sparkles,
+} from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { Avatar } from "@/components/Avatar";
@@ -16,7 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { currentUser, rooms as initialRooms, type Room } from "@/lib/mock-data";
+import { currentUser, rooms as initialRooms, players, type Room } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/rooms")({
   head: () => ({ meta: [{ title: "Rooms — WordClash" }] }),
@@ -34,15 +45,123 @@ const THEMES = [
 
 const MAX_PLAYERS = [2, 4, 6, 8] as const;
 
-type NewRoom = Room & { isNew?: true };
+type RoomStatus = "active" | "played" | "waiting";
+
+type MyRoom = Room & {
+  theme: string;
+  status: RoomStatus;
+  remaining: string;
+  position: number;
+  total: number;
+  isNew?: boolean;
+};
+
+type PublicRoom = Room & {
+  theme: string;
+  host: typeof players[number];
+  timeLimit: string;
+};
+
+const myRoomsSeed: MyRoom[] = [
+  {
+    ...initialRooms[0],
+    theme: "Cinema",
+    status: "active",
+    remaining: "6h 22m remaining",
+    position: 2,
+    total: 8,
+  },
+  {
+    ...initialRooms[1],
+    theme: "General",
+    status: "played",
+    remaining: "9h 04m remaining",
+    position: 1,
+    total: 6,
+  },
+  {
+    ...initialRooms[2],
+    theme: "Music",
+    status: "waiting",
+    remaining: "Waiting for next word",
+    position: 4,
+    total: 5,
+  },
+];
+
+const publicRoomsSeed: PublicRoom[] = [
+  {
+    ...initialRooms[3],
+    theme: "Science",
+    host: players[2],
+    timeLimit: "12h per word",
+  },
+  {
+    id: "p-1",
+    name: "Foodies United",
+    emoji: "🍜",
+    activity: "live",
+    description: "Daily duels for the kitchen-obsessed.",
+    members: players.slice(1, 7),
+    theme: "Food",
+    host: players[1],
+    timeLimit: "24h per word",
+  },
+  {
+    id: "p-2",
+    name: "Goal Diggers",
+    emoji: "🏅",
+    activity: "live",
+    description: "Sports words only. No mercy.",
+    members: players.slice(0, 5),
+    theme: "Sports",
+    host: players[0],
+    timeLimit: "8h per word",
+  },
+  {
+    id: "p-3",
+    name: "Synth & Strings",
+    emoji: "🎵",
+    activity: "idle",
+    description: "From classical to k-pop.",
+    members: players.slice(3, 8),
+    theme: "Music",
+    host: players[4],
+    timeLimit: "24h per word",
+  },
+];
+
+const statusMeta: Record<
+  RoomStatus,
+  { dot: string; label: string; tone: string }
+> = {
+  active: {
+    dot: "bg-correct",
+    label: "Word active — play now",
+    tone: "text-correct",
+  },
+  played: {
+    dot: "bg-warning",
+    label: "You already played this word",
+    tone: "text-warning",
+  },
+  waiting: {
+    dot: "bg-muted-foreground",
+    label: "Waiting for next word",
+    tone: "text-muted-foreground",
+  },
+};
 
 function RoomsPage() {
   const [open, setOpen] = useState(false);
+  const [joinOpen, setJoinOpen] = useState(false);
+  const [joinCode, setJoinCode] = useState("");
   const [name, setName] = useState("");
   const [themeId, setThemeId] = useState<(typeof THEMES)[number]["id"]>("general");
   const [maxPlayers, setMaxPlayers] = useState<(typeof MAX_PLAYERS)[number]>(4);
   const [privacy, setPrivacy] = useState<"public" | "private">("public");
-  const [rooms, setRooms] = useState<NewRoom[]>(initialRooms);
+  const [myRooms, setMyRooms] = useState<MyRoom[]>(myRoomsSeed);
+  const [publicRooms, setPublicRooms] = useState<PublicRoom[]>(publicRoomsSeed);
 
   function resetForm() {
     setName("");
@@ -54,16 +173,21 @@ function RoomsPage() {
   function handleCreate() {
     const theme = THEMES.find((t) => t.id === themeId)!;
     const finalName = name.trim() || `${theme.label} Room`;
-    const newRoom: NewRoom = {
+    const newRoom: MyRoom = {
       id: `r-new-${Date.now()}`,
       name: finalName,
       emoji: theme.emoji,
       activity: "live",
       description: `${privacy === "public" ? "Public" : "Private"} · ${theme.label} · up to ${maxPlayers} players`,
       members: [currentUser],
+      theme: theme.label,
+      status: "waiting",
+      remaining: "Waiting for next word",
+      position: 1,
+      total: 1,
       isNew: true,
     };
-    setRooms((prev) => [newRoom, ...prev]);
+    setMyRooms((prev) => [newRoom, ...prev]);
     setOpen(false);
     resetForm();
     toast.success("Room created!", {
@@ -71,21 +195,64 @@ function RoomsPage() {
     });
   }
 
+  function handleJoin() {
+    const code = joinCode.trim().toUpperCase();
+    if (!code) return;
+    const found = publicRooms.find((r) => r.id.toUpperCase() === code);
+    if (found) {
+      setPublicRooms((prev) => prev.filter((r) => r.id !== found.id));
+      setMyRooms((prev) => [
+        {
+          ...found,
+          status: "active",
+          remaining: "11h 58m remaining",
+          position: found.members.length + 1,
+          total: found.members.length + 1,
+          isNew: true,
+        },
+        ...prev,
+      ]);
+      toast.success(`Joined ${found.name}`);
+    } else {
+      toast.success("Joined room!", { description: `Welcome to room ${code}.` });
+    }
+    setJoinOpen(false);
+    setJoinCode("");
+  }
+
+  function joinPublic(room: PublicRoom) {
+    setPublicRooms((prev) => prev.filter((r) => r.id !== room.id));
+    setMyRooms((prev) => [
+      {
+        ...room,
+        status: "active",
+        remaining: "11h 58m remaining",
+        position: room.members.length + 1,
+        total: room.members.length + 1,
+        isNew: true,
+      },
+      ...prev,
+    ]);
+    toast.success(`Joined ${room.name}`);
+  }
+
   return (
     <AppShell>
-      <div className="space-y-8">
+      <div className="space-y-10">
+        {/* Header */}
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
               Private leagues
             </p>
-            <h1 className="font-display text-4xl sm:text-5xl">Your rooms.</h1>
+            <h1 className="font-display text-4xl sm:text-5xl">Rooms.</h1>
+            <p className="mt-2 max-w-md text-sm text-muted-foreground">
+              Persistent word battles with your favorite people. One word at a time.
+            </p>
           </div>
-          <div className="flex gap-2">
-            <Button asChild variant="secondary">
-              <Link to="/rooms/$roomId" params={{ roomId: initialRooms[0].id }}>
-                <KeyRound className="size-4" /> Join by code
-              </Link>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="secondary" onClick={() => setJoinOpen(true)}>
+              <Hash className="size-4" /> Join with code
             </Button>
             <Button onClick={() => setOpen(true)}>
               <Plus className="size-4" /> Create Room
@@ -93,51 +260,52 @@ function RoomsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {rooms.map((r) => (
-            <div
-              key={r.id}
-              className="surface-elevated p-6 transition-transform hover:-translate-y-0.5"
-            >
-              <div className="mb-3 flex items-center justify-between">
-                <span className="text-3xl">{r.emoji}</span>
-                <div className="flex items-center gap-2">
-                  {r.isNew && <span className="chip">✨ New</span>}
-                  <span className={`chip ${r.activity === "live" ? "" : "chip-muted"}`}>
-                    <span
-                      className={`h-1.5 w-1.5 rounded-full ${
-                        r.activity === "live"
-                          ? "bg-primary animate-pulse"
-                          : "bg-muted-foreground"
-                      }`}
-                    />
-                    {r.activity}
-                  </span>
-                </div>
-              </div>
-              <h3 className="font-display text-2xl">{r.name}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{r.description}</p>
-
-              <div className="mt-5 flex items-center justify-between">
-                <div className="flex -space-x-2">
-                  {r.members.slice(0, 5).map((m) => (
-                    <Avatar key={m.id} player={m} size={32} />
-                  ))}
-                  <span className="ml-3 self-center text-xs text-muted-foreground">
-                    {r.members.length} members
-                  </span>
-                </div>
-                <Link to="/rooms/$roomId" params={{ roomId: initialRooms[0].id }}>
-                  <Button size="sm" variant="ghost">
-                    Open
-                  </Button>
-                </Link>
-              </div>
+        {/* SECTION 1 — My Rooms */}
+        <section className="space-y-4">
+          <div className="flex items-end justify-between">
+            <div>
+              <h2 className="font-display text-2xl">My Rooms</h2>
+              <p className="text-xs text-muted-foreground">
+                Rooms you've joined or created.
+              </p>
             </div>
-          ))}
-        </div>
+            <span className="chip chip-muted">{myRooms.length} active</span>
+          </div>
+
+          {myRooms.length === 0 ? (
+            <EmptyMyRooms onCreate={() => setOpen(true)} onJoin={() => setJoinOpen(true)} />
+          ) : (
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              {myRooms.map((r) => (
+                <MyRoomCard key={r.id} room={r} />
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* SECTION 2 — Public Rooms */}
+        <section className="space-y-4">
+          <div className="flex items-end justify-between">
+            <div>
+              <h2 className="font-display text-2xl">Public Rooms</h2>
+              <p className="text-xs text-muted-foreground">
+                Open lobbies — jump in and start playing.
+              </p>
+            </div>
+            <span className="chip chip-muted">
+              <Globe2 className="size-3" /> {publicRooms.length} open
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {publicRooms.map((r) => (
+              <PublicRoomCard key={r.id} room={r} onJoin={() => joinPublic(r)} />
+            ))}
+          </div>
+        </section>
       </div>
 
+      {/* Create Room Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -148,7 +316,6 @@ function RoomsPage() {
           </DialogHeader>
 
           <div className="space-y-5 py-2">
-            {/* Name */}
             <div>
               <Label htmlFor="room-name">Room name</Label>
               <Input
@@ -162,7 +329,6 @@ function RoomsPage() {
               />
             </div>
 
-            {/* Theme */}
             <div>
               <Label>Theme</Label>
               <div className="mt-1.5 flex flex-wrap gap-2">
@@ -188,7 +354,6 @@ function RoomsPage() {
               </div>
             </div>
 
-            {/* Max players */}
             <div>
               <Label>Max players</Label>
               <div className="mt-1.5 grid grid-cols-4 gap-2">
@@ -213,7 +378,6 @@ function RoomsPage() {
               </div>
             </div>
 
-            {/* Privacy */}
             <div>
               <Label>Privacy</Label>
               <div className="mt-1.5 grid grid-cols-2 gap-2">
@@ -261,6 +425,181 @@ function RoomsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Join with code Dialog */}
+      <Dialog open={joinOpen} onOpenChange={setJoinOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="font-display text-2xl">Join with code</DialogTitle>
+            <DialogDescription>
+              Got a room code from a friend? Drop it in.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-2">
+            <Label htmlFor="join-code">Room code</Label>
+            <Input
+              id="join-code"
+              value={joinCode}
+              onChange={(e) => setJoinCode(e.target.value)}
+              placeholder="e.g. WORD-42AB"
+              className="mt-1.5 uppercase tracking-widest font-display"
+              autoFocus
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setJoinOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleJoin}>
+              <KeyRound className="size-4" /> Join
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppShell>
+  );
+}
+
+function MyRoomCard({ room }: { room: MyRoom }) {
+  const meta = statusMeta[room.status];
+  const canPlay = room.status === "active";
+  const TimerIcon = room.status === "waiting" ? Hourglass : Clock;
+
+  return (
+    <div className="surface-elevated p-6 transition-transform hover:-translate-y-0.5">
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <span className="text-3xl">{room.emoji}</span>
+          <div>
+            <h3 className="font-display text-xl leading-tight">{room.name}</h3>
+            <span className="mt-1 inline-block chip chip-muted">{room.theme}</span>
+          </div>
+        </div>
+        {room.isNew && <span className="chip">✨ New</span>}
+      </div>
+
+      {/* Status row */}
+      <div className="mt-4 flex items-center gap-2 text-sm">
+        <span
+          className={cn(
+            "h-2 w-2 rounded-full",
+            meta.dot,
+            room.status === "active" && "animate-pulse",
+          )}
+        />
+        <span className={cn("font-semibold", meta.tone)}>{meta.label}</span>
+      </div>
+
+      {/* Timer + position */}
+      <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+        <div className="flex items-center gap-1.5 rounded-lg bg-surface px-3 py-2 text-muted-foreground">
+          <TimerIcon className="size-3.5" />
+          <span className="truncate">{room.remaining}</span>
+        </div>
+        <div className="flex items-center gap-1.5 rounded-lg bg-surface px-3 py-2 text-muted-foreground">
+          <Trophy className="size-3.5 text-accent" />
+          <span>
+            You're <span className="font-semibold text-foreground">#{room.position}</span> of{" "}
+            {room.total}
+          </span>
+        </div>
+      </div>
+
+      {/* Members */}
+      <div className="mt-5 flex items-center justify-between">
+        <div className="flex items-center">
+          <div className="flex -space-x-2">
+            {room.members.slice(0, 5).map((m) => (
+              <Avatar key={m.id} player={m} size={30} />
+            ))}
+          </div>
+          <span className="ml-3 text-xs text-muted-foreground">
+            {room.members.length} members
+          </span>
+        </div>
+      </div>
+
+      {/* CTAs */}
+      <div className="mt-5 flex gap-2">
+        {canPlay && (
+          <Button asChild className="flex-1">
+            <Link to="/match">
+              <Sparkles className="size-4" /> Play Now
+            </Link>
+          </Button>
+        )}
+        <Button asChild variant="secondary" className={cn(!canPlay && "flex-1")}>
+          <Link to="/rooms/$roomId" params={{ roomId: room.id }}>
+            <Users className="size-4" /> View Room
+          </Link>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function PublicRoomCard({ room, onJoin }: { room: PublicRoom; onJoin: () => void }) {
+  return (
+    <div className="surface-elevated p-5 transition-transform hover:-translate-y-0.5">
+      <div className="mb-3 flex items-start justify-between gap-2">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">{room.emoji}</span>
+          <div>
+            <h3 className="font-display text-lg leading-tight">{room.name}</h3>
+            <div className="mt-1 flex flex-wrap gap-1">
+              <span className="chip chip-muted">{room.theme}</span>
+              <span className="chip chip-muted">
+                <Clock className="size-3" /> {room.timeLimit}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+        <Avatar player={room.host} size={24} />
+        <span>
+          Hosted by <span className="font-semibold text-foreground">{room.host.name}</span>
+        </span>
+      </div>
+
+      <div className="mt-4 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Users className="size-3.5" />
+          {room.members.length} members
+        </div>
+        <Button size="sm" onClick={onJoin}>
+          Join Room
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function EmptyMyRooms({
+  onCreate,
+  onJoin,
+}: {
+  onCreate: () => void;
+  onJoin: () => void;
+}) {
+  return (
+    <div className="surface-elevated flex flex-col items-center gap-3 p-10 text-center">
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-surface text-3xl">
+        🏠
+      </div>
+      <h3 className="font-display text-xl">You haven't joined any rooms yet</h3>
+      <p className="max-w-sm text-sm text-muted-foreground">
+        Rooms are persistent leagues with friends. One word a day. Climb the local leaderboard.
+      </p>
+      <div className="mt-2 flex flex-wrap justify-center gap-2">
+        <Button onClick={onCreate}>
+          <Plus className="size-4" /> Create Room
+        </Button>
+        <Button variant="secondary" onClick={onJoin}>
+          <Hash className="size-4" /> Join with code
+        </Button>
+      </div>
+    </div>
   );
 }
