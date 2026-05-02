@@ -119,14 +119,14 @@ const PlayWordPickRoute = PlayWordPickRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlayWaitingRoute = PlayWaitingRouteImport.update({
-  id: '/waiting',
-  path: '/waiting',
-  getParentRoute: () => PlayRoute,
+  id: '/play/waiting',
+  path: '/play/waiting',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PlayThemedRoute = PlayThemedRouteImport.update({
-  id: '/themed',
-  path: '/themed',
-  getParentRoute: () => PlayRoute,
+  id: '/play/themed',
+  path: '/play/themed',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PlayRandomRoute = PlayRandomRouteImport.update({
   id: '/play/random',
@@ -384,6 +384,8 @@ export interface RootRouteChildren {
   PlayMatchesRoute: typeof PlayMatchesRoute
   PlayQuickRoute: typeof PlayQuickRoute
   PlayRandomRoute: typeof PlayRandomRoute
+  PlayThemedRoute: typeof PlayThemedRouteWithChildren
+  PlayWaitingRoute: typeof PlayWaitingRoute
   PlayWordPickRoute: typeof PlayWordPickRoute
   PlayYourTurnRoute: typeof PlayYourTurnRoute
   PlayIndexRoute: typeof PlayIndexRoute
@@ -505,17 +507,17 @@ declare module '@tanstack/react-router' {
     }
     '/play/waiting': {
       id: '/play/waiting'
-      path: '/waiting'
+      path: '/play/waiting'
       fullPath: '/play/waiting'
       preLoaderRoute: typeof PlayWaitingRouteImport
-      parentRoute: typeof PlayRoute
+      parentRoute: typeof rootRouteImport
     }
     '/play/themed': {
       id: '/play/themed'
-      path: '/themed'
+      path: '/play/themed'
       fullPath: '/play/themed'
       preLoaderRoute: typeof PlayThemedRouteImport
-      parentRoute: typeof PlayRoute
+      parentRoute: typeof rootRouteImport
     }
     '/play/random': {
       id: '/play/random'
@@ -610,6 +612,18 @@ const RoomsRouteChildren: RoomsRouteChildren = {
 
 const RoomsRouteWithChildren = RoomsRoute._addFileChildren(RoomsRouteChildren)
 
+interface PlayThemedRouteChildren {
+  PlayThemedThemeRoute: typeof PlayThemedThemeRoute
+}
+
+const PlayThemedRouteChildren: PlayThemedRouteChildren = {
+  PlayThemedThemeRoute: PlayThemedThemeRoute,
+}
+
+const PlayThemedRouteWithChildren = PlayThemedRoute._addFileChildren(
+  PlayThemedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
@@ -631,6 +645,8 @@ const rootRouteChildren: RootRouteChildren = {
   PlayMatchesRoute: PlayMatchesRoute,
   PlayQuickRoute: PlayQuickRoute,
   PlayRandomRoute: PlayRandomRoute,
+  PlayThemedRoute: PlayThemedRouteWithChildren,
+  PlayWaitingRoute: PlayWaitingRoute,
   PlayWordPickRoute: PlayWordPickRoute,
   PlayYourTurnRoute: PlayYourTurnRoute,
   PlayIndexRoute: PlayIndexRoute,
