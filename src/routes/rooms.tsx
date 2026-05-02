@@ -294,28 +294,29 @@ function RoomsPage() {
   }
 
   function handleJoin() {
-    const code = joinCode.trim().toUpperCase();
-    if (!code) return;
-    const found = publicRooms.find((r) => r.id.toUpperCase() === code);
-    if (found) {
-      setPublicRooms((prev) => prev.filter((r) => r.id !== found.id));
-      setMyRooms((prev) => [
-        {
-          ...found,
-          status: "active",
-          remaining: "11h 58m remaining",
-          position: found.members.length + 1,
-          total: found.members.length + 1,
-          isNew: true,
-        },
-        ...prev,
-      ]);
-      toast.success(`Joined ${found.name}`);
-    } else {
-      toast.success("Joined room!", { description: `Welcome to room ${code}.` });
-    }
+    if (!joinPreview) return;
+    const newRoomId = `r-join-${Date.now()}`;
+    const newRoom: MyRoom = {
+      id: newRoomId,
+      name: joinPreview.name,
+      emoji: joinPreview.emoji,
+      activity: "live",
+      description: `${joinPreview.privacy === "public" ? "Public" : "Private"} · ${joinPreview.theme} · ${joinPreview.timeLimit}`,
+      members: [currentUser, joinPreview.host, ...players.slice(0, Math.max(0, joinPreview.members - 2))],
+      theme: joinPreview.theme,
+      status: "active",
+      remaining: "11h 58m remaining",
+      position: joinPreview.members + 1,
+      total: joinPreview.members + 1,
+      isNew: true,
+    };
+    setMyRooms((prev) => [newRoom, ...prev]);
+    const joinedName = joinPreview.name;
     setJoinOpen(false);
     setJoinCode("");
+    setJoinPreview(null);
+    toast.success(`You joined ${joinedName}!`);
+    navigate({ to: "/rooms/$roomId", params: { roomId: newRoomId } });
   }
 
   function joinPublic(room: PublicRoom) {
