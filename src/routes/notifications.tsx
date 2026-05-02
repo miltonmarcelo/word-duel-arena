@@ -176,9 +176,9 @@ function NotificationsPage() {
           <EmptyState />
         ) : (
           <div className="space-y-6">
-            <Section title="Today"     items={groups.today}     onRead={markRead} onDismiss={dismiss} />
-            <Section title="Yesterday" items={groups.yesterday} onRead={markRead} onDismiss={dismiss} />
-            <Section title="Earlier"   items={groups.earlier}   onRead={markRead} onDismiss={dismiss} />
+            <Section title="Today"     items={groups.today}     onRead={markRead} onDismiss={dismiss} onAcceptFriend={acceptFriend} />
+            <Section title="Yesterday" items={groups.yesterday} onRead={markRead} onDismiss={dismiss} onAcceptFriend={acceptFriend} />
+            <Section title="Earlier"   items={groups.earlier}   onRead={markRead} onDismiss={dismiss} onAcceptFriend={acceptFriend} />
           </div>
         )}
       </div>
