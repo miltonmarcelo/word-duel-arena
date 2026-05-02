@@ -304,6 +304,54 @@ function ProfilePage() {
               </ul>
             </Panel>
 
+            {/* Friends */}
+            <Panel>
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                    Network
+                  </p>
+                  <h2 className="font-display text-2xl">
+                    Friends{" "}
+                    <span className="text-base font-sans text-muted-foreground">
+                      · {friendsCount}
+                    </span>
+                  </h2>
+                </div>
+                <Link
+                  to="/friends"
+                  className="text-xs font-semibold text-primary hover:underline"
+                >
+                  View all
+                </Link>
+              </div>
+
+              {/* Horizontal scrollable row of up to 6 friends */}
+              <div className="-mx-1 flex gap-3 overflow-x-auto pb-2">
+                {friendsList.slice(0, 6).map((f) => (
+                  <Link
+                    key={f.id}
+                    to="/profile"
+                    search={{ viewing: f.id, rel: "none" as const }}
+                    className="surface-soft flex w-24 shrink-0 flex-col items-center gap-2 rounded-xl p-3 text-center transition-transform hover:-translate-y-0.5"
+                  >
+                    <Avatar player={f} size={44} />
+                    <p className="w-full truncate text-xs font-semibold">
+                      {f.name.split(" ")[0]}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+
+              {isOwnProfile && (
+                <Link to="/friends" className="mt-4 block">
+                  <Button variant="secondary" size="sm" className="w-full gap-2">
+                    <UserPlus className="h-4 w-4" /> Find more players
+                  </Button>
+                </Link>
+              )}
+            </Panel>
+
             {/* Achievements */}
             <Panel>
               <div className="mb-3 flex items-center justify-between">
