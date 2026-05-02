@@ -515,12 +515,14 @@ function Kpi({
   delta,
   tone,
   highlight,
+  className,
 }: {
   label: string;
   value: string;
   delta: string;
   tone: "mint" | "lilac" | "muted";
   highlight?: boolean;
+  className?: string;
 }) {
   const toneClass =
     tone === "mint" ? "text-primary" : tone === "lilac" ? "text-accent" : "text-muted-foreground";
