@@ -147,6 +147,42 @@ function RoomHub() {
   const code = useMemo(() => roomCodeFor(room.id), [room]);
   const [copied, setCopied] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
+  const navigate = useNavigate();
+
+  // Settings sheet
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [closeRoomOpen, setCloseRoomOpen] = useState(false);
+  const [sName, setSName] = useState(room.name);
+  const [sThemeId, setSThemeId] = useState<(typeof SETTINGS_THEMES)[number]["id"]>("general");
+  const [sPrivacy, setSPrivacy] = useState<"public" | "private">("public");
+  const [sTimeLimit, setSTimeLimit] = useState<(typeof SETTINGS_TIMES)[number]["id"]>("12h");
+  const [sMaxMembers, setSMaxMembers] = useState<SettingsMaxMembers>(8);
+
+  // Reset settings form whenever the sheet opens
+  useEffect(() => {
+    if (settingsOpen) {
+      setSName(room.name);
+      setSThemeId("general");
+      setSPrivacy("public");
+      setSTimeLimit("12h");
+      setSMaxMembers(8);
+    }
+  }, [settingsOpen, room.name]);
+
+  function handleSaveSettings() {
+    setSettingsOpen(false);
+    toast.success("Room settings saved", {
+      description: `${sName.trim() || room.name} updated.`,
+    });
+  }
+
+  function handleCloseRoom() {
+    setCloseRoomOpen(false);
+    setSettingsOpen(false);
+    toast.success("Room closed.");
+    navigate({ to: "/rooms" });
+  }
+
 
   // Build mock members for the hub
   const members: RoomMember[] = useMemo(() => {
