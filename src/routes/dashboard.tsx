@@ -349,37 +349,10 @@ function Dashboard() {
 
           {/* RIGHT (1/3) */}
           <div className="space-y-6">
-            {/* Streak */}
-            <Card>
-              <div className="mb-4 flex items-center justify-between">
-                <span className="chip chip-lilac">
-                  <Flame className="size-3" /> Streak
-                </span>
-                <span className="text-xs text-muted-foreground">Best: 27</span>
-              </div>
-              <p className="font-display text-6xl text-gradient-mint leading-none">12</p>
-              <p className="mt-1 text-sm text-muted-foreground">days in a row</p>
-              <div className="mt-4 grid grid-cols-7 gap-1.5">
-                {Array.from({ length: 7 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className={`h-8 rounded-md ${
-                      i < 5
-                        ? "bg-primary"
-                        : i === 5
-                          ? "bg-primary/40 ring-2 ring-primary"
-                          : "bg-surface"
-                    }`}
-                    title={["M", "T", "W", "T", "F", "S", "S"][i]}
-                  />
-                ))}
-              </div>
-              <div className="mt-3 flex justify-between text-[10px] uppercase tracking-wider text-muted-foreground">
-                {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
-                  <span key={i}>{d}</span>
-                ))}
-              </div>
-            </Card>
+            {/* Streak — hidden on mobile (rendered above KPIs section instead) */}
+            <div className="hidden md:block">
+              <StreakCard />
+            </div>
 
             {/* Progress + badges */}
             <Card>
