@@ -147,6 +147,9 @@ function RoomHub() {
   const code = useMemo(() => roomCodeFor(room.id), [room]);
   const [copied, setCopied] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
+  // Host-leave flow
+  const [hostLeaveOpen, setHostLeaveOpen] = useState(false);
+  const [transferTarget, setTransferTarget] = useState<RoomMember | null>(null);
   const navigate = useNavigate();
 
   // Settings sheet
@@ -502,7 +505,14 @@ function RoomHub() {
             <Button
               variant="outline"
               className="border-destructive/50 text-destructive hover:bg-destructive/10 hover:text-destructive"
-              onClick={() => setLeaveOpen(true)}
+              onClick={() => {
+                if (isHost) {
+                  setTransferTarget(null);
+                  setHostLeaveOpen(true);
+                } else {
+                  setLeaveOpen(true);
+                }
+              }}
             >
               <LogOut className="size-4" /> Leave Room
             </Button>
@@ -708,7 +718,7 @@ function RoomHub() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Leave confirm */}
+      {/* Leave confirm — MEMBER */}
       <AlertDialog open={leaveOpen} onOpenChange={setLeaveOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -716,17 +726,94 @@ function RoomHub() {
               Leave {room.name}?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              You'll lose your spot in the room leaderboard. You can rejoin later with the room code.
+              You will lose your spot in the leaderboard. You can rejoin later with the room code.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => toast.success(`Left ${room.name}`)}
+              onClick={() => {
+                setLeaveOpen(false);
+                toast.success(`You left ${room.name}.`);
+                navigate({ to: "/rooms" });
+              }}
             >
               Leave Room
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Leave flow — HOST: pick a successor, then confirm */}
+      <AlertDialog
+        open={hostLeaveOpen}
+        onOpenChange={(v) => {
+          setHostLeaveOpen(v);
+          if (!v) setTransferTarget(null);
+        }}
+      >
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-display text-2xl">
+              {transferTarget
+                ? `Transfer host to ${transferTarget.name} and leave?`
+                : "You are the host"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {transferTarget
+                ? `${transferTarget.name} will manage ${room.name} after you leave. This can't be undone from here.`
+                : "Before leaving, choose a new host."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          {!transferTarget && (
+            <div className="max-h-[320px] overflow-y-auto rounded-xl border border-border divide-y divide-border">
+              {members
+                .filter((m) => m.id !== currentUser.id)
+                .map((m) => (
+                  <div key={m.id} className="flex items-center gap-3 p-3">
+                    <Avatar player={m} size={36} />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold">{m.name}</p>
+                      <p className="truncate text-[11px] text-muted-foreground">
+                        {m.handle} · {m.rating}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => setTransferTarget(m)}
+                    >
+                      <Crown className="size-3.5 text-warning" /> Make host
+                    </Button>
+                  </div>
+                ))}
+            </div>
+          )}
+
+          <AlertDialogFooter>
+            {transferTarget ? (
+              <>
+                <Button variant="ghost" onClick={() => setTransferTarget(null)}>
+                  Back
+                </Button>
+                <AlertDialogAction
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  onClick={() => {
+                    const name = transferTarget.name;
+                    setHostLeaveOpen(false);
+                    setTransferTarget(null);
+                    toast.success(`${name} is the new host. You left ${room.name}.`);
+                    navigate({ to: "/rooms" });
+                  }}
+                >
+                  Confirm & Leave
+                </AlertDialogAction>
+              </>
+            ) : (
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+            )}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
