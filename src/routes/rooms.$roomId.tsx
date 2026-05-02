@@ -268,7 +268,12 @@ function RoomHub() {
             </DropdownMenuContent>
           </DropdownMenu>
           {isHost && (
-            <Button variant="ghost" size="icon" aria-label="Room settings">
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Room settings"
+              onClick={() => setSettingsOpen(true)}
+            >
               <Settings className="size-4" />
             </Button>
           )}
