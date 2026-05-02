@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Award,
   Calendar,
+  Check,
+  Clock,
   Edit3,
   Flame,
   Globe2,
@@ -9,8 +11,11 @@ import {
   Share2,
   Sparkles,
   Trophy,
+  UserPlus,
+  Users,
   Zap,
 } from "lucide-react";
+import { z } from "zod";
 import { AppShell } from "@/components/AppShell";
 import { Avatar } from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
@@ -18,8 +23,14 @@ import { Progress } from "@/components/ui/progress";
 import { achievements, currentUser, players, recentMatches } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
+const profileSearchSchema = z.object({
+  viewing: z.string().optional(),
+  rel: z.enum(["none", "sent", "friend"]).optional(),
+});
+
 export const Route = createFileRoute("/profile")({
   head: () => ({ meta: [{ title: "Profile — Word Clash" }] }),
+  validateSearch: profileSearchSchema,
   component: ProfilePage,
 });
 
