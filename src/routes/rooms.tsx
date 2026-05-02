@@ -68,6 +68,17 @@ function generateInviteCode() {
   return `CLASH-${s}`;
 }
 
+function formatJoinCode(raw: string) {
+  const cleaned = raw.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
+  if (cleaned.length <= 4) return cleaned;
+  return `${cleaned.slice(0, 4)}-${cleaned.slice(4)}`;
+}
+
+const MOCK_PREVIEW_HOSTS = ["Mira Chen", "Diego Alvarez", "Yuki Tanaka", "Nora Lindqvist"];
+const MOCK_PREVIEW_THEMES = ["Cinema", "Music", "Sports", "Science", "Food"];
+const MOCK_PREVIEW_EMOJI = ["🎬", "🎵", "🏅", "🔬", "🍜"];
+const MOCK_PREVIEW_TIMES = ["8h per word", "12h per word", "24h per word"];
+
 type RoomStatus = "active" | "played" | "waiting";
 
 type MyRoom = Room & {
