@@ -45,7 +45,7 @@ function Dashboard() {
     .filter((p) => p.id !== currentUser.id)
     .slice(0, 4);
   // Mock pending friend requests count
-  const pendingFriendRequests = 2;
+  const pendingFriendRequests: number = 2;
   const pendingChallenges = notifications.filter((n) => n.type === "challenge");
   const recentNotifs = notifications.filter((n) => n.type !== "challenge").slice(0, 3);
   const unlocked = achievements.filter((a) => a.unlocked);
