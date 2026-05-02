@@ -329,7 +329,13 @@ function RoomHub() {
           {wordState === "expired" && (
             <ExpiredWord members={members} correctWord={correctWord} />
           )}
-          {wordState === "waiting" && <WaitingWord isHost={isHost} canLaunch={true} />}
+          {wordState === "waiting" && (
+            <WaitingWord
+              isHost={isHost}
+              canLaunch={!cooldownActive}
+              onLaunch={() => setLaunchOpen(true)}
+            />
+          )}
         </TabsContent>
 
         {/* TAB 2 — Leaderboard */}
