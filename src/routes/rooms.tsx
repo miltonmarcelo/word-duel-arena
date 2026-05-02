@@ -353,7 +353,7 @@ function RoomsPage() {
 
       {/* Create Room Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-display text-2xl">Create a room</DialogTitle>
             <DialogDescription>
@@ -362,19 +362,23 @@ function RoomsPage() {
           </DialogHeader>
 
           <div className="space-y-5 py-2">
+            {/* Name */}
             <div>
-              <Label htmlFor="room-name">Room name</Label>
+              <Label htmlFor="room-name">
+                Room name <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="room-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Wordsmiths"
+                placeholder="e.g. Friday Night Clash"
                 className="mt-1.5"
                 maxLength={32}
                 autoFocus
               />
             </div>
 
+            {/* Theme */}
             <div>
               <Label>Theme</Label>
               <div className="mt-1.5 flex flex-wrap gap-2">
@@ -400,30 +404,7 @@ function RoomsPage() {
               </div>
             </div>
 
-            <div>
-              <Label>Max players</Label>
-              <div className="mt-1.5 grid grid-cols-4 gap-2">
-                {MAX_PLAYERS.map((n) => {
-                  const active = n === maxPlayers;
-                  return (
-                    <button
-                      key={n}
-                      type="button"
-                      onClick={() => setMaxPlayers(n)}
-                      className={cn(
-                        "rounded-xl border-2 py-2 text-sm font-display transition",
-                        active
-                          ? "border-primary bg-primary/10 text-foreground"
-                          : "border-border text-muted-foreground hover:border-primary/40",
-                      )}
-                    >
-                      {n}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
+            {/* Privacy */}
             <div>
               <Label>Privacy</Label>
               <div className="mt-1.5 grid grid-cols-2 gap-2">
@@ -454,6 +435,91 @@ function RoomsPage() {
                         <p className="text-sm font-semibold">{opt.label}</p>
                         <p className="text-[11px] text-muted-foreground">{opt.desc}</p>
                       </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Invite code preview when Private */}
+              {privacy === "private" && (
+                <div className="mt-3 rounded-xl border border-accent/30 bg-accent/5 p-3">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent">
+                    Invite code
+                  </p>
+                  <div className="mt-1.5 flex items-center justify-between gap-2">
+                    <code className="font-display text-lg tracking-widest text-foreground">
+                      {inviteCode}
+                    </code>
+                    <button
+                      type="button"
+                      onClick={copyInvite}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs font-semibold text-muted-foreground transition hover:border-accent/50 hover:text-foreground"
+                    >
+                      {codeCopied ? (
+                        <>
+                          <Check className="size-3.5 text-correct" /> Copied
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="size-3.5" /> Copy
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <p className="mt-1.5 text-[11px] text-muted-foreground">
+                    Share this with friends so they can join.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Word time limit */}
+            <div>
+              <Label>Word time limit</Label>
+              <div className="mt-1.5 grid grid-cols-3 gap-2">
+                {TIME_LIMITS.map((t) => {
+                  const active = t.id === timeLimit;
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => setTimeLimit(t.id)}
+                      className={cn(
+                        "rounded-xl border-2 py-2.5 text-sm font-display transition",
+                        active
+                          ? "border-primary bg-primary/10 text-foreground"
+                          : "border-border text-muted-foreground hover:border-primary/40",
+                      )}
+                    >
+                      {t.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-1.5 text-[11px] text-muted-foreground">
+                This is also the minimum wait time before launching the next word.
+              </p>
+            </div>
+
+            {/* Max members */}
+            <div>
+              <Label>Max members</Label>
+              <div className="mt-1.5 grid grid-cols-4 gap-2">
+                {MAX_MEMBERS_OPTS.map((opt) => {
+                  const active = opt.value === maxMembers;
+                  return (
+                    <button
+                      key={String(opt.value)}
+                      type="button"
+                      onClick={() => setMaxMembers(opt.value)}
+                      className={cn(
+                        "rounded-xl border-2 py-2 text-sm font-display transition",
+                        active
+                          ? "border-primary bg-primary/10 text-foreground"
+                          : "border-border text-muted-foreground hover:border-primary/40",
+                      )}
+                    >
+                      {opt.label}
                     </button>
                   );
                 })}
