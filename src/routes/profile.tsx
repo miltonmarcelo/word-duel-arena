@@ -97,30 +97,38 @@ function ProfilePage() {
           <div className="relative flex flex-col items-center gap-4 text-center sm:flex-row sm:items-end sm:justify-between sm:gap-6 sm:text-left">
             <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-end sm:gap-5">
               <div className="rounded-full ring-4 ring-card">
-                <Avatar player={currentUser} size={88} ring="mint" />
+                <Avatar player={viewedPlayer} size={88} ring="mint" />
               </div>
               <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                  <h1 className="font-display text-3xl leading-none sm:text-4xl">{currentUser.name}</h1>
+                  <h1 className="font-display text-3xl leading-none sm:text-4xl">{viewedPlayer.name}</h1>
                   <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
-                    Lvl {currentUser.level}
+                    Lvl {viewedPlayer.level}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground sm:text-sm">
-                  {currentUser.handle} · <Globe2 className="-mt-0.5 inline h-3 w-3" /> {currentUser.country}
+                  {viewedPlayer.handle} · <Globe2 className="-mt-0.5 inline h-3 w-3" /> {viewedPlayer.country}
                 </p>
-                <p className="mx-auto max-w-md text-sm text-foreground/80 sm:mx-0">{BIO}</p>
+                {isOwnProfile && (
+                  <p className="mx-auto max-w-md text-sm text-foreground/80 sm:mx-0">{BIO}</p>
+                )}
               </div>
             </div>
             <div className="flex w-full gap-2 sm:w-auto">
-              <Button variant="secondary" size="sm" className="flex-1 gap-1.5 sm:flex-none">
-                <Share2 className="h-4 w-4" /> Share
-              </Button>
-              <Button asChild size="sm" className="flex-1 gap-1.5 sm:flex-none">
-                <Link to="/settings">
-                  <Edit3 className="h-4 w-4" /> Edit
-                </Link>
-              </Button>
+              {isOwnProfile ? (
+                <>
+                  <Button variant="secondary" size="sm" className="flex-1 gap-1.5 sm:flex-none">
+                    <Share2 className="h-4 w-4" /> Share
+                  </Button>
+                  <Button asChild size="sm" className="flex-1 gap-1.5 sm:flex-none">
+                    <Link to="/settings">
+                      <Edit3 className="h-4 w-4" /> Edit
+                    </Link>
+                  </Button>
+                </>
+              ) : (
+                <FriendActionButton relationship={relationship} />
+              )}
             </div>
           </div>
         </header>
