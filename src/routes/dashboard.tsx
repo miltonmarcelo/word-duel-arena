@@ -302,7 +302,6 @@ function Dashboard() {
               />
               <div className="divide-y divide-border">
                 {recentMatches.slice(0, 3).map((m, idx) => (
-                  <div key={m.id} className={idx >= 2 ? "hidden md:block" : ""}>
                   <Link
                     key={m.id}
                     to="/match/result"
@@ -314,43 +313,9 @@ function Dashboard() {
                       opponent: m.opponent.name,
                       from: "history",
                     }}
-                    className="group flex items-center gap-4 py-3 first:pt-0 transition-colors hover:bg-surface/50 -mx-2 px-2 rounded-lg"
-                  >
-                    <Avatar player={m.opponent} size={36} />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold group-hover:text-primary transition-colors">
-                        vs {m.opponent.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {m.word} · {m.guesses} guesses · {m.date}
-                      </p>
-                    </div>
-                    <span
-                      className={`chip ${
-                        m.result === "win" ? "" : m.result === "loss" ? "chip-muted" : "chip-lilac"
-                      }`}
-                    >
-                      {m.result}
-                    </span>
-                    <span className="hidden text-sm font-semibold tabular-nums sm:inline">
-                      +{m.xp} XP
-                    </span>
-                  </Link>
-                  </div>
-                )).slice(0, 0) /* placeholder unused */}
-                {recentMatches.slice(0, 3).map((m, idx) => (
-                  <Link
-                    key={m.id}
-                    to="/match/result"
-                    search={{
-                      outcome: m.result,
-                      word: m.word,
-                      attempts: m.guesses,
-                      pointsEarned: m.xp,
-                      opponent: m.opponent.name,
-                      from: "history",
-                    }}
-                    className="group flex items-center gap-4 py-3 first:pt-0 transition-colors hover:bg-surface/50 -mx-2 px-2 rounded-lg"
+                    className={`group items-center gap-4 py-3 first:pt-0 transition-colors hover:bg-surface/50 -mx-2 px-2 rounded-lg ${
+                      idx >= 2 ? "hidden md:flex" : "flex"
+                    }`}
                   >
                     <Avatar player={m.opponent} size={36} />
                     <div className="min-w-0 flex-1">
