@@ -364,7 +364,7 @@ function ProfilePage() {
                   {unlocked.length}/{achievements.length}
                 </span>
               </div>
-              <div className="grid grid-cols-3 gap-2.5">
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
                 {achievements.map((a) => (
                   <div
                     key={a.id}
