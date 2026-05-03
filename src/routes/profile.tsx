@@ -457,7 +457,7 @@ function StatTile({
           <Icon className="h-3.5 w-3.5" />
         </div>
       </div>
-      <p className="mt-2 font-display text-2xl sm:text-3xl">{value}</p>
+      <p className="mt-2 min-w-0 truncate font-display text-xl sm:text-2xl md:text-3xl">{value}</p>
       <p className="mt-0.5 text-[11px] font-semibold" style={{ color }}>
         {sub}
       </p>
