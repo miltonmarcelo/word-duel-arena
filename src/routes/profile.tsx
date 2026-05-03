@@ -471,9 +471,9 @@ function StatTile({
   );
 }
 
-function RecordCell({ label, value, color }: { label: string; value: number; color: string }) {
+function RecordCell({ label, value, color, className }: { label: string; value: number; color: string; className?: string }) {
   return (
-    <div className="rounded-xl border border-border p-3 text-center">
+    <div className={cn("rounded-xl border border-border p-3 text-center", className)}>
       <p className="font-display text-2xl" style={{ color }}>
         {value}
       </p>
