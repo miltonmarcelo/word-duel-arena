@@ -601,7 +601,7 @@ function InteractiveKeyboard({
   keyStates: Record<string, TileState>;
 }) {
   return (
-    <div className="mx-auto w-full max-w-[560px]">
+    <div className="glass mx-auto w-full max-w-[560px] rounded-2xl p-3">
       <div className="flex flex-col gap-1.5">
         {KEY_ROWS.map((row, i) => (
           <div key={i} className="flex justify-center gap-1 sm:gap-1.5">
