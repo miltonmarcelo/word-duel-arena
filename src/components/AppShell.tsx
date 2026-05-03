@@ -118,7 +118,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </main>
 
       {/* Mobile bottom tabs */}
-      <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-sidebar/90 backdrop-blur-xl md:hidden">
+      <nav className="glass fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border md:hidden">
         {mobileTabs.map(({ to, label, icon: Icon }) => {
           const active = pathname === to || pathname.startsWith(to + "/");
           return (
