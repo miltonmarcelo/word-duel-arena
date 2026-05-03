@@ -85,7 +85,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Mobile top bar */}
-      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-background/75 px-4 py-3 backdrop-blur-xl md:hidden">
+      <header className="glass sticky top-0 z-20 flex items-center justify-between border-b border-border px-4 py-3 md:hidden">
         <Logo />
         <div className="flex items-center gap-2">
           <Link
