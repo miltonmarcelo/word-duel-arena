@@ -546,8 +546,7 @@ function OpponentStatusBadge({
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-2 rounded-full border px-2 py-1 sm:pr-3",
-        "border-border bg-background/60",
+        "glass inline-flex items-center gap-2 rounded-full px-4 py-2 sm:pr-4",
       )}
     >
       {opponent ? (
