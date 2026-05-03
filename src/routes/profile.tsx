@@ -377,7 +377,7 @@ function ProfilePage() {
                     )}
                   >
                     <div className={cn("text-2xl", !a.unlocked && "grayscale")}>{a.icon}</div>
-                    <p className="line-clamp-1 text-[10px] font-semibold">{a.name}</p>
+                    <p className="truncate text-[10px] font-semibold leading-tight">{a.name}</p>
                     {!a.unlocked && (
                       <Lock className="absolute right-1.5 top-1.5 h-2.5 w-2.5 text-muted-foreground" />
                     )}
