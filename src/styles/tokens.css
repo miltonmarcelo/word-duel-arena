@@ -92,6 +92,32 @@
   --gradient-lilac: linear-gradient(135deg, oklch(0.74 0.18 305), oklch(0.86 0.1 305));
   --gradient-card: linear-gradient(180deg, var(--surface), var(--surface-soft));
 
+  /* Liquid glass (frosted) ------------------------------------------------ */
+  --glass-bg: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--surface) 70%, transparent),
+    color-mix(in oklch, var(--surface-soft) 55%, transparent)
+  );
+  --glass-bg-strong: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--surface) 85%, transparent),
+    color-mix(in oklch, var(--surface-soft) 75%, transparent)
+  );
+  --glass-border: color-mix(in oklch, var(--foreground) 14%, transparent);
+  --glass-highlight: color-mix(in oklch, white 55%, transparent);
+  --glass-blur: 18px;
+  --glass-saturate: 160%;
+  --glass-shadow:
+    0 1px 0 0 var(--glass-highlight) inset,
+    0 -1px 0 0 color-mix(in oklch, black 18%, transparent) inset,
+    0 10px 30px -12px color-mix(in oklch, black 35%, transparent);
+  --glass-sheen: linear-gradient(
+    180deg,
+    color-mix(in oklch, white 22%, transparent) 0%,
+    color-mix(in oklch, white 4%, transparent) 38%,
+    transparent 60%
+  );
+
   /* Typography ------------------------------------------------------------ */
   --font-display: "DM Serif Display", "Times New Roman", serif;
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
