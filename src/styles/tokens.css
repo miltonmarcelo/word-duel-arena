@@ -164,4 +164,28 @@
   --sidebar-accent: var(--surface);
   --sidebar-accent-foreground: var(--foreground);
   --sidebar-border: var(--border);
+
+  /* Liquid glass — dark tuning */
+  --glass-bg: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--surface) 55%, transparent),
+    color-mix(in oklch, var(--surface-soft) 40%, transparent)
+  );
+  --glass-bg-strong: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--surface) 75%, transparent),
+    color-mix(in oklch, var(--surface-soft) 60%, transparent)
+  );
+  --glass-border: color-mix(in oklch, white 14%, transparent);
+  --glass-highlight: color-mix(in oklch, white 18%, transparent);
+  --glass-shadow:
+    0 1px 0 0 var(--glass-highlight) inset,
+    0 -1px 0 0 color-mix(in oklch, black 50%, transparent) inset,
+    0 12px 40px -14px color-mix(in oklch, black 70%, transparent);
+  --glass-sheen: linear-gradient(
+    180deg,
+    color-mix(in oklch, white 10%, transparent) 0%,
+    color-mix(in oklch, white 2%, transparent) 40%,
+    transparent 65%
+  );
 }
