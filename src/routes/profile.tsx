@@ -202,10 +202,10 @@ function ProfilePage() {
                 </div>
                 <span className="text-xs text-muted-foreground">{total} matches</span>
               </div>
-              <div className="grid grid-cols-3 gap-3">
-                <RecordCell label="Wins"   value={wins}   color="var(--correct)" />
-                <RecordCell label="Draws"  value={draws}  color="var(--warning)" />
-                <RecordCell label="Losses" value={losses} color="var(--absent)"  />
+              <div className="flex gap-2">
+                <RecordCell label="Wins"   value={wins}   color="var(--correct)" className="flex-1 min-w-0" />
+                <RecordCell label="Draws"  value={draws}  color="var(--warning)" className="flex-1 min-w-0" />
+                <RecordCell label="Losses" value={losses} color="var(--absent)"  className="flex-1 min-w-0" />
               </div>
               {/* Stacked bar */}
               <div className="mt-4 flex h-2 w-full overflow-hidden rounded-full bg-muted">
