@@ -95,10 +95,10 @@ function Dashboard() {
         </section>
 
         {/* KPI strip — horizontal scroll on mobile, grid on desktop */}
-        <section className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0">
-          <Kpi label="This week" value="2,480" delta="+820 XP" tone="mint" className="min-w-[160px] shrink-0 sm:min-w-0" />
-          <Kpi label="All-time" value="64.8k" delta="412 matches" tone="muted" className="min-w-[160px] shrink-0 sm:min-w-0" />
-          <Kpi label="Global rank" value={`#${myRank}`} delta="↑ 14 this week" tone="mint" highlight className="min-w-[160px] shrink-0 sm:min-w-0" />
+        <section className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0">
+          <Kpi label="This week" value="2,480" delta="+820 XP" tone="mint" className="min-w-[150px] shrink-0 md:min-w-0" />
+          <Kpi label="All-time" value="64.8k" delta="412 matches" tone="muted" className="min-w-[150px] shrink-0 md:min-w-0" />
+          <Kpi label="Global rank" value={`#${myRank}`} delta="↑ 14 this week" tone="mint" highlight className="min-w-[150px] shrink-0 md:min-w-0" />
         </section>
 
         {/* Mobile-only Streak (appears right after KPIs on mobile) */}
