@@ -112,7 +112,7 @@ function ResultPage() {
         {/* === HERO BANNER === */}
         <div
           className={cn(
-            "surface-elevated relative overflow-hidden p-6 text-center md:p-10",
+            "glass surface-elevated relative overflow-hidden p-6 text-center md:p-10",
             OUTCOME === "win" && "glow-mint",
             OUTCOME === "loss" && "border-[var(--destructive)]/30",
           )}

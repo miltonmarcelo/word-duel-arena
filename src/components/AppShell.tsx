@@ -47,7 +47,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-border bg-sidebar md:flex">
+      <aside className="glass fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-border md:flex">
         <div className="px-6 pt-7 pb-5">
           <Logo />
         </div>
@@ -85,7 +85,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Mobile top bar */}
-      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-background/75 px-4 py-3 backdrop-blur-xl md:hidden">
+      <header className="glass sticky top-0 z-20 flex items-center justify-between border-b border-border px-4 py-3 md:hidden">
         <Logo />
         <div className="flex items-center gap-2">
           <Link
@@ -118,7 +118,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </main>
 
       {/* Mobile bottom tabs */}
-      <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-sidebar/90 backdrop-blur-xl md:hidden">
+      <nav className="glass fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border md:hidden">
         {mobileTabs.map(({ to, label, icon: Icon }) => {
           const active = pathname === to || pathname.startsWith(to + "/");
           return (
