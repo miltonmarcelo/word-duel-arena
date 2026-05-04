@@ -1,20 +1,29 @@
+import { useState } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import {
+  BarChart3,
   Bell,
+  BookOpen,
   Home,
   LayoutDashboard,
+  Menu,
   Settings,
   Swords,
   Trophy,
   User,
   Users,
   Users2,
-  BarChart3,
-  BookOpen,
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { ThemeToggle } from "./ThemeToggle";
 import { Avatar } from "./Avatar";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "./ui/sheet";
 import { currentUser } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
@@ -44,8 +53,9 @@ const hasPendingFriendRequests = true;
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation();
+  const [moreOpen, setMoreOpen] = useState(false);
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-background text-foreground">
       {/* Desktop sidebar */}
       <aside className="glass fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-border md:flex">
         <div className="px-6 pt-7 pb-5">
@@ -111,14 +121,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Main */}
-      <main className="md:pl-64">
-        <div key={pathname} className="animate-fade-up mx-auto max-w-6xl px-4 pb-28 pt-6 md:px-8 md:pb-14 md:pt-10">
+      <main className="w-full max-w-full overflow-x-hidden md:pl-64">
+        <div
+          key={pathname}
+          className="animate-fade-up mx-auto w-full max-w-6xl px-4 pt-6 md:px-8 md:pt-10"
+          style={{
+            paddingBottom: "calc(7rem + env(safe-area-inset-bottom))",
+          }}
+        >
           {children}
         </div>
       </main>
 
-      {/* Mobile bottom tabs */}
-      <nav className="glass fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border md:hidden">
+      {/* Mobile bottom tabs — fixed to viewport */}
+      <nav
+        className="glass fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t border-border md:hidden"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
         {mobileTabs.map(({ to, label, icon: Icon }) => {
           const active = pathname === to || pathname.startsWith(to + "/");
           return (
@@ -136,6 +155,44 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </Link>
           );
         })}
+        <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
+          <SheetTrigger asChild>
+            <button
+              type="button"
+              className="flex flex-col items-center gap-1 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground transition-colors"
+              aria-label="More menu"
+            >
+              <Menu className="size-5" />
+              More
+            </button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-80 max-w-[85vw] overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle>Menu</SheetTitle>
+            </SheetHeader>
+            <nav className="mt-4 flex flex-col gap-1">
+              {nav.map(({ to, label, icon: Icon }) => {
+                const active = pathname === to || pathname.startsWith(to + "/");
+                return (
+                  <Link
+                    key={to}
+                    to={to}
+                    onClick={() => setMoreOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+                      active
+                        ? "bg-primary/12 text-primary"
+                        : "text-foreground hover:bg-surface-elevated",
+                    )}
+                  >
+                    <Icon className="size-4" />
+                    <span>{label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </SheetContent>
+        </Sheet>
       </nav>
     </div>
   );
