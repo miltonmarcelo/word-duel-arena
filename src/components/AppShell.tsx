@@ -55,89 +55,88 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation();
   const [moreOpen, setMoreOpen] = useState(false);
   return (
-    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-background text-foreground">
-      {/* Desktop sidebar */}
-      <aside className="glass fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-border md:flex">
-        <div className="px-6 pt-7 pb-5">
-          <Logo />
-        </div>
-        <nav className="flex-1 space-y-1 px-3 py-2">
-          {nav.map(({ to, label, icon: Icon }) => {
-            const active = pathname === to || pathname.startsWith(to + "/");
-            return (
-              <Link
-                key={to}
-                to={to}
-                className={cn(
-                  "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                  active
-                    ? "bg-primary/12 text-primary shadow-[inset_0_0_0_1px_color-mix(in_oklch,var(--primary)_28%,transparent)]"
-                    : "text-muted-foreground hover:bg-surface-elevated hover:text-foreground hover:translate-x-0.5",
-                )}
-              >
-                <Icon className={cn("size-4 transition-transform", active && "scale-110")} />
-                <span>{label}</span>
-                {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_0_4px_color-mix(in_oklch,var(--primary)_18%,transparent)]" />}
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="border-t border-border p-4">
-          <div className="mb-3 flex items-center gap-3 rounded-xl bg-surface-soft p-2.5">
-            <Avatar player={currentUser} size={40} ring="mint" />
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold">{currentUser.name}</p>
-              <p className="truncate text-xs text-muted-foreground">Lvl {currentUser.level} · {currentUser.rating}</p>
-            </div>
+    <>
+      <div className="min-h-screen w-full max-w-full bg-background text-foreground">
+        {/* Desktop sidebar */}
+        <aside className="glass fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-border md:flex">
+          <div className="px-6 pt-7 pb-5">
+            <Logo />
           </div>
-          <ThemeToggle className="w-full !rounded-xl" />
-        </div>
-      </aside>
+          <nav className="flex-1 space-y-1 px-3 py-2">
+            {nav.map(({ to, label, icon: Icon }) => {
+              const active = pathname === to || pathname.startsWith(to + "/");
+              return (
+                <Link
+                  key={to}
+                  to={to}
+                  className={cn(
+                    "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                    active
+                      ? "bg-primary/12 text-primary shadow-[inset_0_0_0_1px_color-mix(in_oklch,var(--primary)_28%,transparent)]"
+                      : "text-muted-foreground hover:bg-surface-elevated hover:text-foreground hover:translate-x-0.5",
+                  )}
+                >
+                  <Icon className={cn("size-4 transition-transform", active && "scale-110")} />
+                  <span>{label}</span>
+                  {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_0_4px_color-mix(in_oklch,var(--primary)_18%,transparent)]" />}
+                </Link>
+              );
+            })}
+          </nav>
+          <div className="border-t border-border p-4">
+            <div className="mb-3 flex items-center gap-3 rounded-xl bg-surface-soft p-2.5">
+              <Avatar player={currentUser} size={40} ring="mint" />
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold">{currentUser.name}</p>
+                <p className="truncate text-xs text-muted-foreground">Lvl {currentUser.level} · {currentUser.rating}</p>
+              </div>
+            </div>
+            <ThemeToggle className="w-full !rounded-xl" />
+          </div>
+        </aside>
 
-      {/* Mobile top bar */}
-      <header className="glass sticky top-0 z-20 flex items-center justify-between border-b border-border px-4 py-3 md:hidden">
-        <Logo />
-        <div className="flex items-center gap-2">
-          <Link
-            to="/friends"
-            className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface-elevated transition-all hover:-translate-y-0.5 hover:border-primary/40"
-            aria-label="Friends"
-          >
-            <Users className="size-4" />
-            {hasPendingFriendRequests && (
+        {/* Mobile top bar */}
+        <header className="glass sticky top-0 z-20 flex items-center justify-between border-b border-border px-4 py-3 md:hidden">
+          <Logo />
+          <div className="flex items-center gap-2">
+            <Link
+              to="/friends"
+              className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface-elevated transition-all hover:-translate-y-0.5 hover:border-primary/40"
+              aria-label="Friends"
+            >
+              <Users className="size-4" />
+              {hasPendingFriendRequests && (
+                <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent shadow-[0_0_0_3px_color-mix(in_oklch,var(--accent)_25%,transparent)]" />
+              )}
+            </Link>
+            <Link
+              to="/notifications"
+              className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface-elevated transition-all hover:-translate-y-0.5 hover:border-primary/40"
+              aria-label="Notifications"
+            >
+              <Bell className="size-4" />
               <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent shadow-[0_0_0_3px_color-mix(in_oklch,var(--accent)_25%,transparent)]" />
-            )}
-          </Link>
-          <Link
-            to="/notifications"
-            className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface-elevated transition-all hover:-translate-y-0.5 hover:border-primary/40"
-            aria-label="Notifications"
+            </Link>
+            <ThemeToggle />
+          </div>
+        </header>
+
+        {/* Main */}
+        <main className="w-full max-w-full overflow-x-hidden md:pl-64">
+          <div
+            key={pathname}
+            className="animate-fade-up mx-auto w-full max-w-6xl px-4 pt-6 md:px-8 md:pt-10"
+            style={{
+              paddingBottom: "calc(7rem + env(safe-area-inset-bottom))",
+            }}
           >
-            <Bell className="size-4" />
-            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent shadow-[0_0_0_3px_color-mix(in_oklch,var(--accent)_25%,transparent)]" />
-          </Link>
-          <ThemeToggle />
-        </div>
-      </header>
+            {children}
+          </div>
+        </main>
+      </div>
 
-      {/* Main */}
-      <main className="w-full max-w-full overflow-x-hidden md:pl-64">
-        <div
-          key={pathname}
-          className="animate-fade-up mx-auto w-full max-w-6xl px-4 pt-6 md:px-8 md:pt-10"
-          style={{
-            paddingBottom: "calc(7rem + env(safe-area-inset-bottom))",
-          }}
-        >
-          {children}
-        </div>
-      </main>
-
-      {/* Mobile bottom tabs — fixed to viewport */}
-      <nav
-        className="glass fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t border-border md:hidden"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-      >
+      {/* Mobile bottom tabs — fixed to viewport outside layout containers */}
+      <nav className="mobile-bottom-nav grid grid-cols-6 md:hidden">
         {mobileTabs.map(({ to, label, icon: Icon }) => {
           const active = pathname === to || pathname.startsWith(to + "/");
           return (
@@ -194,6 +193,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </SheetContent>
         </Sheet>
       </nav>
-    </div>
+    </>
   );
 }
