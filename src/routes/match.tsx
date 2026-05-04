@@ -525,7 +525,7 @@ function OpponentStatusBadge({
 }) {
   if (isSolo) {
     return (
-      <div className="glass inline-flex items-center gap-2 rounded-full px-4 py-2">
+      <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-2.5 py-1.5">
         <div className="grid size-7 place-items-center rounded-full bg-muted text-muted-foreground">
           <Bot className="size-3.5" />
         </div>
@@ -546,7 +546,8 @@ function OpponentStatusBadge({
   return (
     <div
       className={cn(
-        "glass inline-flex items-center gap-2 rounded-full px-4 py-2 sm:pr-4",
+        "inline-flex items-center gap-2 rounded-full border px-2 py-1 sm:pr-3",
+        "border-border bg-background/60",
       )}
     >
       {opponent ? (
@@ -600,7 +601,7 @@ function InteractiveKeyboard({
   keyStates: Record<string, TileState>;
 }) {
   return (
-    <div className="glass mx-auto w-full max-w-[560px] rounded-2xl p-3">
+    <div className="mx-auto w-full max-w-[560px]">
       <div className="flex flex-col gap-1.5">
         {KEY_ROWS.map((row, i) => (
           <div key={i} className="flex justify-center gap-1 sm:gap-1.5">
