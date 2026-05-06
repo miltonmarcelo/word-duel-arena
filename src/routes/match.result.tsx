@@ -284,11 +284,11 @@ function ResultPage() {
 
 // === Helpers & subcomponents ===
 
-function outcomeMeta(o: Outcome) {
+function outcomeMeta(o: Outcome, isDaily?: boolean) {
   if (o === "win") {
     return {
-      kicker: "Victory",
-      title: "You won the duel.",
+      kicker: isDaily ? "Word of the Day complete" : "Victory",
+      title: isDaily ? "Today's word — solved." : "You won the duel.",
       Icon: Trophy,
       color: "var(--correct)",
       bg: "var(--gradient-hero)",
@@ -296,8 +296,8 @@ function outcomeMeta(o: Outcome) {
   }
   if (o === "loss") {
     return {
-      kicker: "Defeat",
-      title: "Tough one. Rematch?",
+      kicker: isDaily ? "Word of the Day" : "Defeat",
+      title: isDaily ? "Better luck tomorrow." : "Tough one. Rematch?",
       Icon: TrendingDown,
       color: "var(--destructive)",
       bg: "linear-gradient(135deg, color-mix(in oklch, var(--destructive) 18%, transparent), transparent)",
