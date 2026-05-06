@@ -75,7 +75,7 @@ function Dashboard() {
                   Good evening, {currentUser.name.split(" ")[0]}.
                 </h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {pendingChallenges.length} pending challenges · 1 daily puzzle remaining
+                  {pendingChallenges.length} pending challenges · Word of the Day live
                 </p>
               </div>
             </div>
@@ -85,9 +85,9 @@ function Dashboard() {
                   <Zap className="size-4" /> Start new duel
                 </Button>
               </Link>
-              <Link to="/play">
+              <Link to="/play/quick">
                 <Button size="lg" variant="secondary">
-                  <Sparkles className="size-4" /> Daily puzzle
+                  <Sparkles className="size-4" /> Word of the Day
                 </Button>
               </Link>
             </div>
