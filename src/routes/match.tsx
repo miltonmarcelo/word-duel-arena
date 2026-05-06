@@ -37,7 +37,7 @@ import {
 
 type MatchSearch = {
   word?: string;
-  mode?: "direct" | "random" | "quick" | "themed";
+  mode?: "direct" | "random" | "quick" | "themed" | "daily";
   theme?: string;
   opponent?: string;
   opponentRating?: number;
@@ -47,7 +47,7 @@ export const Route = createFileRoute("/match")({
   head: () => ({ meta: [{ title: "Live duel — WordClash" }] }),
   validateSearch: (search: Record<string, unknown>): MatchSearch => {
     const modeRaw = typeof search.mode === "string" ? search.mode : "quick";
-    const mode = (["direct", "random", "quick", "themed"].includes(modeRaw)
+    const mode = (["direct", "random", "quick", "themed", "daily"].includes(modeRaw)
       ? modeRaw
       : "quick") as MatchSearch["mode"];
     const wordRaw = typeof search.word === "string" ? search.word.toUpperCase() : undefined;
@@ -79,8 +79,9 @@ function MatchPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
   const SECRET = search.word ?? FALLBACK_SECRET;
+  const isDaily = search.mode === "daily";
 
-  const isSolo = !search.opponent || search.mode === "quick";
+  const isSolo = !search.opponent || search.mode === "quick" || isDaily;
   const opponent = isSolo
     ? null
     : players.find(
@@ -88,7 +89,9 @@ function MatchPage() {
           p.handle === `@${search.opponent}` ||
           p.name.toLowerCase().includes(search.opponent!.toLowerCase()),
       ) ?? players[0];
-  const opponentName = search.opponent ?? opponent?.name ?? "Computer";
+  const opponentName = isDaily
+    ? "Daily Challenge"
+    : search.opponent ?? opponent?.name ?? "Computer";
 
   // --- Game state ---
   const [guesses, setGuesses] = useState<Guess[]>([]);
@@ -280,6 +283,11 @@ function MatchPage() {
 
             {/* Center: theme + timer */}
             <div className="flex flex-col items-center gap-1">
+              {isDaily && (
+                <span className="chip">
+                  <Sparkles className="size-3" /> Word of the Day
+                </span>
+              )}
               {search.theme && (
                 <span className="chip chip-lilac">
                   <Sparkles className="size-3" />{" "}
@@ -304,6 +312,7 @@ function MatchPage() {
                 opponent={opponent ?? undefined}
                 opponentName={opponentName}
                 isSolo={isSolo}
+                isDaily={isDaily}
                 status={opponentStatus}
               />
             </div>
@@ -516,13 +525,30 @@ function OpponentStatusBadge({
   opponent,
   opponentName,
   isSolo,
+  isDaily,
   status,
 }: {
   opponent: ReturnType<typeof players.find>;
   opponentName: string;
   isSolo: boolean;
+  isDaily?: boolean;
   status: "playing" | "finished";
 }) {
+  if (isDaily) {
+    return (
+      <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-2.5 py-1.5">
+        <div className="grid size-7 place-items-center rounded-full bg-primary/15 text-primary">
+          <Sparkles className="size-3.5" />
+        </div>
+        <div className="hidden text-right leading-tight sm:block">
+          <p className="text-[11px] font-semibold">Daily Challenge</p>
+          <p className="text-[9px] uppercase tracking-wider text-muted-foreground">
+            Same word for everyone
+          </p>
+        </div>
+      </div>
+    );
+  }
   if (isSolo) {
     return (
       <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-2.5 py-1.5">

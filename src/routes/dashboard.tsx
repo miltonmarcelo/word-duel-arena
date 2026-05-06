@@ -75,7 +75,7 @@ function Dashboard() {
                   Good evening, {currentUser.name.split(" ")[0]}.
                 </h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {pendingChallenges.length} pending challenges · 1 daily puzzle remaining
+                  {pendingChallenges.length} pending challenges · Word of the Day live
                 </p>
               </div>
             </div>
@@ -85,9 +85,9 @@ function Dashboard() {
                   <Zap className="size-4" /> Start new duel
                 </Button>
               </Link>
-              <Link to="/play">
+              <Link to="/play/quick">
                 <Button size="lg" variant="secondary">
-                  <Sparkles className="size-4" /> Daily puzzle
+                  <Sparkles className="size-4" /> Word of the Day
                 </Button>
               </Link>
             </div>
@@ -126,7 +126,7 @@ function Dashboard() {
               <RoomsWidget />
             </div>
 
-            {/* Daily puzzle — desktop only (CTA exists in hero on mobile) */}
+            {/* Word of the Day — desktop only (CTA exists in hero on mobile) */}
             <div className="hidden md:block">
               <Card>
                 <div className="grid items-center gap-6 sm:grid-cols-[1fr,auto]">
@@ -134,14 +134,14 @@ function Dashboard() {
                     <span className="chip">
                       <Sparkles className="size-3" /> Daily #482
                     </span>
-                    <h3 className="mt-3 font-display text-2xl">Today's puzzle is live.</h3>
+                    <h3 className="mt-3 font-display text-2xl">Word of the Day is live.</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
                       Solve before midnight to keep your{" "}
                       <span className="font-semibold text-foreground">12-day streak</span> alive.
                     </p>
-                    <Link to="/play/your-turn" className="mt-4 inline-block">
+                    <Link to="/play/quick" className="mt-4 inline-block">
                       <Button>
-                        Play daily <ArrowRight className="size-4" />
+                        Play today's word <ArrowRight className="size-4" />
                       </Button>
                     </Link>
                   </div>
