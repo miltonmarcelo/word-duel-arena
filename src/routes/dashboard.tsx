@@ -126,7 +126,7 @@ function Dashboard() {
               <RoomsWidget />
             </div>
 
-            {/* Daily puzzle — desktop only (CTA exists in hero on mobile) */}
+            {/* Word of the Day — desktop only (CTA exists in hero on mobile) */}
             <div className="hidden md:block">
               <Card>
                 <div className="grid items-center gap-6 sm:grid-cols-[1fr,auto]">
@@ -134,14 +134,14 @@ function Dashboard() {
                     <span className="chip">
                       <Sparkles className="size-3" /> Daily #482
                     </span>
-                    <h3 className="mt-3 font-display text-2xl">Today's puzzle is live.</h3>
+                    <h3 className="mt-3 font-display text-2xl">Word of the Day is live.</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
                       Solve before midnight to keep your{" "}
                       <span className="font-semibold text-foreground">12-day streak</span> alive.
                     </p>
-                    <Link to="/play/your-turn" className="mt-4 inline-block">
+                    <Link to="/play/quick" className="mt-4 inline-block">
                       <Button>
-                        Play daily <ArrowRight className="size-4" />
+                        Play today's word <ArrowRight className="size-4" />
                       </Button>
                     </Link>
                   </div>
