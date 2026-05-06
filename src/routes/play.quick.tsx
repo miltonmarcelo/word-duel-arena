@@ -1,68 +1,39 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
 import {
   ArrowLeft,
-  Bot,
-  Cpu,
-  Eye,
+  BarChart3,
+  CalendarDays,
+  Clock,
   Flame,
-  Info,
   Play,
   Sparkles,
-  Zap,
+  Trophy,
+  Users2,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-
-type QuickSearch = { theme?: string };
 
 export const Route = createFileRoute("/play/quick")({
-  validateSearch: (s: Record<string, unknown>): QuickSearch => ({
-    theme: typeof s.theme === "string" ? s.theme : undefined,
-  }),
   head: () => ({
     meta: [
-      { title: "Quick Play — WordClash" },
+      { title: "Word of the Day — WordClash" },
       {
         name: "description",
         content:
-          "Solo vs the machine. Pick a theme and difficulty, then start a fast WordClash round.",
+          "One shared daily word for all players. Guess today's word and compare your performance.",
       },
-      { property: "og:title", content: "Quick Play — WordClash" },
+      { property: "og:title", content: "Word of the Day — WordClash" },
       {
         property: "og:description",
-        content: "You vs the machine — fast, solo, themed Wordle duels.",
+        content:
+          "Everyone gets the same word today. Solve it in as few attempts as possible.",
       },
     ],
   }),
-  component: QuickPlay,
+  component: WordOfTheDay,
 });
 
-const THEMES = [
-  { id: "general", label: "General", emoji: "✨" },
-  { id: "cinema", label: "Cinema", emoji: "🎬" },
-  { id: "sports", label: "Sports", emoji: "🏅" },
-  { id: "science", label: "Science", emoji: "🔬" },
-  { id: "music", label: "Music", emoji: "🎵" },
-  { id: "food", label: "Food", emoji: "🍜" },
-  { id: "geography", label: "Geography", emoji: "🌍" },
-] as const;
-
-type Difficulty = "easy" | "medium" | "hard";
-const DIFFICULTIES: { id: Difficulty; label: string; desc: string }[] = [
-  { id: "easy", label: "Easy", desc: "Common words · 6 tries" },
-  { id: "medium", label: "Medium", desc: "Mixed words · 6 tries" },
-  { id: "hard", label: "Hard", desc: "Rare words · 6 tries" },
-];
-
-function QuickPlay() {
-  const search = Route.useSearch();
-  const initialTheme =
-    search.theme && THEMES.some((t) => t.id === search.theme) ? search.theme : "general";
-  const [theme, setTheme] = useState<string>(initialTheme);
-  const [difficulty, setDifficulty] = useState<Difficulty>("medium");
-
+function WordOfTheDay() {
   return (
     <AppShell>
       <div className="animate-fade-up mx-auto max-w-3xl">
@@ -75,125 +46,149 @@ function QuickPlay() {
 
         <header className="page-header">
           <p className="page-eyebrow">
-            <Zap className="size-3" /> Quick Play
+            <Sparkles className="size-3" /> Daily challenge
           </p>
-          <h1 className="page-title">You vs the machine.</h1>
+          <h1 className="page-title">Word of the Day</h1>
           <p className="page-subtitle">
-            A solo round to warm up — pick a theme, set the difficulty, and start guessing.
+            Everyone gets the same system-defined word today. Solve it in as few
+            attempts as possible.
           </p>
         </header>
 
-        {/* Theme selector */}
-        <section className="surface-elevated mb-6 p-5">
-          <div className="mb-3 flex items-center justify-between">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
-              Choose a theme
-            </p>
-            <span className="chip chip-muted">
-              <Sparkles className="size-3" /> {THEMES.find((t) => t.id === theme)?.label}
-            </span>
-          </div>
-          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4">
-            {THEMES.map((t) => {
-              const active = t.id === theme;
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => setTheme(t.id)}
-                  className={cn(
-                    "hover-lift flex flex-col items-start gap-2 rounded-xl border-2 p-3 text-left transition",
-                    active
-                      ? "border-primary bg-primary/10 shadow-sm"
-                      : "border-border bg-surface hover:border-primary/40",
-                  )}
-                >
-                  <span className="text-2xl leading-none">{t.emoji}</span>
-                  <span className="text-sm font-semibold">{t.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Difficulty */}
-        <section className="surface-elevated mb-6 p-5">
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
-            Difficulty
-          </p>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-            {DIFFICULTIES.map((d) => {
-              const active = d.id === difficulty;
-              return (
-                <button
-                  key={d.id}
-                  onClick={() => setDifficulty(d.id)}
-                  className={cn(
-                    "rounded-xl border-2 p-3 text-left transition hover-lift",
-                    active
-                      ? "border-primary bg-primary/10"
-                      : "border-border hover:border-primary/40",
-                  )}
-                >
-                  <p className="font-display text-lg leading-tight">{d.label}</p>
-                  <p className="text-xs text-muted-foreground">{d.desc}</p>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Info card */}
+        {/* Hero card */}
         <section
-          className="surface-elevated mb-6 overflow-hidden p-5"
+          className="surface-elevated relative mb-5 overflow-hidden p-6 sm:p-8"
           style={{ background: "var(--gradient-hero), var(--surface-elevated)" }}
         >
-          <div className="mb-3 flex items-center gap-2">
-            <Info className="size-4 text-primary" />
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
-              How Quick Play works
-            </p>
-          </div>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            <li className="flex items-start gap-2">
-              <Bot className="mt-0.5 size-4 shrink-0 text-primary" />
-              The computer picks a 5-letter word from your chosen theme.
-            </li>
-            <li className="flex items-start gap-2">
-              <Cpu className="mt-0.5 size-4 shrink-0 text-primary" />
-              You get <span className="font-semibold text-foreground">6 attempts</span> to crack it.
-            </li>
-            <li className="flex items-start gap-2">
-              <Flame className="mt-0.5 size-4 shrink-0 text-primary" />
-              Points earned use a{" "}
-              <span className="font-semibold text-foreground">reduced multiplier</span> vs PvP.
-            </li>
-            <li className="flex items-start gap-2">
-              <Eye className="mt-0.5 size-4 shrink-0 text-primary" />
-              Revealing a letter costs points — but no opponent benefits.
-            </li>
-          </ul>
-        </section>
-
-        {/* CTA */}
-        <div className="sticky bottom-4 z-10">
-          <div className="surface-elevated flex items-center justify-between gap-3 p-3">
-            <div className="px-2">
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
-                Ready
+          <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-primary/20 blur-3xl" />
+          <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="chip">
+                  <CalendarDays className="size-3" /> Daily #482
+                </span>
+                <span className="chip chip-lilac">
+                  <Sparkles className="size-3" /> General
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--correct)]/40 bg-[var(--correct)]/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[var(--correct)]">
+                  <span className="relative flex size-1.5">
+                    <span className="absolute inset-0 animate-ping rounded-full bg-[var(--correct)] opacity-70" />
+                    <span className="relative size-1.5 rounded-full bg-[var(--correct)]" />
+                  </span>
+                  Live now
+                </span>
+              </div>
+              <h2 className="mt-4 font-display text-3xl leading-tight sm:text-4xl">
+                Today's <span className="text-gradient-mint">five letters</span>{" "}
+                are waiting.
+              </h2>
+              <p className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-[var(--warning)]">
+                <Flame className="size-4" /> +15% XP bonus
               </p>
-              <p className="font-mono text-sm font-bold tracking-wider text-foreground">
-                {THEMES.find((t) => t.id === theme)?.label} ·{" "}
-                {DIFFICULTIES.find((d) => d.id === difficulty)?.label}
+              <p className="mt-1 text-xs text-muted-foreground">
+                Resets at midnight
               </p>
             </div>
-            <Link to="/match" className="shrink-0">
-              <Button size="lg" className="gap-2">
-                <Play className="size-4" /> Start Game
-              </Button>
-            </Link>
+
+            <div className="flex flex-col gap-1.5">
+              {["?", "?", "?", "?", "?"].map((l, i) => (
+                <div
+                  key={i}
+                  className="tile tile-empty !w-10 !h-10 !text-base sm:!w-12 sm:!h-12"
+                  style={{ animationDelay: `${i * 80}ms` }}
+                >
+                  {l}
+                </div>
+              )).slice(0, 1)}
+              <div className="flex gap-1.5">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="tile tile-empty !w-10 !h-10 !text-base sm:!w-12 sm:!h-12"
+                  >
+                    ?
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Stat blocks */}
+        <section className="mb-5 grid grid-cols-3 gap-3">
+          <StatBlock
+            icon={<Users2 className="size-4 text-primary" />}
+            label="Players today"
+            value="12,431"
+          />
+          <StatBlock
+            icon={<BarChart3 className="size-4 text-accent" />}
+            label="Avg. attempts"
+            value="4.2"
+          />
+          <StatBlock
+            icon={<Trophy className="size-4 text-[var(--warning)]" />}
+            label="Your streak"
+            value="12 days"
+          />
+        </section>
+
+        {/* CTA bar */}
+        <div className="sticky bottom-4 z-10">
+          <div className="surface-elevated flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="px-2">
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                Ready when you are
+              </p>
+              <p className="font-mono text-sm font-bold tracking-wider text-foreground">
+                <Clock className="mr-1 inline size-3.5" /> ~2–3 min
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Link to="/ranking">
+                <Button size="lg" variant="secondary" className="w-full gap-2 sm:w-auto">
+                  <Trophy className="size-4" /> View leaderboard
+                </Button>
+              </Link>
+              <Link
+                to="/match"
+                search={{
+                  word: "PLATE",
+                  mode: "daily",
+                  theme: "general",
+                  opponent: "Daily Challenge",
+                }}
+              >
+                <Button size="lg" className="w-full gap-2 sm:w-auto">
+                  <Play className="size-4" /> Play now
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
     </AppShell>
+  );
+}
+
+function StatBlock({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="surface-soft rounded-xl p-3">
+      <div className="flex items-center gap-1.5 text-muted-foreground">
+        {icon}
+        <span className="text-[10px] font-bold uppercase tracking-[0.16em]">
+          {label}
+        </span>
+      </div>
+      <p className="mt-1 font-display text-lg leading-tight sm:text-xl">{value}</p>
+    </div>
   );
 }
