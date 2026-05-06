@@ -37,7 +37,7 @@ import {
 
 type MatchSearch = {
   word?: string;
-  mode?: "direct" | "random" | "quick" | "themed";
+  mode?: "direct" | "random" | "quick" | "themed" | "daily";
   theme?: string;
   opponent?: string;
   opponentRating?: number;
@@ -47,7 +47,7 @@ export const Route = createFileRoute("/match")({
   head: () => ({ meta: [{ title: "Live duel — WordClash" }] }),
   validateSearch: (search: Record<string, unknown>): MatchSearch => {
     const modeRaw = typeof search.mode === "string" ? search.mode : "quick";
-    const mode = (["direct", "random", "quick", "themed"].includes(modeRaw)
+    const mode = (["direct", "random", "quick", "themed", "daily"].includes(modeRaw)
       ? modeRaw
       : "quick") as MatchSearch["mode"];
     const wordRaw = typeof search.word === "string" ? search.word.toUpperCase() : undefined;
