@@ -525,13 +525,30 @@ function OpponentStatusBadge({
   opponent,
   opponentName,
   isSolo,
+  isDaily,
   status,
 }: {
   opponent: ReturnType<typeof players.find>;
   opponentName: string;
   isSolo: boolean;
+  isDaily?: boolean;
   status: "playing" | "finished";
 }) {
+  if (isDaily) {
+    return (
+      <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-2.5 py-1.5">
+        <div className="grid size-7 place-items-center rounded-full bg-primary/15 text-primary">
+          <Sparkles className="size-3.5" />
+        </div>
+        <div className="hidden text-right leading-tight sm:block">
+          <p className="text-[11px] font-semibold">Daily Challenge</p>
+          <p className="text-[9px] uppercase tracking-wider text-muted-foreground">
+            Same word for everyone
+          </p>
+        </div>
+      </div>
+    );
+  }
   if (isSolo) {
     return (
       <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-2.5 py-1.5">
