@@ -283,6 +283,11 @@ function MatchPage() {
 
             {/* Center: theme + timer */}
             <div className="flex flex-col items-center gap-1">
+              {isDaily && (
+                <span className="chip">
+                  <Sparkles className="size-3" /> Word of the Day
+                </span>
+              )}
               {search.theme && (
                 <span className="chip chip-lilac">
                   <Sparkles className="size-3" />{" "}
