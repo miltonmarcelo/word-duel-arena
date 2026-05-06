@@ -312,6 +312,7 @@ function MatchPage() {
                 opponent={opponent ?? undefined}
                 opponentName={opponentName}
                 isSolo={isSolo}
+                isDaily={isDaily}
                 status={opponentStatus}
               />
             </div>
