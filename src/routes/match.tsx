@@ -79,8 +79,9 @@ function MatchPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
   const SECRET = search.word ?? FALLBACK_SECRET;
+  const isDaily = search.mode === "daily";
 
-  const isSolo = !search.opponent || search.mode === "quick";
+  const isSolo = !search.opponent || search.mode === "quick" || isDaily;
   const opponent = isSolo
     ? null
     : players.find(
@@ -88,7 +89,9 @@ function MatchPage() {
           p.handle === `@${search.opponent}` ||
           p.name.toLowerCase().includes(search.opponent!.toLowerCase()),
       ) ?? players[0];
-  const opponentName = search.opponent ?? opponent?.name ?? "Computer";
+  const opponentName = isDaily
+    ? "Daily Challenge"
+    : search.opponent ?? opponent?.name ?? "Computer";
 
   // --- Game state ---
   const [guesses, setGuesses] = useState<Guess[]>([]);
