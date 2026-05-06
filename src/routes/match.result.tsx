@@ -84,7 +84,8 @@ function ResultPage() {
   const yourTime = matchTime;
   const opponentTime = "02:18";
 
-  const meta = outcomeMeta(OUTCOME);
+  const isDaily = search.mode === "daily";
+  const meta = outcomeMeta(OUTCOME, isDaily);
 
   // Animated points counter — use param if provided, else fallback per outcome
   const targetPoints =
