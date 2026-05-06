@@ -90,26 +90,16 @@ function WordOfTheDay() {
               </p>
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              {["?", "?", "?", "?", "?"].map((l, i) => (
+            <div className="flex gap-1.5">
+              {Array.from({ length: 5 }).map((_, i) => (
                 <div
                   key={i}
                   className="tile tile-empty !w-10 !h-10 !text-base sm:!w-12 sm:!h-12"
                   style={{ animationDelay: `${i * 80}ms` }}
                 >
-                  {l}
+                  ?
                 </div>
-              )).slice(0, 1)}
-              <div className="flex gap-1.5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="tile tile-empty !w-10 !h-10 !text-base sm:!w-12 sm:!h-12"
-                  >
-                    ?
-                  </div>
-                ))}
-              </div>
+              ))}
             </div>
           </div>
         </section>
