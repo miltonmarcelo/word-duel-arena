@@ -124,7 +124,7 @@ function MatchPage() {
       }
       for (let i = 0; i < 5; i++) {
         if (result[i] === "correct") continue;
-        const idx = secret.findIndex((c, j) => !used[j] && c === word[i]);
+        const idx = secret.findIndex((c: string, j: number) => !used[j] && c === word[i]);
         if (idx !== -1) {
           result[i] = "present";
           used[idx] = true;
