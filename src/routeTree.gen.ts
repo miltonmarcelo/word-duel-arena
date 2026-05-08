@@ -38,6 +38,7 @@ import { Route as PlayDirectWordRouteImport } from './routes/play.direct-word'
 import { Route as PlayChooseWordRouteImport } from './routes/play.choose-word'
 import { Route as PlayChallengeSentRouteImport } from './routes/play.challenge-sent'
 import { Route as MatchResultRouteImport } from './routes/match.result'
+import { Route as AdminOverviewRouteImport } from './routes/admin.overview'
 import { Route as PlayThemedThemeRouteImport } from './routes/play.themed.$theme'
 
 const StatsRoute = StatsRouteImport.update({
@@ -185,6 +186,11 @@ const MatchResultRoute = MatchResultRouteImport.update({
   path: '/result',
   getParentRoute: () => MatchRoute,
 } as any)
+const AdminOverviewRoute = AdminOverviewRouteImport.update({
+  id: '/overview',
+  path: '/overview',
+  getParentRoute: () => AdminRoute,
+} as any)
 const PlayThemedThemeRoute = PlayThemedThemeRouteImport.update({
   id: '/$theme',
   path: '/$theme',
@@ -193,7 +199,7 @@ const PlayThemedThemeRoute = PlayThemedThemeRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/friends': typeof FriendsRoute
   '/login': typeof LoginRoute
@@ -206,6 +212,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/stats': typeof StatsRoute
+  '/admin/overview': typeof AdminOverviewRoute
   '/match/result': typeof MatchResultRoute
   '/play/challenge-sent': typeof PlayChallengeSentRoute
   '/play/choose-word': typeof PlayChooseWordRoute
@@ -225,7 +232,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/friends': typeof FriendsRoute
   '/login': typeof LoginRoute
@@ -238,6 +245,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/stats': typeof StatsRoute
+  '/admin/overview': typeof AdminOverviewRoute
   '/match/result': typeof MatchResultRoute
   '/play/challenge-sent': typeof PlayChallengeSentRoute
   '/play/choose-word': typeof PlayChooseWordRoute
@@ -258,7 +266,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/friends': typeof FriendsRoute
   '/login': typeof LoginRoute
@@ -271,6 +279,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/stats': typeof StatsRoute
+  '/admin/overview': typeof AdminOverviewRoute
   '/match/result': typeof MatchResultRoute
   '/play/challenge-sent': typeof PlayChallengeSentRoute
   '/play/choose-word': typeof PlayChooseWordRoute
@@ -305,6 +314,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/signup'
     | '/stats'
+    | '/admin/overview'
     | '/match/result'
     | '/play/challenge-sent'
     | '/play/choose-word'
@@ -337,6 +347,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/signup'
     | '/stats'
+    | '/admin/overview'
     | '/match/result'
     | '/play/challenge-sent'
     | '/play/choose-word'
@@ -369,6 +380,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/signup'
     | '/stats'
+    | '/admin/overview'
     | '/match/result'
     | '/play/challenge-sent'
     | '/play/choose-word'
@@ -389,7 +401,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   FriendsRoute: typeof FriendsRoute
   LoginRoute: typeof LoginRoute
@@ -622,6 +634,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MatchResultRouteImport
       parentRoute: typeof MatchRoute
     }
+    '/admin/overview': {
+      id: '/admin/overview'
+      path: '/overview'
+      fullPath: '/admin/overview'
+      preLoaderRoute: typeof AdminOverviewRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/play/themed/$theme': {
       id: '/play/themed/$theme'
       path: '/$theme'
@@ -631,6 +650,16 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AdminRouteChildren {
+  AdminOverviewRoute: typeof AdminOverviewRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminOverviewRoute: AdminOverviewRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface MatchRouteChildren {
   MatchResultRoute: typeof MatchResultRoute
@@ -666,7 +695,7 @@ const PlayThemedRouteWithChildren = PlayThemedRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   DashboardRoute: DashboardRoute,
   FriendsRoute: FriendsRoute,
   LoginRoute: LoginRoute,
