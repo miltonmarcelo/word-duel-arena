@@ -39,6 +39,7 @@ import { Route as PlayChooseWordRouteImport } from './routes/play.choose-word'
 import { Route as PlayChallengeSentRouteImport } from './routes/play.challenge-sent'
 import { Route as MatchResultRouteImport } from './routes/match.result'
 import { Route as AdminWordsRouteImport } from './routes/admin.words'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminRoomsRouteImport } from './routes/admin.rooms'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminPlayersRouteImport } from './routes/admin.players'
@@ -197,6 +198,11 @@ const AdminWordsRoute = AdminWordsRouteImport.update({
   path: '/words',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminRoomsRoute = AdminRoomsRouteImport.update({
   id: '/rooms',
   path: '/rooms',
@@ -253,6 +259,7 @@ export interface FileRoutesByFullPath {
   '/admin/players': typeof AdminPlayersRouteWithChildren
   '/admin/reports': typeof AdminReportsRoute
   '/admin/rooms': typeof AdminRoomsRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/words': typeof AdminWordsRoute
   '/match/result': typeof MatchResultRoute
   '/play/challenge-sent': typeof PlayChallengeSentRoute
@@ -292,6 +299,7 @@ export interface FileRoutesByTo {
   '/admin/players': typeof AdminPlayersRouteWithChildren
   '/admin/reports': typeof AdminReportsRoute
   '/admin/rooms': typeof AdminRoomsRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/words': typeof AdminWordsRoute
   '/match/result': typeof MatchResultRoute
   '/play/challenge-sent': typeof PlayChallengeSentRoute
@@ -332,6 +340,7 @@ export interface FileRoutesById {
   '/admin/players': typeof AdminPlayersRouteWithChildren
   '/admin/reports': typeof AdminReportsRoute
   '/admin/rooms': typeof AdminRoomsRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/words': typeof AdminWordsRoute
   '/match/result': typeof MatchResultRoute
   '/play/challenge-sent': typeof PlayChallengeSentRoute
@@ -373,6 +382,7 @@ export interface FileRouteTypes {
     | '/admin/players'
     | '/admin/reports'
     | '/admin/rooms'
+    | '/admin/settings'
     | '/admin/words'
     | '/match/result'
     | '/play/challenge-sent'
@@ -412,6 +422,7 @@ export interface FileRouteTypes {
     | '/admin/players'
     | '/admin/reports'
     | '/admin/rooms'
+    | '/admin/settings'
     | '/admin/words'
     | '/match/result'
     | '/play/challenge-sent'
@@ -451,6 +462,7 @@ export interface FileRouteTypes {
     | '/admin/players'
     | '/admin/reports'
     | '/admin/rooms'
+    | '/admin/settings'
     | '/admin/words'
     | '/match/result'
     | '/play/challenge-sent'
@@ -713,6 +725,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminWordsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/rooms': {
       id: '/admin/rooms'
       path: '/rooms'
@@ -783,6 +802,7 @@ interface AdminRouteChildren {
   AdminPlayersRoute: typeof AdminPlayersRouteWithChildren
   AdminReportsRoute: typeof AdminReportsRoute
   AdminRoomsRoute: typeof AdminRoomsRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
   AdminWordsRoute: typeof AdminWordsRoute
 }
 
@@ -792,6 +812,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminPlayersRoute: AdminPlayersRouteWithChildren,
   AdminReportsRoute: AdminReportsRoute,
   AdminRoomsRoute: AdminRoomsRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
   AdminWordsRoute: AdminWordsRoute,
 }
 
