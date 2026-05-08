@@ -154,7 +154,7 @@ function LockWord() {
               Your secret word
             </p>
             <div className="group flex justify-center gap-1.5 sm:gap-2">
-              {tiles.map((letter, i) => (
+              {tiles.map((letter: string, i: number) => (
                 <div
                   key={i}
                   className="relative grid h-14 w-14 cursor-default place-items-center overflow-hidden rounded-lg border-2 font-display text-2xl font-bold uppercase shadow-sm sm:h-16 sm:w-16 sm:text-3xl"
