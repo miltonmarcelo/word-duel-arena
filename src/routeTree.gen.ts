@@ -38,6 +38,8 @@ import { Route as PlayDirectWordRouteImport } from './routes/play.direct-word'
 import { Route as PlayChooseWordRouteImport } from './routes/play.choose-word'
 import { Route as PlayChallengeSentRouteImport } from './routes/play.challenge-sent'
 import { Route as MatchResultRouteImport } from './routes/match.result'
+import { Route as AdminWordsRouteImport } from './routes/admin.words'
+import { Route as AdminPlayersRouteImport } from './routes/admin.players'
 import { Route as AdminOverviewRouteImport } from './routes/admin.overview'
 import { Route as PlayThemedThemeRouteImport } from './routes/play.themed.$theme'
 
@@ -186,6 +188,16 @@ const MatchResultRoute = MatchResultRouteImport.update({
   path: '/result',
   getParentRoute: () => MatchRoute,
 } as any)
+const AdminWordsRoute = AdminWordsRouteImport.update({
+  id: '/words',
+  path: '/words',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPlayersRoute = AdminPlayersRouteImport.update({
+  id: '/players',
+  path: '/players',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminOverviewRoute = AdminOverviewRouteImport.update({
   id: '/overview',
   path: '/overview',
@@ -213,6 +225,8 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/stats': typeof StatsRoute
   '/admin/overview': typeof AdminOverviewRoute
+  '/admin/players': typeof AdminPlayersRoute
+  '/admin/words': typeof AdminWordsRoute
   '/match/result': typeof MatchResultRoute
   '/play/challenge-sent': typeof PlayChallengeSentRoute
   '/play/choose-word': typeof PlayChooseWordRoute
@@ -246,6 +260,8 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/stats': typeof StatsRoute
   '/admin/overview': typeof AdminOverviewRoute
+  '/admin/players': typeof AdminPlayersRoute
+  '/admin/words': typeof AdminWordsRoute
   '/match/result': typeof MatchResultRoute
   '/play/challenge-sent': typeof PlayChallengeSentRoute
   '/play/choose-word': typeof PlayChooseWordRoute
@@ -280,6 +296,8 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/stats': typeof StatsRoute
   '/admin/overview': typeof AdminOverviewRoute
+  '/admin/players': typeof AdminPlayersRoute
+  '/admin/words': typeof AdminWordsRoute
   '/match/result': typeof MatchResultRoute
   '/play/challenge-sent': typeof PlayChallengeSentRoute
   '/play/choose-word': typeof PlayChooseWordRoute
@@ -315,6 +333,8 @@ export interface FileRouteTypes {
     | '/signup'
     | '/stats'
     | '/admin/overview'
+    | '/admin/players'
+    | '/admin/words'
     | '/match/result'
     | '/play/challenge-sent'
     | '/play/choose-word'
@@ -348,6 +368,8 @@ export interface FileRouteTypes {
     | '/signup'
     | '/stats'
     | '/admin/overview'
+    | '/admin/players'
+    | '/admin/words'
     | '/match/result'
     | '/play/challenge-sent'
     | '/play/choose-word'
@@ -381,6 +403,8 @@ export interface FileRouteTypes {
     | '/signup'
     | '/stats'
     | '/admin/overview'
+    | '/admin/players'
+    | '/admin/words'
     | '/match/result'
     | '/play/challenge-sent'
     | '/play/choose-word'
@@ -634,6 +658,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MatchResultRouteImport
       parentRoute: typeof MatchRoute
     }
+    '/admin/words': {
+      id: '/admin/words'
+      path: '/words'
+      fullPath: '/admin/words'
+      preLoaderRoute: typeof AdminWordsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/players': {
+      id: '/admin/players'
+      path: '/players'
+      fullPath: '/admin/players'
+      preLoaderRoute: typeof AdminPlayersRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/overview': {
       id: '/admin/overview'
       path: '/overview'
@@ -653,10 +691,14 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminOverviewRoute: typeof AdminOverviewRoute
+  AdminPlayersRoute: typeof AdminPlayersRoute
+  AdminWordsRoute: typeof AdminWordsRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminOverviewRoute: AdminOverviewRoute,
+  AdminPlayersRoute: AdminPlayersRoute,
+  AdminWordsRoute: AdminWordsRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
@@ -725,3 +767,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
