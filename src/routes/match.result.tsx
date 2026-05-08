@@ -153,7 +153,7 @@ function ResultPage() {
                 The word was
               </span>
               <div className="flex gap-1.5">
-                {word.split("").map((l, i) => (
+                {word.split("").map((l: string, i: number) => (
                   <div
                     key={i}
                     className="tile tile-correct tile-flip !w-11 !h-11 !text-lg sm:!w-14 sm:!h-14 sm:!text-2xl"
