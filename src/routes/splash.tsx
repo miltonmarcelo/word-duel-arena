@@ -20,7 +20,6 @@ function LoaderScreen() {
   const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
-    // Flip tiles one by one
     LETTERS.forEach((_, i) => {
       window.setTimeout(() => {
         setFlipped((prev) => {
@@ -28,16 +27,16 @@ function LoaderScreen() {
           next[i] = true;
           return next;
         });
-      }, i * 130);
+      }, i * 140);
     });
 
-    const glowT = window.setTimeout(() => setGlow(true), 750);
-    const markT = window.setTimeout(() => setShowMark(true), 950);
-    const tagT = window.setTimeout(() => setShowTagline(true), 1150);
-    const fadeT = window.setTimeout(() => setLeaving(true), 1700);
+    const glowT = window.setTimeout(() => setGlow(true), 780);
+    const markT = window.setTimeout(() => setShowMark(true), 980);
+    const tagT = window.setTimeout(() => setShowTagline(true), 1180);
+    const fadeT = window.setTimeout(() => setLeaving(true), 1750);
     const navT = window.setTimeout(() => {
       navigate({ to: hasMockSession() ? "/home" : "/welcome" });
-    }, 2000);
+    }, 2050);
 
     return () => {
       window.clearTimeout(glowT);
@@ -50,89 +49,175 @@ function LoaderScreen() {
 
   return (
     <div
-      className="fixed inset-0 flex flex-col items-center justify-center"
+      className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden"
       style={{
         opacity: leaving ? 0 : 1,
-        transition: "opacity 0.35s ease",
+        transition: "opacity 0.4s ease",
+        /* Deep rich background — visible purple-to-green diagonal */
         background: `
-          radial-gradient(ellipse 80% 60% at 50% 40%, #0D2818 0%, transparent 65%),
-          radial-gradient(ellipse 60% 40% at 50% 40%, #0A1628 0%, transparent 60%),
-          linear-gradient(160deg, #0A0A12 0%, #080810 40%, #0A0D0A 100%)
+          linear-gradient(145deg,
+            #0D0620 0%,
+            #0F1A2E 25%,
+            #071A10 60%,
+            #0A0F1A 100%
+          )
         `,
       }}
     >
       <style>{`
         @keyframes wc-flip-in {
-          0%   { transform: rotateX(0deg) scale(1);   opacity: 1; }
-          45%  { transform: rotateX(92deg) scale(0.9); opacity: 0.6; }
-          100% { transform: rotateX(0deg) scale(1);   opacity: 1; }
+          0%   { transform: rotateX(0deg)  scale(1);    }
+          45%  { transform: rotateX(95deg) scale(0.88); }
+          100% { transform: rotateX(0deg)  scale(1);    }
         }
         @keyframes wc-glow-burst {
-          0%   { opacity: 0; transform: scale(0.8); }
-          35%  { opacity: 1; transform: scale(1.08); }
-          100% { opacity: 0; transform: scale(1.4); }
+          0%   { opacity: 0;   transform: scale(0.6); }
+          40%  { opacity: 1;   transform: scale(1.1); }
+          100% { opacity: 0;   transform: scale(1.6); }
         }
         @keyframes wc-wordmark {
-          0%   { opacity: 0; transform: translateY(10px) scale(0.97); filter: blur(4px); }
-          100% { opacity: 1; transform: translateY(0px) scale(1);    filter: blur(0px); }
+          0%   { opacity: 0; transform: translateY(14px); filter: blur(6px); }
+          100% { opacity: 1; transform: translateY(0);    filter: blur(0);   }
         }
         @keyframes wc-tagline {
-          0%   { opacity: 0; transform: translateY(6px); }
-          100% { opacity: 1; transform: translateY(0); }
+          0%   { opacity: 0; transform: translateY(8px); }
+          100% { opacity: 0.7; transform: translateY(0); }
         }
-        @keyframes wc-dot-travel {
-          0%   { transform: scaleX(1);   opacity: 0.3; }
-          50%  { transform: scaleX(1.8); opacity: 1;   }
-          100% { transform: scaleX(1);   opacity: 0.3; }
+        @keyframes wc-dot {
+          0%, 100% { transform: scaleX(1)   translateY(0);    opacity: 0.4; }
+          50%       { transform: scaleX(2.2) translateY(0);    opacity: 1;   }
         }
-        @keyframes wc-ambient {
-          0%, 100% { opacity: 0.4; }
-          50%       { opacity: 0.7; }
+        @keyframes wc-orb-1 {
+          0%, 100% { transform: translate(-50%, -50%) scale(1);    opacity: 0.6; }
+          50%       { transform: translate(-50%, -50%) scale(1.15); opacity: 0.9; }
+        }
+        @keyframes wc-orb-2 {
+          0%, 100% { transform: translate(-50%, -50%) scale(1.1);  opacity: 0.5; }
+          50%       { transform: translate(-50%, -50%) scale(0.9);  opacity: 0.8; }
+        }
+        @keyframes wc-grid-pulse {
+          0%, 100% { opacity: 0.04; }
+          50%       { opacity: 0.09; }
+        }
+        @keyframes wc-scanline {
+          0%   { transform: translateY(-100%); }
+          100% { transform: translateY(100vh); }
         }
       `}</style>
 
-      {/* Ambient background orb — breathes slowly */}
+      {/* ── BIG COLOUR ORBS ── give the background real visible colour */}
+      {/* Purple orb — top left */}
       <div
         style={{
           position: "absolute",
-          width: 320,
-          height: 320,
+          width: 500,
+          height: 500,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(83,141,78,0.12) 0%, transparent 70%)",
-          top: "30%",
-          left: "50%",
+          background: "radial-gradient(circle, rgba(120,60,220,0.28) 0%, transparent 65%)",
+          top: "10%",
+          left: "10%",
           transform: "translate(-50%, -50%)",
-          animation: "wc-ambient 3s ease-in-out infinite",
+          animation: "wc-orb-1 5s ease-in-out infinite",
           pointerEvents: "none",
         }}
       />
 
-      {/* Glow burst behind tiles */}
+      {/* Teal/green orb — bottom right */}
+      <div
+        style={{
+          position: "absolute",
+          width: 600,
+          height: 600,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(34,197,120,0.22) 0%, transparent 65%)",
+          bottom: "-5%",
+          right: "-10%",
+          transform: "translate(0%, 0%)",
+          animation: "wc-orb-2 6s ease-in-out infinite",
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* Blue orb — top right */}
+      <div
+        style={{
+          position: "absolute",
+          width: 400,
+          height: 400,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(56,130,246,0.18) 0%, transparent 65%)",
+          top: "5%",
+          right: "0%",
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* ── GHOST GRID background texture ── */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "grid",
+          gridTemplateColumns: "repeat(5, 36px)",
+          gridTemplateRows: "repeat(6, 36px)",
+          gap: 4,
+          alignContent: "center",
+          justifyContent: "center",
+          animation: "wc-grid-pulse 4s ease-in-out infinite",
+          pointerEvents: "none",
+        }}
+      >
+        {Array.from({ length: 30 }).map((_, i) => (
+          <div
+            key={i}
+            style={{
+              borderRadius: 6,
+              border: "1px solid rgba(255,255,255,0.07)",
+              background: "rgba(255,255,255,0.02)",
+            }}
+          />
+        ))}
+      </div>
+
+      {/* ── SCANLINE effect — subtle premium feel ── */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(transparent 50%, rgba(0,0,0,0.04) 50%)",
+          backgroundSize: "100% 4px",
+          pointerEvents: "none",
+          opacity: 0.4,
+        }}
+      />
+
+      {/* ── GLOW BURST behind tiles ── */}
       {glow && (
         <div
           style={{
             position: "absolute",
-            width: 280,
-            height: 120,
+            width: 340,
+            height: 160,
             borderRadius: "50%",
-            background: "radial-gradient(ellipse, rgba(83,141,78,0.35) 0%, transparent 70%)",
-            animation: "wc-glow-burst 0.7s ease-out forwards",
+            background: "radial-gradient(ellipse, rgba(34,197,120,0.5) 0%, rgba(120,60,220,0.2) 50%, transparent 75%)",
+            animation: "wc-glow-burst 0.8s ease-out forwards",
             pointerEvents: "none",
+            zIndex: 1,
           }}
         />
       )}
 
-      {/* Tile row */}
-      <div style={{ display: "flex", gap: 8, position: "relative", zIndex: 1 }}>
+      {/* ── TILES ── */}
+      <div
+        style={{
+          display: "flex",
+          gap: 10,
+          position: "relative",
+          zIndex: 2,
+        }}
+      >
         {LETTERS.map((ch, i) => (
-          <div
-            key={ch}
-            style={{
-              width: 54,
-              height: 54,
-              perspective: 400,
-            }}
-          >
+          <div key={ch} style={{ width: 56, height: 56, perspective: 500 }}>
             <div
               style={{
                 width: "100%",
@@ -140,21 +225,28 @@ function LoaderScreen() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                borderRadius: 10,
+                borderRadius: 12,
+
+                /* Tile face changes dramatically on flip */
                 background: flipped[i]
-                  ? "linear-gradient(145deg, #1A3D2B 0%, #0F2218 50%, #162E1F 100%)"
-                  : "linear-gradient(145deg, #1C1C2E 0%, #14141F 100%)",
-                border: flipped[i] ? "1.5px solid rgba(83,141,78,0.7)" : "1.5px solid rgba(255,255,255,0.07)",
+                  ? "linear-gradient(145deg, #22C778 0%, #16A35A 40%, #0D6E3A 100%)"
+                  : "linear-gradient(145deg, #1E1535 0%, #16102A 100%)",
+
+                border: flipped[i] ? "1.5px solid rgba(100,255,160,0.6)" : "1.5px solid rgba(120,60,220,0.3)",
+
                 boxShadow: flipped[i]
-                  ? "0 0 16px rgba(83,141,78,0.25), inset 0 1px 0 rgba(255,255,255,0.08)"
-                  : "inset 0 1px 0 rgba(255,255,255,0.04)",
-                color: flipped[i] ? "#FFFFFF" : "transparent",
-                fontWeight: 800,
+                  ? "0 0 24px rgba(34,197,120,0.5), 0 0 8px rgba(34,197,120,0.3), inset 0 1px 0 rgba(255,255,255,0.25)"
+                  : "0 0 12px rgba(120,60,220,0.2), inset 0 1px 0 rgba(255,255,255,0.06)",
+
+                color: flipped[i] ? "#FFFFFF" : "rgba(255,255,255,0.15)",
+                fontWeight: 900,
                 fontSize: 22,
                 letterSpacing: 1,
-                transition: "background 0.15s, border 0.15s, box-shadow 0.2s, color 0.1s",
-                animation: `wc-flip-in 0.42s ease both`,
-                animationDelay: `${i * 130}ms`,
+                textShadow: flipped[i] ? "0 1px 4px rgba(0,0,0,0.4)" : "none",
+
+                animation: `wc-flip-in 0.44s cubic-bezier(0.4,0,0.2,1) both`,
+                animationDelay: `${i * 140}ms`,
+                transition: "background 0.2s, border 0.2s, box-shadow 0.25s, color 0.15s",
               }}
             >
               {ch}
@@ -163,21 +255,22 @@ function LoaderScreen() {
         ))}
       </div>
 
-      {/* Wordmark */}
+      {/* ── WORDMARK ── */}
       <div
         style={{
-          marginTop: 32,
-          height: 36,
+          marginTop: 36,
+          zIndex: 2,
           opacity: showMark ? 1 : 0,
-          animation: showMark ? "wc-wordmark 0.5s cubic-bezier(0.16,1,0.3,1) forwards" : "none",
+          animation: showMark ? "wc-wordmark 0.55s cubic-bezier(0.16,1,0.3,1) forwards" : "none",
         }}
       >
         <span
           style={{
-            fontSize: 26,
-            fontWeight: 800,
-            letterSpacing: 3,
-            background: "linear-gradient(90deg, #FFFFFF 0%, #FFFFFF 55%, #6AAF60 100%)",
+            fontSize: 30,
+            fontWeight: 900,
+            letterSpacing: 4,
+            /* Vivid gradient: white → green → purple */
+            background: "linear-gradient(90deg, #FFFFFF 0%, #22C778 50%, #A855F7 100%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
@@ -187,20 +280,21 @@ function LoaderScreen() {
         </span>
       </div>
 
-      {/* Tagline */}
+      {/* ── TAGLINE ── */}
       <div
         style={{
-          marginTop: 8,
-          opacity: showTagline ? 1 : 0,
+          marginTop: 10,
+          zIndex: 2,
+          opacity: showTagline ? 0.7 : 0,
           animation: showTagline ? "wc-tagline 0.4s ease forwards" : "none",
         }}
       >
         <span
           style={{
-            color: "rgba(160,160,176,0.7)",
-            fontSize: 12,
-            fontWeight: 400,
-            letterSpacing: 3,
+            color: "#A0A0C0",
+            fontSize: 11,
+            fontWeight: 500,
+            letterSpacing: 4,
             textTransform: "uppercase",
           }}
         >
@@ -208,27 +302,34 @@ function LoaderScreen() {
         </span>
       </div>
 
-      {/* Loading dots */}
+      {/* ── LOADING DOTS ── */}
       <div
         style={{
           position: "absolute",
-          bottom: 48,
+          bottom: 52,
           display: "flex",
           gap: 10,
           alignItems: "center",
+          zIndex: 2,
         }}
       >
         {[0, 1, 2].map((i) => (
           <span
             key={i}
             style={{
-              width: 20,
+              display: "block",
+              width: 24,
               height: 4,
               borderRadius: 9999,
-              background: "linear-gradient(90deg, #538D4E, #6AAF60)",
+              background:
+                i === 0
+                  ? "linear-gradient(90deg, #22C778, #16A35A)"
+                  : i === 1
+                    ? "linear-gradient(90deg, #A855F7, #7C3AED)"
+                    : "linear-gradient(90deg, #3B82F6, #1D4ED8)",
               transformOrigin: "center",
-              animation: "wc-dot-travel 1.2s ease-in-out infinite",
-              animationDelay: `${i * 200}ms`,
+              animation: "wc-dot 1.3s ease-in-out infinite",
+              animationDelay: `${i * 220}ms`,
             }}
           />
         ))}
