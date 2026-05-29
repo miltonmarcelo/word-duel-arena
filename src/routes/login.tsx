@@ -63,7 +63,14 @@ export function AuthShell({ mode }: { mode: "login" | "signup" }) {
               <Input id="email" type="email" placeholder="you@wordclash.gg" className="mt-1.5" />
             </div>
             <div>
-              <Label htmlFor="password">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                {isLogin && (
+                  <Link to="/forgot-password" className="text-xs font-medium text-primary hover:underline">
+                    Forgot password?
+                  </Link>
+                )}
+              </div>
               <Input id="password" type="password" placeholder="••••••••" className="mt-1.5" />
             </div>
             <Link to="/dashboard" className="block">
