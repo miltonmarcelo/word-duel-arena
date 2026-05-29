@@ -9,7 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as StatsRouteImport } from './routes/stats'
+import { Route as SplashRouteImport } from './routes/splash'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RulesRouteImport } from './routes/rules'
@@ -19,6 +21,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as MatchRouteImport } from './routes/match'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as HomeRouteImport } from './routes/home'
 import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -49,9 +52,19 @@ import { Route as AdminMatchesRouteImport } from './routes/admin.matches'
 import { Route as PlayThemedThemeRouteImport } from './routes/play.themed.$theme'
 import { Route as AdminPlayersIdRouteImport } from './routes/admin.players.$id'
 
+const WelcomeRoute = WelcomeRouteImport.update({
+  id: '/welcome',
+  path: '/welcome',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StatsRoute = StatsRouteImport.update({
   id: '/stats',
   path: '/stats',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SplashRoute = SplashRouteImport.update({
+  id: '/splash',
+  path: '/splash',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignupRoute = SignupRouteImport.update({
@@ -97,6 +110,11 @@ const MatchRoute = MatchRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FriendsRoute = FriendsRouteImport.update({
@@ -251,6 +269,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/friends': typeof FriendsRoute
+  '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/match': typeof MatchRouteWithChildren
   '/notifications': typeof NotificationsRoute
@@ -260,7 +279,9 @@ export interface FileRoutesByFullPath {
   '/rules': typeof RulesRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/splash': typeof SplashRoute
   '/stats': typeof StatsRoute
+  '/welcome': typeof WelcomeRoute
   '/admin/matches': typeof AdminMatchesRoute
   '/admin/overview': typeof AdminOverviewRoute
   '/admin/players': typeof AdminPlayersRouteWithChildren
@@ -292,6 +313,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/friends': typeof FriendsRoute
+  '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/match': typeof MatchRouteWithChildren
   '/notifications': typeof NotificationsRoute
@@ -301,7 +323,9 @@ export interface FileRoutesByTo {
   '/rules': typeof RulesRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/splash': typeof SplashRoute
   '/stats': typeof StatsRoute
+  '/welcome': typeof WelcomeRoute
   '/admin/matches': typeof AdminMatchesRoute
   '/admin/overview': typeof AdminOverviewRoute
   '/admin/players': typeof AdminPlayersRouteWithChildren
@@ -334,6 +358,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/friends': typeof FriendsRoute
+  '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/match': typeof MatchRouteWithChildren
   '/notifications': typeof NotificationsRoute
@@ -343,7 +368,9 @@ export interface FileRoutesById {
   '/rules': typeof RulesRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/splash': typeof SplashRoute
   '/stats': typeof StatsRoute
+  '/welcome': typeof WelcomeRoute
   '/admin/matches': typeof AdminMatchesRoute
   '/admin/overview': typeof AdminOverviewRoute
   '/admin/players': typeof AdminPlayersRouteWithChildren
@@ -377,6 +404,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/forgot-password'
     | '/friends'
+    | '/home'
     | '/login'
     | '/match'
     | '/notifications'
@@ -386,7 +414,9 @@ export interface FileRouteTypes {
     | '/rules'
     | '/settings'
     | '/signup'
+    | '/splash'
     | '/stats'
+    | '/welcome'
     | '/admin/matches'
     | '/admin/overview'
     | '/admin/players'
@@ -418,6 +448,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/forgot-password'
     | '/friends'
+    | '/home'
     | '/login'
     | '/match'
     | '/notifications'
@@ -427,7 +458,9 @@ export interface FileRouteTypes {
     | '/rules'
     | '/settings'
     | '/signup'
+    | '/splash'
     | '/stats'
+    | '/welcome'
     | '/admin/matches'
     | '/admin/overview'
     | '/admin/players'
@@ -459,6 +492,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/forgot-password'
     | '/friends'
+    | '/home'
     | '/login'
     | '/match'
     | '/notifications'
@@ -468,7 +502,9 @@ export interface FileRouteTypes {
     | '/rules'
     | '/settings'
     | '/signup'
+    | '/splash'
     | '/stats'
+    | '/welcome'
     | '/admin/matches'
     | '/admin/overview'
     | '/admin/players'
@@ -501,6 +537,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   FriendsRoute: typeof FriendsRoute
+  HomeRoute: typeof HomeRoute
   LoginRoute: typeof LoginRoute
   MatchRoute: typeof MatchRouteWithChildren
   NotificationsRoute: typeof NotificationsRoute
@@ -510,7 +547,9 @@ export interface RootRouteChildren {
   RulesRoute: typeof RulesRoute
   SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
+  SplashRoute: typeof SplashRoute
   StatsRoute: typeof StatsRoute
+  WelcomeRoute: typeof WelcomeRoute
   PlayChallengeSentRoute: typeof PlayChallengeSentRoute
   PlayChooseWordRoute: typeof PlayChooseWordRoute
   PlayDirectWordRoute: typeof PlayDirectWordRoute
@@ -528,11 +567,25 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/welcome': {
+      id: '/welcome'
+      path: '/welcome'
+      fullPath: '/welcome'
+      preLoaderRoute: typeof WelcomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/stats': {
       id: '/stats'
       path: '/stats'
       fullPath: '/stats'
       preLoaderRoute: typeof StatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/splash': {
+      id: '/splash'
+      path: '/splash'
+      fullPath: '/splash'
+      preLoaderRoute: typeof SplashRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/signup': {
@@ -596,6 +649,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/friends': {
@@ -876,6 +936,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   FriendsRoute: FriendsRoute,
+  HomeRoute: HomeRoute,
   LoginRoute: LoginRoute,
   MatchRoute: MatchRouteWithChildren,
   NotificationsRoute: NotificationsRoute,
@@ -885,7 +946,9 @@ const rootRouteChildren: RootRouteChildren = {
   RulesRoute: RulesRoute,
   SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
+  SplashRoute: SplashRoute,
   StatsRoute: StatsRoute,
+  WelcomeRoute: WelcomeRoute,
   PlayChallengeSentRoute: PlayChallengeSentRoute,
   PlayChooseWordRoute: PlayChooseWordRoute,
   PlayDirectWordRoute: PlayDirectWordRoute,
@@ -903,3 +966,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
