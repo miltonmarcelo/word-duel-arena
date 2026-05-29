@@ -89,6 +89,7 @@ function WelcomeScreen() {
       <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
         <h1
           style={{
+            fontFamily: "Inter, system-ui, sans-serif",
             color: "#FFFFFF",
             fontSize: 32,
             fontWeight: 700,
