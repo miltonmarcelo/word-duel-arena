@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { hasMockSession } from "@/lib/mock-session";
 
-export const Route = createFileRoute("")({
+export const Route = createFileRoute("/splash")({
   head: () => ({
     meta: [{ title: "WordClash" }],
   }),
