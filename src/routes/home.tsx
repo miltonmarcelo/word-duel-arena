@@ -51,9 +51,14 @@ function DashboardScreen() {
 
   return (
     <div
-      className="mx-auto min-h-screen w-full max-w-[430px]"
-      style={{ background: "#0F0F14", color: "#FFFFFF" }}
+      className="wc-dash mx-auto min-h-screen w-full max-w-[430px]"
+      style={{
+        background: "#0F0F14",
+        color: "#FFFFFF",
+        fontFamily: "Inter, system-ui, sans-serif",
+      }}
     >
+      <style>{`.wc-dash h1, .wc-dash h2, .wc-dash h3, .wc-dash span { font-family: Inter, system-ui, sans-serif; }`}</style>
       {/* Top bar */}
       <header
         className="flex items-center justify-between"
