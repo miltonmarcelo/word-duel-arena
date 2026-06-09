@@ -410,10 +410,21 @@
   animation: shimmer-text 2.2s linear infinite;
 }
 
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.88); }
+  50%      { opacity: 1; transform: scale(1.12); }
+}
+.animate-pulse-dot { animation: pulse 1.8s ease-in-out infinite; }
+
 @media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
   .animate-marquee,
   .animate-opponent-pulse,
   .animate-card-rise,
+  .animate-pulse-dot,
   .shimmer-text,
   .animate-float,
   .tile-flip {
