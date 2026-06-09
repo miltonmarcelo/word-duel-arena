@@ -53,10 +53,6 @@ const dailyMini: Guess[] = [
   { letters: ["C", "R", "A", "S", "H"], states: ["correct", "correct", "correct", "present", "absent"] },
 ];
 
-const playsRow: Guess = {
-  letters: ["P", "L", "A", "Y", "S"],
-  states: ["correct", "correct", "correct", "correct", "correct"],
-};
 
 const activity = [
   { icon: "🟢", text: "Alex beat Carlos in 4 guesses · 2 min ago" },
@@ -67,23 +63,6 @@ const activity = [
   { icon: "⚡", text: "Daily word: 3,812 plays today" },
 ];
 
-const modeSteps = [
-  {
-    n: "1",
-    title: "Sign up free",
-    body: "Google or email. Your profile and stats are created instantly.",
-  },
-  {
-    n: "2",
-    title: "Find an opponent",
-    body: "Draw from the live pool or challenge a friend directly from your contacts.",
-  },
-  {
-    n: "3",
-    title: "Guess and win",
-    body: "6 attempts. Mint = correct. Lilac = wrong position. Grey = not in word. Fastest correct guess wins.",
-  },
-];
 
 const leaderboard = [
   { rank: "🥇", name: "JadeW", pts: "4,820", player: players[0], you: false },
@@ -111,7 +90,7 @@ function Landing() {
             <span className="hidden font-display text-lg text-muted-foreground sm:inline">· Tazlo</span>
           </div>
           <nav className="hidden items-center gap-7 text-sm text-muted-foreground lg:flex">
-            <a href="#how" className="hover:text-foreground" style={{ transition: "color var(--transition-interactive)" }}>How it works</a>
+            
             <a href="#modes" className="hover:text-foreground" style={{ transition: "color var(--transition-interactive)" }}>Game modes</a>
             <a href="#rankings" className="hover:text-foreground" style={{ transition: "color var(--transition-interactive)" }}>Rankings</a>
           </nav>
@@ -305,44 +284,7 @@ function Landing() {
         </div>
       </section>
 
-      {/* SECTION 5 — How it works */}
-      <section id="how" className="mx-auto max-w-5xl px-6 py-24 text-center">
-        <h2 className="font-display text-4xl">Win in three moves</h2>
-        <p className="mt-2 text-muted-foreground">
-          Sign up, find an opponent, guess the word. That's it.
-        </p>
 
-        <div className="relative mt-14 grid grid-cols-1 gap-10 md:grid-cols-3">
-          <div
-            className="absolute left-[16.66%] right-[16.66%] top-8 hidden border-t-2 border-dashed md:block"
-            style={{ borderColor: "color-mix(in oklch, var(--foreground) 18%, transparent)" }}
-            aria-hidden="true"
-          />
-          {modeSteps.map((s) => (
-            <div key={s.n} className="relative flex flex-col items-center">
-              <div className="glass-tint-mint flex h-16 w-16 items-center justify-center rounded-full">
-                <span className="font-mono text-[40px] font-bold leading-none text-primary">{s.n}</span>
-              </div>
-              <h3 className="mt-5 font-display text-xl">{s.title}</h3>
-              <p className="mt-2 max-w-xs text-sm text-muted-foreground">{s.body}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-14 flex justify-center">
-          <div className="flex gap-1.5">
-            {playsRow.letters.map((letter, i) => (
-              <div
-                key={i}
-                className="tile tile-correct !h-12 !w-12 !text-xl"
-                style={{ animation: `tile-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 80}ms both` }}
-              >
-                {letter}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* SECTION 6 — Leaderboard + streak */}
       <section id="rankings" className="mx-auto max-w-6xl px-6 py-24">
