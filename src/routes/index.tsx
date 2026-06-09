@@ -53,10 +53,6 @@ const dailyMini: Guess[] = [
   { letters: ["C", "R", "A", "S", "H"], states: ["correct", "correct", "correct", "present", "absent"] },
 ];
 
-const playsRow: Guess = {
-  letters: ["P", "L", "A", "Y", "S"],
-  states: ["correct", "correct", "correct", "correct", "correct"],
-};
 
 const activity = [
   { icon: "🟢", text: "Alex beat Carlos in 4 guesses · 2 min ago" },
