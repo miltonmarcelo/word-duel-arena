@@ -154,9 +154,6 @@ function Landing() {
                   Play free <ArrowRight className="size-4" />
                 </Button>
               </Link>
-              <a href="#how">
-                <Button size="xl" variant="secondary">Watch how it works</Button>
-              </a>
             </div>
 
             <div className="mt-9 flex flex-wrap gap-2.5">
