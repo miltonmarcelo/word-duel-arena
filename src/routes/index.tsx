@@ -305,44 +305,7 @@ function Landing() {
         </div>
       </section>
 
-      {/* SECTION 5 — How it works */}
-      <section id="how" className="mx-auto max-w-5xl px-6 py-24 text-center">
-        <h2 className="font-display text-4xl">Win in three moves</h2>
-        <p className="mt-2 text-muted-foreground">
-          Sign up, find an opponent, guess the word. That's it.
-        </p>
 
-        <div className="relative mt-14 grid grid-cols-1 gap-10 md:grid-cols-3">
-          <div
-            className="absolute left-[16.66%] right-[16.66%] top-8 hidden border-t-2 border-dashed md:block"
-            style={{ borderColor: "color-mix(in oklch, var(--foreground) 18%, transparent)" }}
-            aria-hidden="true"
-          />
-          {modeSteps.map((s) => (
-            <div key={s.n} className="relative flex flex-col items-center">
-              <div className="glass-tint-mint flex h-16 w-16 items-center justify-center rounded-full">
-                <span className="font-mono text-[40px] font-bold leading-none text-primary">{s.n}</span>
-              </div>
-              <h3 className="mt-5 font-display text-xl">{s.title}</h3>
-              <p className="mt-2 max-w-xs text-sm text-muted-foreground">{s.body}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-14 flex justify-center">
-          <div className="flex gap-1.5">
-            {playsRow.letters.map((letter, i) => (
-              <div
-                key={i}
-                className="tile tile-correct !h-12 !w-12 !text-xl"
-                style={{ animation: `tile-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 80}ms both` }}
-              >
-                {letter}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* SECTION 6 — Leaderboard + streak */}
       <section id="rankings" className="mx-auto max-w-6xl px-6 py-24">
