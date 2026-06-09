@@ -1,31 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  ArrowRight,
-  Flame,
-  Swords,
-  Trophy,
-  Users,
-  Zap,
-} from "lucide-react";
+import { ArrowRight, Flame, Trophy, Zap } from "lucide-react";
 
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Avatar } from "@/components/Avatar";
 import { WordRow } from "@/components/WordBoard";
-import { Button } from "@/components/ui/button";
 import { players } from "@/lib/mock-data";
 import type { Guess } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "WordClash — Words, but as a sport" },
+      { title: "Tazlo — Words, but as a sport" },
       {
         name: "description",
         content:
-          "Play the daily word, challenge friends, or draw a random opponent. Five letters. Six attempts. One winner. Join 240k+ daily players on WordClash.",
+          "Play the daily word, challenge friends, or draw a random opponent. Five letters. Six attempts. One winner. Join 240k+ daily players on Tazlo.",
       },
-      { property: "og:title", content: "WordClash — Words, but as a sport" },
+      { property: "og:title", content: "Tazlo — Words, but as a sport" },
       {
         property: "og:description",
         content:
@@ -53,6 +45,28 @@ const dailyMini: Guess[] = [
   { letters: ["C", "R", "A", "S", "H"], states: ["correct", "correct", "correct", "present", "absent"] },
 ];
 
+const playsRow: Guess = {
+  letters: ["P", "L", "A", "Y", "S"],
+  states: ["correct", "correct", "correct", "correct", "correct"],
+};
+
+const modeSteps = [
+  {
+    n: "01",
+    title: "Pick a mode",
+    body: "Daily word, a random live opponent, or a private challenge with a friend.",
+  },
+  {
+    n: "02",
+    title: "Guess the word",
+    body: "Five letters, six attempts. Greens, ambers and greys guide every move.",
+  },
+  {
+    n: "03",
+    title: "Win the duel",
+    body: "Solve it faster than your rival to take the points and climb the ranking.",
+  },
+];
 
 const activity = [
   { icon: "🟢", text: "Alex beat Carlos in 4 guesses · 2 min ago" },
@@ -62,7 +76,6 @@ const activity = [
   { icon: "🟢", text: "Tom beat Mia · 5 guesses · 1 min ago" },
   { icon: "⚡", text: "Daily word: 3,812 plays today" },
 ];
-
 
 const leaderboard = [
   { rank: "🥇", name: "JadeW", pts: "4,820", player: players[0], you: false },
@@ -74,144 +87,348 @@ const leaderboard = [
 
 const weekDays = ["M", "T", "W", "T", "F", "S", "S"];
 
+/* --------------------------------------------------------------- helpers */
+
+const SECTION_PAD = "clamp(4rem, 8vw, 6rem)";
+
+const eyebrowStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "0.5rem",
+  padding: "0.375rem 0.875rem",
+  borderRadius: 9999,
+  fontSize: "0.75rem",
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+  background: "color-mix(in oklch, var(--primary) 14%, transparent)",
+  border: "1px solid color-mix(in oklch, var(--primary) 32%, transparent)",
+  color: "var(--primary)",
+};
+
+const pillStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "0.375rem",
+  padding: "0.375rem 0.75rem",
+  borderRadius: 9999,
+  background: "color-mix(in oklch, var(--surface-elevated) 70%, transparent)",
+  border: "1px solid color-mix(in oklch, var(--foreground) 12%, transparent)",
+  fontSize: "0.8125rem",
+  fontWeight: 600,
+  color: "var(--muted-foreground)",
+  backdropFilter: "blur(8px)",
+  WebkitBackdropFilter: "blur(8px)",
+  whiteSpace: "nowrap",
+};
+
+const primaryBtn: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "0.5rem",
+  background: "var(--primary)",
+  color: "var(--primary-foreground)",
+  border: "none",
+  borderRadius: 9999,
+  padding: "0.875rem 2rem",
+  fontSize: "1rem",
+  fontWeight: 700,
+  cursor: "pointer",
+  boxShadow: "var(--shadow-glow-mint)",
+  transition: "transform 0.2s ease, box-shadow 0.2s ease",
+};
+
+const ghostBtn: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "0.5rem",
+  background: "transparent",
+  color: "var(--foreground)",
+  border: "1px solid color-mix(in oklch, var(--foreground) 22%, transparent)",
+  borderRadius: 9999,
+  padding: "0.875rem 1.5rem",
+  fontSize: "1rem",
+  fontWeight: 600,
+  cursor: "pointer",
+};
+
+const pulseDot: React.CSSProperties = {
+  width: 6,
+  height: 6,
+  borderRadius: "50%",
+  background: "var(--primary)",
+};
+
 /* -------------------------------------------------------------- component */
 
 function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* SECTION 1 — Sticky nav */}
+      {/* SECTION 1 — Fixed nav */}
       <header
-        className="glass-strong fixed inset-x-0 top-0 z-50 h-14"
-        style={{ borderBottom: "1px solid color-mix(in oklch, var(--foreground) 10%, transparent)" }}
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 50,
+          height: 56,
+          background:
+            "linear-gradient(180deg, color-mix(in oklch, var(--surface-elevated) 78%, transparent), color-mix(in oklch, var(--surface-elevated) 62%, transparent))",
+          backdropFilter: "blur(18px) saturate(1.25)",
+          WebkitBackdropFilter: "blur(18px) saturate(1.25)",
+          borderBottom: "1px solid color-mix(in oklch, var(--foreground) 10%, transparent)",
+        }}
       >
-        <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-6">
+        <div
+          style={{
+            maxWidth: 1200,
+            margin: "0 auto",
+            padding: "0 2rem",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            height: "100%",
+          }}
+        >
           <div className="flex items-center gap-2">
             <Logo />
             <span className="hidden font-display text-lg text-muted-foreground sm:inline">· Tazlo</span>
           </div>
           <nav className="hidden items-center gap-7 text-sm text-muted-foreground lg:flex">
-            
-            <a href="#modes" className="hover:text-foreground" style={{ transition: "color var(--transition-interactive)" }}>Game modes</a>
-            <a href="#rankings" className="hover:text-foreground" style={{ transition: "color var(--transition-interactive)" }}>Rankings</a>
+            <a href="#modes" className="hover:text-foreground" style={{ transition: "color var(--transition-interactive)" }}>
+              Game modes
+            </a>
+            <a href="#how" className="hover:text-foreground" style={{ transition: "color var(--transition-interactive)" }}>
+              How it works
+            </a>
+            <a href="#rankings" className="hover:text-foreground" style={{ transition: "color var(--transition-interactive)" }}>
+              Rankings
+            </a>
           </nav>
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <Link to="/login">
-              <Button variant="ghost" size="sm">Sign in</Button>
+            <Link
+              to="/login"
+              className="hidden sm:inline-flex items-center rounded-full px-3 py-1.5 text-sm font-semibold text-muted-foreground hover:text-foreground"
+              style={{ transition: "color var(--transition-interactive)" }}
+            >
+              Sign in
             </Link>
-            <Link to="/signup">
-              <Button size="sm">Play free</Button>
+            <Link
+              to="/signup"
+              style={{
+                background: "var(--primary)",
+                color: "var(--primary-foreground)",
+                borderRadius: 9999,
+                fontSize: "0.875rem",
+                fontWeight: 700,
+                padding: "0.5rem 1.25rem",
+                boxShadow: "var(--shadow-glow-mint)",
+              }}
+            >
+              Play free
             </Link>
           </div>
         </div>
       </header>
 
       {/* SECTION 2 — Hero */}
-      <section
-        className="relative flex min-h-screen items-center px-6 pt-14"
-        style={{ background: "var(--gradient-hero)" }}
-      >
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-14 py-16 lg:grid-cols-[1.5fr_1fr]">
+      <section style={{ position: "relative", overflow: "hidden", minHeight: "100vh", paddingTop: 56 }}>
+        <div
+          aria-hidden="true"
+          style={{ position: "absolute", inset: 0, background: "var(--gradient-hero)", pointerEvents: "none", zIndex: -1 }}
+        />
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            alignItems: "center",
+            gap: "4rem",
+            maxWidth: 1200,
+            margin: "0 auto",
+            paddingInline: "2rem",
+            minHeight: "calc(100vh - 56px)",
+          }}
+          className="hero-grid"
+        >
           {/* Left — copy */}
           <div>
-            <span className="glass-tint-mint inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold text-primary">
-              <Zap className="size-3" /> Multiplayer · Live duels · Global ranking
+            <span style={eyebrowStyle}>
+              <span style={pulseDot} className="animate-pulse-dot" />
+              Multiplayer · Live duels
             </span>
-            <h1 className="mt-6 font-display text-6xl leading-[1.05] tracking-tight md:text-7xl">
+            <h1
+              className="font-display"
+              style={{
+                fontSize: "clamp(3rem, 5.5vw, 5rem)",
+                lineHeight: 1.0,
+                letterSpacing: "-0.02em",
+                color: "var(--foreground)",
+                margin: "1.5rem 0 1.25rem",
+              }}
+            >
               Words.
               <br />
               But as a sport.
             </h1>
-            <p className="mt-6 max-w-lg text-lg text-muted-foreground">
-              Play the daily word, challenge friends, or draw a random opponent.
-              Five letters. Six attempts. One winner.
+            <p
+              style={{
+                fontSize: "1.125rem",
+                lineHeight: 1.6,
+                color: "var(--muted-foreground)",
+                maxWidth: 440,
+                marginBottom: "2rem",
+              }}
+            >
+              Play the daily word, challenge friends, or draw a random opponent. Five letters. Six attempts. One winner.
             </p>
 
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/signup">
-                <Button size="xl" style={{ boxShadow: "var(--shadow-glow-mint)" }}>
-                  Play free <ArrowRight className="size-4" />
-                </Button>
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
+              <Link to="/signup" className="hover-lift" style={primaryBtn}>
+                Play free <ArrowRight className="size-4" />
               </Link>
+              <a href="#how" style={ghostBtn}>
+                Watch how it works
+              </a>
             </div>
 
-            <div className="mt-9 flex flex-wrap gap-2.5">
-              <span className="glass-flat inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground">
+            <div style={{ display: "flex", gap: "0.75rem", marginTop: "2.5rem", flexWrap: "wrap" }}>
+              <span style={pillStyle}>
                 <Zap className="size-3.5 text-primary" /> 240k+ daily players
               </span>
-              <span className="glass-flat inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground">
+              <span style={pillStyle}>
                 <Trophy className="size-3.5 text-primary" /> Global leaderboard
               </span>
-              <span className="glass-flat inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground">
+              <span style={pillStyle}>
                 <Flame className="size-3.5 text-accent" /> Daily word streak
               </span>
             </div>
           </div>
 
-          {/* Right — live duel card */}
-          <div className="relative">
+          {/* Right — game card */}
+          <div style={{ position: "relative", display: "flex", justifyContent: "center" }}>
             <div
-              className="pointer-events-none absolute -inset-8"
+              aria-hidden="true"
               style={{
-                zIndex: -1,
+                position: "absolute",
+                inset: -60,
                 background:
-                  "radial-gradient(40% 50% at 20% 40%, color-mix(in oklch, var(--primary) 60%, transparent), transparent 70%), radial-gradient(40% 50% at 80% 60%, color-mix(in oklch, var(--accent) 60%, transparent), transparent 70%)",
-                opacity: 0.15,
+                  "radial-gradient(ellipse at center, color-mix(in oklch, var(--primary) 18%, transparent) 0%, transparent 65%)",
+                pointerEvents: "none",
+                zIndex: 0,
+                filter: "blur(40px)",
               }}
             />
             <div
-              className="glass-strong animate-card-rise mx-auto w-fit rounded-3xl p-6"
-              style={{ boxShadow: "var(--shadow-glow-mint)" }}
+              className="animate-card-rise"
+              style={{
+                position: "relative",
+                zIndex: 1,
+                borderRadius: "1.5rem",
+                overflow: "hidden",
+                background:
+                  "linear-gradient(160deg, color-mix(in oklch, var(--surface-elevated) 78%, transparent), color-mix(in oklch, var(--surface) 62%, transparent))",
+                backdropFilter: "blur(18px) saturate(1.25)",
+                WebkitBackdropFilter: "blur(18px) saturate(1.25)",
+                border: "1px solid color-mix(in oklch, var(--foreground) 16%, transparent)",
+                boxShadow: "var(--shadow-glow-mint)",
+                padding: "1.5rem",
+                width: "100%",
+                maxWidth: 420,
+              }}
             >
-              {/* VS bar */}
-              <div className="mb-5 flex items-center justify-center gap-4">
+              {/* Top bar */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: "1.25rem",
+                }}
+              >
                 <div className="flex items-center gap-2">
-                  <Avatar player={players[7]} size={36} ring="mint" />
-                  <div className="leading-tight">
-                    <p className="flex items-center gap-1 text-xs font-semibold">
-                      <span className="player-dot player-a" /> You
-                    </p>
-                  </div>
+                  <Avatar player={players[7]} size={32} ring="mint" />
+                  <span style={{ fontSize: "0.75rem", color: "var(--muted-foreground)", fontWeight: 600 }}>You</span>
                 </div>
-                <span className="font-display text-sm text-muted-foreground">VS</span>
+                <span
+                  className="font-mono"
+                  style={{
+                    fontSize: "0.8125rem",
+                    fontWeight: 800,
+                    color: "var(--primary)",
+                    border: "1px solid color-mix(in oklch, var(--primary) 30%, transparent)",
+                    borderRadius: 9999,
+                    padding: "0.25rem 0.5rem",
+                  }}
+                >
+                  VS
+                </span>
                 <div className="flex items-center gap-2">
-                  <div className="text-right leading-tight">
-                    <p className="flex items-center justify-end gap-1 text-xs font-semibold">
-                      Mira K. <span className="player-dot player-b" />
-                    </p>
-                  </div>
-                  <Avatar player={players[0]} size={36} ring="lilac" />
+                  <span style={{ fontSize: "0.75rem", color: "var(--muted-foreground)", fontWeight: 600 }}>Mira K.</span>
+                  <Avatar player={players[0]} size={32} ring="lilac" />
                 </div>
               </div>
 
-              {/* Word board */}
-              <div className="flex flex-col gap-1.5">
+              {/* Board */}
+              <div className="flex flex-col gap-1.5" style={{ margin: "0 auto", width: "fit-content" }}>
                 {heroRows.map((g, i) =>
                   g ? <WordRow key={i} guess={g} size="sm" /> : <WordRow key={i} size="sm" empty />,
                 )}
               </div>
 
               {/* Bottom bar */}
-              <div className="mt-5 flex items-center justify-between text-xs">
-                <span className="shimmer-text font-semibold">Mira K. is guessing…</span>
-                <span className="font-mono text-muted-foreground">6 attempts left</span>
+              <div
+                style={{
+                  marginTop: "1rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", fontSize: "0.8125rem", color: "var(--muted-foreground)" }}>
+                  <span style={pulseDot} className="animate-pulse-dot" />
+                  Mira K. is guessing…
+                </span>
+                <span className="font-mono" style={{ fontSize: "0.75rem", color: "var(--muted-foreground)" }}>
+                  6 attempts left
+                </span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* SECTION 3 — Live activity strip */}
+      {/* SECTION 3 — Activity marquee */}
       <div
-        className="flex h-14 items-center overflow-hidden"
-        style={{ background: "var(--surface-soft)", pointerEvents: "none" }}
         aria-hidden="true"
+        style={{
+          width: "100%",
+          overflow: "hidden",
+          background: "var(--surface-soft)",
+          borderTop: "1px solid color-mix(in oklch, var(--foreground) 8%, transparent)",
+          borderBottom: "1px solid color-mix(in oklch, var(--foreground) 8%, transparent)",
+          padding: "0.75rem 0",
+          pointerEvents: "none",
+        }}
       >
-        <div className="animate-marquee flex shrink-0 items-center gap-3 px-1.5">
+        <div className="animate-marquee" style={{ display: "flex", gap: "1rem", width: "max-content" }}>
           {[...activity, ...activity].map((a, i) => (
             <span
               key={i}
-              className="glass-flat flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                whiteSpace: "nowrap",
+                padding: "0.375rem 0.875rem",
+                borderRadius: 9999,
+                background: "color-mix(in oklch, var(--surface-elevated) 70%, transparent)",
+                border: "1px solid color-mix(in oklch, var(--foreground) 10%, transparent)",
+                fontSize: "0.8125rem",
+                fontWeight: 500,
+                color: "var(--muted-foreground)",
+              }}
             >
               <span>{a.icon}</span> {a.text}
             </span>
@@ -219,196 +436,388 @@ function Landing() {
         </div>
       </div>
 
-      {/* SECTION 4 — Game modes */}
-      <section id="modes" className="mx-auto max-w-6xl px-6 py-24">
-        <h2 className="font-display text-4xl">Three ways to play</h2>
-        <p className="mt-2 text-muted-foreground">Pick your battlefield.</p>
+      {/* SECTION 4 — Game modes (asymmetric bento) */}
+      <section id="modes" style={{ maxWidth: 1200, margin: "0 auto", paddingBlock: SECTION_PAD, paddingInline: "2rem" }}>
+        <h2
+          className="font-display"
+          style={{ fontSize: "clamp(2rem, 3.5vw, 2.75rem)", lineHeight: 1.1, marginBottom: "0.5rem", textAlign: "left" }}
+        >
+          Three ways to play
+        </h2>
+        <p style={{ color: "var(--muted-foreground)", fontSize: "1.125rem", marginBottom: "2.5rem", textAlign: "left" }}>
+          Pick your battlefield.
+        </p>
 
-        <div className="mt-10 grid grid-cols-1 gap-5 lg:grid-cols-[1.4fr_1fr_1fr]">
-          {/* Daily Word */}
-          <article className="glass-tint-mint flex flex-col p-7" style={{ borderRadius: "1.25rem" }}>
-            <h3 className="font-display text-2xl">Daily Word</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              One word. The whole world. Play and compare your result with everyone on the leaderboard.
-            </p>
-            <div className="my-6 flex flex-col gap-1">
+        <div
+          className="modes-grid"
+          style={{ display: "grid", gridTemplateColumns: "1.45fr 1fr 1fr", gridTemplateRows: "auto", gap: "1rem" }}
+        >
+          {/* Card 1 — Daily Word (wide featured) */}
+          <article
+            style={{
+              gridColumn: 1,
+              gridRow: 1,
+              minHeight: 380,
+              background:
+                "linear-gradient(160deg, color-mix(in oklch, var(--primary) 10%, var(--surface)), var(--surface))",
+              border: "1px solid color-mix(in oklch, var(--primary) 25%, var(--border))",
+              borderRadius: "1.25rem",
+              padding: "1.75rem",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+            }}
+          >
+            <div>
+              <span className="chip">Solo · Daily · Free</span>
+              <h3 className="font-display" style={{ fontSize: "1.5rem", marginTop: "0.875rem" }}>
+                Daily Word
+              </h3>
+              <p style={{ marginTop: "0.5rem", color: "var(--muted-foreground)", fontSize: "0.9375rem", maxWidth: "28ch" }}>
+                One word. The whole world. Play and compare your result with everyone on the leaderboard.
+              </p>
+            </div>
+            <div className="flex flex-col gap-1" style={{ margin: "1.25rem auto", width: "fit-content" }}>
               {dailyMini.map((g, i) => (
                 <WordRow key={i} guess={g} size="sm" />
               ))}
             </div>
-            <span className="chip mt-auto w-fit">Solo · Free · Daily reset</span>
-            <Link to="/signup" className="mt-4">
-              <Button className="w-full">
-                Play today's word <ArrowRight className="size-4" />
-              </Button>
+            <Link
+              to="/signup"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                background: "var(--primary)",
+                color: "var(--primary-foreground)",
+                borderRadius: 9999,
+                fontSize: "0.875rem",
+                fontWeight: 700,
+                padding: "0.625rem 1.25rem",
+                width: "fit-content",
+              }}
+            >
+              Play today's word <ArrowRight className="size-4" />
             </Link>
           </article>
 
-          {/* Random Match */}
-          <article className="glass flex flex-col p-7" style={{ borderRadius: "1.25rem" }}>
-            <div className="mb-3 inline-flex w-fit items-center gap-2 text-primary">
-              <Swords className="size-5" />
-            </div>
-            <h3 className="font-display text-[22px]">Random Match</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Draw an opponent from the live pool. Guess faster and score higher to win.
+          {/* Card 2 — Random Match */}
+          <article
+            style={{
+              gridColumn: 2,
+              minHeight: 180,
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
+              borderRadius: "1.25rem",
+              padding: "1.5rem",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <h3 className="font-display" style={{ fontSize: "1.25rem" }}>
+              Random Match
+            </h3>
+            <p style={{ marginTop: "0.5rem", color: "var(--muted-foreground)", fontSize: "0.875rem" }}>
+              Draw an opponent from the live pool. Guess faster to win.
             </p>
-            <div className="my-6 flex items-center gap-3 rounded-xl p-3" style={{ background: "var(--surface-soft)" }}>
-              <div className="flex -space-x-2">
-                <span className="player-dot player-a animate-opponent-pulse !block !h-3 !w-3" />
-                <span className="player-dot player-b animate-opponent-pulse !block !h-3 !w-3" style={{ animationDelay: "0.6s" }} />
-              </div>
-              <span className="text-xs font-semibold text-primary">Finding opponent…</span>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", margin: "1.25rem 0" }}>
+              <span style={{ ...pulseDot, width: 12, height: 12 }} className="animate-pulse-dot" />
+              <span
+                style={{
+                  width: 40,
+                  height: 2,
+                  background: "linear-gradient(90deg, var(--primary), var(--accent))",
+                  borderRadius: 9999,
+                }}
+                className="animate-pulse-dot"
+              />
+              <span style={{ ...pulseDot, width: 12, height: 12, background: "var(--accent)" }} className="animate-pulse-dot" />
             </div>
-            <span className="chip-muted chip mt-auto w-fit">Live · 1v1 · Ranked</span>
+            <span className="chip-muted chip" style={{ marginTop: "auto", width: "fit-content" }}>
+              Live · Ranked
+            </span>
           </article>
 
-          {/* Friend Challenge */}
-          <article className="glass-tint-lilac flex flex-col p-7" style={{ borderRadius: "1.25rem" }}>
-            <div className="mb-3 inline-flex w-fit items-center gap-2 text-accent">
-              <Users className="size-5" />
-            </div>
-            <h3 className="font-display text-[22px]">Challenge a Friend</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Pick a friend from your list, send a challenge, and settle the score.
+          {/* Card 3 — Friend Challenge */}
+          <article
+            style={{
+              gridColumn: 3,
+              minHeight: 180,
+              background:
+                "linear-gradient(160deg, color-mix(in oklch, var(--accent) 8%, var(--surface)), var(--surface))",
+              border: "1px solid color-mix(in oklch, var(--accent) 22%, var(--border))",
+              borderRadius: "1.25rem",
+              padding: "1.5rem",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <h3 className="font-display" style={{ fontSize: "1.25rem" }}>
+              Friend Challenge
+            </h3>
+            <p style={{ marginTop: "0.5rem", color: "var(--muted-foreground)", fontSize: "0.875rem" }}>
+              Pick a friend, send a challenge, and settle the score.
             </p>
-            <div className="my-6 flex items-center gap-3 rounded-xl p-3" style={{ background: "var(--surface-soft)" }}>
-              <Avatar player={players[0]} size={32} />
-              <span className="text-sm font-semibold">Mira K.</span>
-              <Button size="sm" variant="outline" className="ml-auto !border-accent/50 !text-accent hover:!bg-accent/10">
-                Challenge <ArrowRight className="size-3.5" />
-              </Button>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: "1.25rem 0" }}>
+              <Avatar player={players[0]} size={28} />
+              <span style={{ fontSize: "0.875rem", fontWeight: 600 }}>Mira K.</span>
             </div>
-            <span className="chip-lilac chip mt-auto w-fit">Social · 1v1 · Fun</span>
+            <span className="chip-lilac chip" style={{ marginTop: "auto", width: "fit-content" }}>
+              Social · 1v1
+            </span>
           </article>
         </div>
       </section>
 
+      {/* SECTION 5 — How it works */}
+      <section id="how" style={{ maxWidth: 1200, margin: "0 auto", paddingBlock: "clamp(3rem, 6vw, 4.5rem)", paddingInline: "2rem" }}>
+        <h2
+          className="font-display"
+          style={{ fontSize: "clamp(2rem, 3.5vw, 2.75rem)", lineHeight: 1.1, marginBottom: "2.5rem", textAlign: "center" }}
+        >
+          Win in three moves
+        </h2>
 
-
-      {/* SECTION 6 — Leaderboard + streak */}
-      <section id="rankings" className="mx-auto max-w-6xl px-6 py-24">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Leaderboard */}
-          <div className="glass p-7" style={{ borderRadius: "1.25rem" }}>
-            <div className="flex items-center justify-between">
-              <h3 className="font-display text-xl">Global ranking</h3>
-              <span className="chip-muted chip">This week</span>
-            </div>
-            <ul className="mt-6 space-y-2">
-              {leaderboard.map((row) => (
-                <li
-                  key={row.name}
-                  className="flex items-center gap-3 rounded-xl px-3 py-2.5"
-                  style={
-                    row.you
-                      ? { background: "color-mix(in oklch, var(--primary) 12%, transparent)" }
-                      : undefined
-                  }
-                >
-                  <span className="w-6 text-center font-mono text-sm font-bold text-muted-foreground">{row.rank}</span>
-                  <Avatar player={row.player} size={32} />
-                  <span className="text-sm font-semibold">{row.name}</span>
-                  {row.you && <span className="chip ml-1 !py-0.5 !text-[10px]">← you</span>}
-                  <span className="ml-auto font-mono text-sm font-bold text-primary">{row.pts} pts</span>
-                </li>
-              ))}
-            </ul>
-            <Link to="/ranking" className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline">
-              See full leaderboard <ArrowRight className="size-3.5" />
-            </Link>
-          </div>
-
-          {/* Streak */}
-          <div className="glass flex flex-col p-7" style={{ borderRadius: "1.25rem" }}>
-            <h3 className="font-display text-xl">Your streak</h3>
-            <div className="mt-6 flex flex-col items-center">
-              <p className="flex items-center gap-3 font-display text-6xl text-primary">
-                12 <span className="text-4xl">🔥</span>
+        <div className="steps-row" style={{ display: "flex", gap: 0, position: "relative" }}>
+          <div
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              top: "1.5rem",
+              left: "25%",
+              right: "25%",
+              borderTop: "1.5px dashed color-mix(in oklch, var(--foreground) 16%, transparent)",
+            }}
+          />
+          {modeSteps.map((step) => (
+            <div key={step.n} style={{ flex: 1, position: "relative", textAlign: "center", padding: "0 1rem" }}>
+              <span
+                className="font-mono"
+                style={{ fontSize: "2.5rem", fontWeight: 800, color: "var(--primary)", lineHeight: 1, display: "block", marginBottom: "0.75rem" }}
+              >
+                {step.n}
+              </span>
+              <h3 className="font-display" style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}>
+                {step.title}
+              </h3>
+              <p style={{ color: "var(--muted-foreground)", fontSize: "0.9375rem", maxWidth: "26ch", margin: "0 auto" }}>
+                {step.body}
               </p>
-              <p className="mt-2 text-sm text-muted-foreground">days in a row</p>
             </div>
+          ))}
+        </div>
 
-            <div className="mt-7 flex justify-center gap-2">
-              {weekDays.map((d, i) => (
-                <div key={i} className="flex flex-col items-center gap-1.5">
-                  <span
-                    className="flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-semibold"
-                    style={
-                      i < 5
-                        ? { background: "var(--primary)", color: "var(--primary-foreground)" }
-                        : { border: "1px solid var(--border)", color: "var(--muted-foreground)" }
-                    }
-                  >
-                    {d}
-                  </span>
-                </div>
-              ))}
+        <div className="flex flex-col items-center" style={{ marginTop: "2.5rem" }}>
+          <WordRow guess={playsRow} size="sm" />
+        </div>
+      </section>
+
+      {/* SECTION 6 — Leaderboard + Streak */}
+      <section
+        id="rankings"
+        className="rankings-grid"
+        style={{
+          maxWidth: 1200,
+          margin: "0 auto",
+          paddingBlock: SECTION_PAD,
+          paddingInline: "2rem",
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "1.5rem",
+          alignItems: "start",
+        }}
+      >
+        {/* Leaderboard */}
+        <div
+          style={{
+            borderRadius: "1.25rem",
+            border: "1px solid var(--border)",
+            background: "linear-gradient(180deg, var(--surface), var(--surface-soft))",
+            boxShadow: "var(--shadow-md)",
+            padding: "1.75rem",
+          }}
+        >
+          <div className="flex items-center justify-between">
+            <h3 className="font-display" style={{ fontSize: "1.25rem" }}>
+              Global ranking
+            </h3>
+            <span className="chip-muted chip">This week</span>
+          </div>
+          <ul style={{ marginTop: "1.5rem", display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+            {leaderboard.map((row) => (
+              <li
+                key={row.name}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  padding: "0.75rem",
+                  borderRadius: "0.875rem",
+                  ...(row.you
+                    ? {
+                        background: "color-mix(in oklch, var(--primary) 10%, transparent)",
+                        border: "1px solid color-mix(in oklch, var(--primary) 24%, transparent)",
+                      }
+                    : {}),
+                }}
+              >
+                <span className="font-mono" style={{ width: "1.5rem", textAlign: "center", fontWeight: 700, color: "var(--muted-foreground)" }}>
+                  {row.rank}
+                </span>
+                <Avatar player={row.player} size={32} />
+                <span style={{ fontSize: "0.875rem", fontWeight: 600 }}>{row.name}</span>
+                <span
+                  className="font-mono"
+                  style={{ marginLeft: "auto", fontWeight: 700, color: "var(--primary)", fontSize: "0.875rem" }}
+                >
+                  {row.pts} pts
+                </span>
+              </li>
+            ))}
+          </ul>
+          <Link
+            to="/ranking"
+            className="hover:underline"
+            style={{ marginTop: "1.25rem", display: "inline-flex", alignItems: "center", gap: "0.25rem", fontSize: "0.875rem", fontWeight: 600, color: "var(--primary)" }}
+          >
+            See full leaderboard <ArrowRight className="size-3.5" />
+          </Link>
+        </div>
+
+        {/* Streak */}
+        <div
+          style={{
+            borderRadius: "1.25rem",
+            border: "1px solid var(--border)",
+            background: "linear-gradient(180deg, var(--surface), var(--surface-soft))",
+            boxShadow: "var(--shadow-md)",
+            padding: "1.75rem",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <h3 className="font-display" style={{ fontSize: "1.25rem" }}>
+            Your streak
+          </h3>
+          <div style={{ marginTop: "1.5rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem" }}>
+            <span className="font-display" style={{ fontSize: "5rem", lineHeight: 1, color: "var(--primary)", display: "inline-block" }}>
+              12
+            </span>
+            <span style={{ fontSize: "2.5rem" }}>🔥</span>
+          </div>
+          <p style={{ marginTop: "0.5rem", textAlign: "center", color: "var(--muted-foreground)", fontSize: "0.875rem" }}>
+            days in a row
+          </p>
+
+          <div style={{ marginTop: "1.75rem", display: "flex", justifyContent: "center", gap: "0.5rem" }}>
+            {weekDays.map((d, i) => (
+              <span
+                key={i}
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: "50%",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "0.6875rem",
+                  fontWeight: 700,
+                  ...(i < 5
+                    ? { background: "var(--primary)", color: "var(--primary-foreground)" }
+                    : { background: "var(--surface-elevated)", border: "1px solid var(--border)", color: "var(--muted-foreground)" }),
+                }}
+              >
+                {d}
+              </span>
+            ))}
+          </div>
+
+          <div style={{ marginTop: "auto", paddingTop: "1.75rem" }}>
+            <div className="flex items-center justify-between" style={{ marginBottom: "0.5rem", fontSize: "0.75rem" }}>
+              <span style={{ fontWeight: 600 }}>Level 7</span>
+              <span className="font-mono" style={{ color: "var(--muted-foreground)" }}>
+                3,720 / 5,000 XP
+              </span>
             </div>
-
-            <p className="mt-6 text-center text-sm text-muted-foreground">
-              Play today to keep your streak alive.
-            </p>
-
-            <div className="mt-auto pt-7">
-              <div className="mb-2 flex items-center justify-between text-xs">
-                <span className="font-semibold">Level 7</span>
-                <span className="font-mono text-muted-foreground">3,720 / 5,000 XP</span>
-              </div>
-              <div className="h-2.5 w-full overflow-hidden rounded-full" style={{ background: "var(--surface-soft)" }}>
-                <div className="h-full rounded-full" style={{ width: "74%", background: "var(--gradient-mint)" }} />
-              </div>
+            <div style={{ height: "0.625rem", width: "100%", overflow: "hidden", borderRadius: 9999, background: "var(--surface-elevated)" }}>
+              <div style={{ height: "100%", width: "74%", borderRadius: 9999, background: "var(--gradient-mint)" }} />
             </div>
           </div>
         </div>
       </section>
 
-      {/* SECTION 7 — Final CTA + footer */}
+      {/* SECTION 7 — Final CTA */}
       <section
-        className="px-6 text-center"
-        style={{ background: "var(--gradient-hero)", paddingBlock: "6rem" }}
+        style={{
+          background: "var(--gradient-hero)",
+          borderTop: "1px solid color-mix(in oklch, var(--foreground) 8%, transparent)",
+          padding: "7rem 2rem",
+        }}
       >
-        <div className="mx-auto max-w-3xl">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Free to play. Always.</p>
-          <h2 className="mt-4 font-display text-5xl leading-tight md:text-[56px]">
+        <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center" }}>
+          <span style={eyebrowStyle}>
+            <span style={pulseDot} className="animate-pulse-dot" />
+            Free to play. Always.
+          </span>
+          <h2
+            className="font-display"
+            style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", lineHeight: 1.05, letterSpacing: "-0.02em", margin: "1.25rem 0" }}
+          >
             Your next opponent is waiting.
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
+          <p style={{ color: "var(--muted-foreground)", fontSize: "1.125rem", maxWidth: 480, margin: "0 auto 2.5rem" }}>
             Sign up in 10 seconds. No download. No install. Play on any browser.
           </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link to="/signup">
-              <Button size="xl" style={{ boxShadow: "var(--shadow-glow-mint)" }}>
-                Start playing free <ArrowRight className="size-4" />
-              </Button>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem", flexWrap: "wrap" }}>
+            <Link to="/signup" className="hover-lift" style={primaryBtn}>
+              Start playing free <ArrowRight className="size-4" />
             </Link>
-            <Link to="/login">
-              <Button size="xl" variant="ghost">Sign in</Button>
+            <Link to="/login" style={ghostBtn}>
+              Sign in
             </Link>
           </div>
 
-          <div className="mt-10 flex items-center justify-center gap-3">
-            <div className="flex -space-x-3">
-              {players.slice(0, 3).map((p) => (
-                <Avatar key={p.id} player={p} size={36} />
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem", marginTop: "2rem" }}>
+            <div style={{ display: "flex" }}>
+              {["var(--primary)", "var(--accent)", "oklch(0.83 0.14 80)"].map((c, i) => (
+                <span
+                  key={i}
+                  style={{ width: 32, height: 32, borderRadius: "50%", background: c, marginLeft: i === 0 ? 0 : -8, border: "2px solid var(--background)" }}
+                />
               ))}
             </div>
-            <span className="text-sm text-muted-foreground">Join 240,000+ players</span>
+            <span style={{ color: "var(--muted-foreground)", fontSize: "0.9375rem" }}>Join 240,000+ players</span>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer style={{ borderTop: "1px solid color-mix(in oklch, var(--foreground) 10%, transparent)" }}>
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 text-xs text-muted-foreground sm:flex-row">
-          <div className="flex items-center gap-3">
+      <footer style={{ borderTop: "1px solid color-mix(in oklch, var(--foreground) 8%, transparent)" }}>
+        <div
+          style={{
+            maxWidth: 1200,
+            margin: "0 auto",
+            padding: "1.5rem 2rem",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <div className="flex items-center">
             <Logo />
-            <span>© 2025 WordClash</span>
+            <span style={{ color: "var(--muted-foreground)", fontSize: "0.875rem", marginLeft: "0.75rem" }}>© 2025 Tazlo</span>
           </div>
-          <nav className="flex items-center gap-5">
-            <a href="#" className="hover:text-foreground" style={{ transition: "color var(--transition-interactive)" }}>Privacy</a>
-            <a href="#" className="hover:text-foreground" style={{ transition: "color var(--transition-interactive)" }}>Terms</a>
-            <a href="#" className="hover:text-foreground" style={{ transition: "color var(--transition-interactive)" }}>Contact</a>
+          <nav style={{ display: "flex", gap: "1.5rem" }}>
+            {["Privacy", "Terms", "Contact"].map((l) => (
+              <a
+                key={l}
+                href="#"
+                className="hover:text-foreground"
+                style={{ color: "var(--muted-foreground)", fontSize: "0.875rem", transition: "color var(--transition-interactive)" }}
+              >
+                {l}
+              </a>
+            ))}
           </nav>
         </div>
       </footer>
