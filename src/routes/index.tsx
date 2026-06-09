@@ -2,12 +2,12 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
   Flame,
-  Star,
   Swords,
   Trophy,
   Users,
   Zap,
 } from "lucide-react";
+
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Avatar } from "@/components/Avatar";
