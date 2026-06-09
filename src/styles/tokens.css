@@ -10,6 +10,10 @@
   /* Radii ------------------------------------------------------------------ */
   --radius: 0.875rem;
 
+  /* Motion ----------------------------------------------------------------- */
+  --transition-interactive: 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+
   /* Surfaces (light theme — inverted graphite) ---------------------------- */
   --background: oklch(0.985 0.003 240);          /* #F9FAFB-ish */
   --foreground: oklch(0.21 0.03 260);            /* graphite text */
