@@ -63,23 +63,6 @@ const activity = [
   { icon: "⚡", text: "Daily word: 3,812 plays today" },
 ];
 
-const modeSteps = [
-  {
-    n: "1",
-    title: "Sign up free",
-    body: "Google or email. Your profile and stats are created instantly.",
-  },
-  {
-    n: "2",
-    title: "Find an opponent",
-    body: "Draw from the live pool or challenge a friend directly from your contacts.",
-  },
-  {
-    n: "3",
-    title: "Guess and win",
-    body: "6 attempts. Mint = correct. Lilac = wrong position. Grey = not in word. Fastest correct guess wins.",
-  },
-];
 
 const leaderboard = [
   { rank: "🥇", name: "JadeW", pts: "4,820", player: players[0], you: false },
