@@ -90,7 +90,7 @@ function Landing() {
             <span className="hidden font-display text-lg text-muted-foreground sm:inline">· Tazlo</span>
           </div>
           <nav className="hidden items-center gap-7 text-sm text-muted-foreground lg:flex">
-            <a href="#how" className="hover:text-foreground" style={{ transition: "color var(--transition-interactive)" }}>How it works</a>
+            
             <a href="#modes" className="hover:text-foreground" style={{ transition: "color var(--transition-interactive)" }}>Game modes</a>
             <a href="#rankings" className="hover:text-foreground" style={{ transition: "color var(--transition-interactive)" }}>Rankings</a>
           </nav>
