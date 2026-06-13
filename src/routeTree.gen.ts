@@ -24,6 +24,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as EmailPreviewRouteImport } from './routes/email-preview'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -125,6 +126,11 @@ const FriendsRoute = FriendsRouteImport.update({
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailPreviewRoute = EmailPreviewRouteImport.update({
+  id: '/email-preview',
+  path: '/email-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -267,6 +273,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/dashboard': typeof DashboardRoute
+  '/email-preview': typeof EmailPreviewRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/friends': typeof FriendsRoute
   '/home': typeof HomeRoute
@@ -311,6 +318,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/dashboard': typeof DashboardRoute
+  '/email-preview': typeof EmailPreviewRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/friends': typeof FriendsRoute
   '/home': typeof HomeRoute
@@ -356,6 +364,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/dashboard': typeof DashboardRoute
+  '/email-preview': typeof EmailPreviewRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/friends': typeof FriendsRoute
   '/home': typeof HomeRoute
@@ -402,6 +411,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/dashboard'
+    | '/email-preview'
     | '/forgot-password'
     | '/friends'
     | '/home'
@@ -446,6 +456,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/dashboard'
+    | '/email-preview'
     | '/forgot-password'
     | '/friends'
     | '/home'
@@ -490,6 +501,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/dashboard'
+    | '/email-preview'
     | '/forgot-password'
     | '/friends'
     | '/home'
@@ -535,6 +547,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   DashboardRoute: typeof DashboardRoute
+  EmailPreviewRoute: typeof EmailPreviewRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   FriendsRoute: typeof FriendsRoute
   HomeRoute: typeof HomeRoute
@@ -670,6 +683,13 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/email-preview': {
+      id: '/email-preview'
+      path: '/email-preview'
+      fullPath: '/email-preview'
+      preLoaderRoute: typeof EmailPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -934,6 +954,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   DashboardRoute: DashboardRoute,
+  EmailPreviewRoute: EmailPreviewRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   FriendsRoute: FriendsRoute,
   HomeRoute: HomeRoute,
